@@ -4,6 +4,8 @@ import Trip from "./Trip";
 import DutyRow from "./DutyRow";
 import EndDutyModal from "./EndDutyModal";
 import "./MainTable.css";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ReportDocument from "./ReportDocument";
 
 interface MainTableProps {
   payband: number;
@@ -29,7 +31,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               type: "Regular",
               startTime: "09:00",
               endTime: "17:00",
-              distance: "100",
+              distance: 100,
             },
           ],
           startTime: "09:00",
@@ -85,11 +87,33 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }));
   };
 
-  calculateTotalAllowance = () => {
-    // Implement your allowance calculation logic here
-    // Based on the duty details and trips
-    // Return the total allowance
+  updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
+    this.setState((prevState) => ({
+      duties: prevState.duties.map((duty) => {
+        if (duty.id === dutyId) {
+          const updatedTrips = duty.trips.map((trip) => {
+            if (trip.id === tripId) {
+              return { ...trip, [field]: value };
+            }
+            return trip;
+          });
+          return { ...duty, trips: updatedTrips };
+        }
+        return duty;
+      }),
+    }));
   };
+
+  calculateTotalAllowance = () => {
+    const { duties } = this.state;
+    const totalDistance = duties.reduce((acc, duty) => {
+      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
+      return acc + dutyDistance;
+    }, 0);
+
+    return totalDistance;
+  };
+
 
   render() {
     const { duties, showModal, selectedDuty } = this.state;
@@ -115,10 +139,20 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 duty={duty}
                 addTrip={this.addTrip}
                 handleEndDuty={this.handleEndDuty}
+                updateTripData={this.updateTripData}
               />
             ))}
           </tbody>
         </table>
+        <div className="generate-report">
+        <PDFDownloadLink
+          document={<ReportDocument duties={duties} />}
+          fileName="duty_report.pdf">
+          {({ blob, url, loading, error }) =>
+            loading ? 'Loading document...' : 'Generate Report'
+          }
+        </PDFDownloadLink>
+      </div>
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
         </div>
