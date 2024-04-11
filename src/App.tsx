@@ -1,26 +1,32 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useState } from 'react';
+import MainTable from './components/MainTable';
 import './App.css';
 
-function App() {
+const App: React.FC = () => {
+  const [selectedPayband, setSelectedPayband] = useState<number>(1);
+
+  const paybandOptions = [1, 2, 3];
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <h1>Railway Allowance Calculator</h1>
+      <div>
+        <label htmlFor="payband">Select Payband:</label>
+        <select
+          id="payband"
+          value={selectedPayband}
+          onChange={(e) => setSelectedPayband(Number(e.target.value))}
         >
-          Learn React
-        </a>
-      </header>
+          {paybandOptions.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+      <MainTable payband={selectedPayband} />
     </div>
   );
-}
+};
 
 export default App;
