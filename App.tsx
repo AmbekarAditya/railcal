@@ -1,127 +1,56 @@
-import React, { Component } from 'react';
-import { View, ScrollView, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
-import InterdependentPickers from './components/InterdependentPicker';
-import { styles } from './styles_component/styles_homescreen';
-import { designations, months } from './utils/constants';
-interface EmployeeInfoProps {
-  navigation: any; // You can define a more specific type based on your navigation structure
+import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createDrawerNavigator, DrawerNavigationProp } from '@react-navigation/drawer';
+import HomeScreen from './components/HomeScreen';
+import CalculationPage from './components/CalculationPage';
+// import DetailsScreen from './firstscreen/details_screen';
+
+const Drawer = createDrawerNavigator();
+
+type RootDrawerParamList = {
+  Home: undefined;
+  Details: undefined;
+};
+
+type HomeScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Home'>;
+type DetailsScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Details'>;
+
+interface AppNavigatorProps {
+  navigation: HomeScreenNavigationProp | DetailsScreenNavigationProp;
 }
 
-interface EmployeeInfoState {
-  designation: string;
-  payBand: React.SetStateAction<string>;
-  level: React.SetStateAction<string>;
-  rateOfPay: React.SetStateAction<string>;
-  selectedMonth: string;
-  showWarning: boolean;
-}
+const AppNavigator: React.FC<AppNavigatorProps> = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
-class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
-  constructor(props: EmployeeInfoProps) {
-    super(props);
-    this.state = {
-      designation: '',
-      payBand: '',
-      level: '',
-      rateOfPay: '',
-      selectedMonth: '',
-      showWarning: false,
-    };
-  }
+  useEffect(() => {
+    // Simulate loading state
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+  }, []);
 
-  onContinuePress = () => {
-    const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
-    if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
-      this.setState({ showWarning: true });
-    } else {
-      this.setState({ showWarning: false });
-      this.props.navigation.navigate('Details', {
-        designation: designation,
-        payBand: payBand,
-        level: level,
-        rateOfPay: rateOfPay,
-        selectedMonth: selectedMonth,
-      });
-    }
-  };
-
-  render() {
-    const { designation, payBand, level, rateOfPay, selectedMonth, showWarning } = this.state;
+  if (isLoading) {
+    console.log('Loading...');
+    // If the authentication state is still loading, show a spinner
     return (
-      <ScrollView style={{flex: 1}}>
-        <View style={[styles.homepage, styles.homepageFlexBox]}>
-          <View style={[styles.allowanceCalculator, styles.homepageFlexBox]}>
-            <Text style={styles.allowanceCalculator1}>ALLOWANCE</Text>
-            <Text style={styles.allowanceCalculator1}>CALCULATOR</Text>
-          </View>
-          <View style={styles.homepageChild}>
-            <View
-              style={{
-                flex: 1,
-                ...(Platform.OS === 'ios' && { marginBottom: 210 }),
-              }}
-            >
-              <Picker
-                selectedValue={designation}
-                onValueChange={(itemValue) => this.setState({ designation: itemValue })}
-                style={{ height: 40 }}
-              >
-                {designations.map((item, index) => (
-                  <Picker.Item key={index} label={item.label} value={item.value} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-          <View style={[styles.homepageItem, styles.homepageBg]}>
-            <View
-              style={{
-                flex: 1,
-                ...(Platform.OS === 'ios' && { marginBottom: 210 }),
-              }}
-            >
-              <Picker
-                style={{ height: 40 }}
-                selectedValue={selectedMonth}
-                onValueChange={(itemValue) => this.setState({ selectedMonth: itemValue })}
-              >
-                {months.map((item, index) => (
-                  <Picker.Item key={index} label={item.label} value={item.value} />
-                ))}
-              </Picker>
-            </View>
-          </View>
-          <View style={[styles.homepageInner, styles.homepageBg]}>
-            <InterdependentPickers
-              payBand={payBand}
-              setPayBand={(value) => this.setState({ payBand: value })}
-              level={level}
-              setLevel={(value) => this.setState({ level: value })}
-              rateOfPay={rateOfPay}
-              setRateOfPay={(value) => this.setState({ rateOfPay: value })}
-            />
-          </View>
-          {showWarning && (
-            <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>
-              Select all values to proceed!
-            </Text>
-          )}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={[
-              styles.rectanglePressable,
-              styles.homepageBg,
-              (!designation || !payBand || !level || !rateOfPay || !selectedMonth) && { opacity: 0.5 },
-            ]}
-            onPress={this.onContinuePress}
-          >
-            <Text style={styles.proceedText}>Proceed</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" />
+      </View>
     );
   }
-}
 
+  console.log('Rendering navigation container');
 
-export default EmployeeInfo;
+  return (
+    <NavigationContainer>
+      <Drawer.Navigator initialRouteName="Home">
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="CalculationPage" component={CalculationPage} />
+
+      </Drawer.Navigator>
+    </NavigationContainer>
+  );
+};
+
+export default AppNavigator;

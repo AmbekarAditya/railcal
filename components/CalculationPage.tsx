@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-// import MainTable from "../secondscreen/calcualtionPage/main/calculationPage";
+import MainTable from "./MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
 
 const CalculationPage = ({ route, navigation }) => {
@@ -21,7 +21,7 @@ const CalculationPage = ({ route, navigation }) => {
           <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
         </View>
       </View>
-      {/* <MainTable navigation={navigation} designation={designation} rateOfPay={rateOfPay}/> */}
+      <MainTable navigation={navigation} payband={23}/>
     </View>
   );
 };

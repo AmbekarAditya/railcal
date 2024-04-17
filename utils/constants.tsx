@@ -27,16 +27,14 @@ export const designations = [
     { label: "October", value: "October" },
     { label: "November", value:"November"},
     { label: "December", value:"December"},
-  ]
+  ];
 
   export const levelOptions: Record<string, string[]> = {
     "5200-20200": ["1", "2", "3", "4", "5"],
     "9300-34800": ["6", "7", "8", "9"],
   };
 
-  export const payBandOptions: string[] = ["5200-20200", "9300-34800"];
-
-
+ export const payBandOptions: string[] = ["5200-20200", "9300-34800"];
 
   export const rateOfPayOptions: { [key: string]: string[] } = {
     "1": [
@@ -406,3 +404,73 @@ export const designations = [
     "162900",
     "167800",],
   };
+
+export const pickerItems = [
+
+  
+    {
+      "label": "Spare",
+      "value": "Spare"
+    },
+    {
+      "label": "Through",
+      "value": "Through"
+    },
+    {
+      "label": "Light Engine on Mechanical Account",
+      "value": "Light Engine on Mechanical Account"
+    },
+    {
+      "label": "Periodic rest",
+      "value": "Periodic rest"
+    },
+    {
+      "label": "Paid leave",
+      "value": "Paid leave"
+    },
+    {
+      "label": "Shunting",
+      "value": "Shunting"
+    },
+    {
+      "label": "Ghat",
+      "value": "Ghat"
+    },
+    {
+      "label": "Sick leave",
+      "value": "Sick leave"
+    },
+    {
+      "label": "Waiting for duty",
+      "value": "Waiting for duty"
+    },
+    {
+      "label": "Breakdown Specials",
+      "value": "Breakdown Specials"
+    },
+    {
+      "label": "Crane Specials",
+      "value": "Crane Specials"
+    },
+    {
+      "label": "Stationary Duty",
+      "value": "Stationary Duty"
+    },
+    {
+      "label": "Medical Relief Trains",
+      "value": "Medical Relief Trains"
+    },
+    {
+      "label": "Officating",
+      "value": "Officating"
+    },
+    {
+      "label": "Material Train",
+      "value": "Material Train"
+    },
+    {
+      "label": "Casual leave",
+      "value": "Casual leave"
+    }
+  
+];
