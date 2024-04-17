@@ -33,6 +33,10 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
     updateToStationAndDistance(fromStation, selectedStation);
   };
 
+  const uniqueFromStations = Array.from(
+    new Set(combinations.map((item) => item.from_station))
+  );
+
   const updateToStationAndDistance = (from: string, to: string) => {
     const combo = combinations.find(c => c.from_station === from && c.to_station === to);
     if (combo) {
@@ -43,13 +47,13 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
 
   return (
     <View>
-      <Picker
+       <Picker
         selectedValue={fromStation}
         onValueChange={handleFromStationChange}
         enabled={!disabled}
       >
-        {combinations.map((item, index) => (
-          <Picker.Item key={index} label={item.from_station} value={item.from_station} />
+        {uniqueFromStations.map((station, index) => (
+          <Picker.Item key={index} label={station} value={station} />
         ))}
       </Picker>
       <Picker
