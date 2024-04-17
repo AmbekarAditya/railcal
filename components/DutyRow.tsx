@@ -2,7 +2,7 @@
 import React from "react";
 import Duty from "./Duty";
 import Trip from "./Trip";
-
+import TypeofWorkPickerComponent from "./typeofwork";
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -29,30 +29,24 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
             />
           </td>
           <td>
-            <select
-              value={trip.type}
-              onChange={(e) => handleTripDataChange(trip.id, "type", e.target.value)}
-            >
-              <option value="">Select Type</option>
-              <option value="Type 1">Type 1</option>
-              <option value="Type 2">Type 2</option>
-              {/* Add more type options */}
-            </select>
+          <TypeofWorkPickerComponent
+        TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
+      />
           </td>
-          <td>
+          {/* <td>
             <input
               type="time"
               value={trip.startTime}
               onChange={(e) => handleTripDataChange(trip.id, "startTime", e.target.value)}
             />
           </td>
-          <td>
-            <input
+          <td> */}
+            {/* <input
               type="time"
               value={trip.endTime}
               onChange={(e) => handleTripDataChange(trip.id, "endTime", e.target.value)}
-            />
-          </td>
+            /> */}
+          {/* </td> */}
           <td>
             <input
               type="number"

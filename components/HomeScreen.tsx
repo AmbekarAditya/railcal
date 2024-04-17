@@ -33,9 +33,9 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
 
   onContinuePress = () => {
     const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
-    if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
-      this.setState({ showWarning: true });
-    } else {
+    // if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
+    //   this.setState({ showWarning: true });
+    // } else {
       this.setState({ showWarning: false });
       this.props.navigation.navigate('CalculationPage', {
         designation: designation,
@@ -44,7 +44,7 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
         rateOfPay: rateOfPay,
         selectedMonth: selectedMonth,
       });
-    }
+    // }
   };
 
   render() {
