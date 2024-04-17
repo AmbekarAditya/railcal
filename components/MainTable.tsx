@@ -18,42 +18,40 @@ interface MainTableState {
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
+  state: MainTableState = {
+    duties: [],
+    showModal: false,
+    selectedDuty: null,
+  };
+
   constructor(props: MainTableProps) {
     super(props);
+
+    const trip: Trip = {
+      id: 1,
+      date: "",
+      typeOfWork: "",
+      arrivalTime: "",
+      departureTime: "",
+      timeDifference: 0,
+      sourceStation: "",
+      destinationStation: "",
+      distance: 0,
+      allowance: 1,
+      remarks: "",
+    };
+
+    const duty: Duty = new Duty(1, [trip]);
+
     this.state = {
-      duties: [
-        {
-          id: 1,
-          trips: [
-            {
-              id: 1,
-              date: "2023-06-10",
-              typeOfWork: "Regular",
-              arrivalTime: "09:00",
-              departureTime: "17:00",
-              timeDifference:11,
-              sourceStation:'',
-              destinationStation:'',
-              distance: 100,
-              allowance:1,
-              remarks:"",
-            },
-          ],
-          signIn: "09:00",
-          signOff: "17:00",
-          dutyHours: 1,
-          nightDutyHours: 1,
-          osdaValue: false,
-          rraValue: false,
-        },
-      ],
+      duties: [duty],
       showModal: false,
       selectedDuty: null,
     };
   }
 
   addDuty = () => {
-    const newDuty = new Duty(this.state.duties.length + 1);
+    const newDuty = new Duty(this.state.duties.length + 1, [trip]);
     this.setState(
       (prevState) => ({
         duties: [...prevState.duties, newDuty],
