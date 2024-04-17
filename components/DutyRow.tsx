@@ -5,6 +5,7 @@ import Trip from "./Trip";
 import TypeofWorkPickerComponent from "./typeofwork";
 import PickerComponentStation from "./stationpicker";
 import TrainNumberInput from "./trainNumber";
+
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -50,7 +51,7 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
       />
           </td>
           <td>
-          <TrainNumberInput onChange={handleTrainNumberChange} />
+          <TrainNumberInput onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)} />
           </td>
           {/* <td>
             <input

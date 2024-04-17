@@ -31,7 +31,11 @@ const styles = StyleSheet.create({
     // Container styles
   },
   input: {
-    // Input field styles
+    
+    borderWidth:1,
+    padding:5,
+    height: 35,
+    width: 150,
   }
 });
 

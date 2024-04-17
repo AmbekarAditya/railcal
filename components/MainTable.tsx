@@ -36,6 +36,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       timeDifference: 0,
       sourceStation: "",
       destinationStation: "",
+      trainNumber:"",
       distance: 0,
       allowance: 1,
       remarks: "",
@@ -51,7 +52,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   addDuty = () => {
-    const newDuty = new Duty(this.state.duties.length + 1, [trip]);
+    const newDuty = new Duty(this.state.duties.length + 1, [Trip]);
     this.setState(
       (prevState) => ({
         duties: [...prevState.duties, newDuty],
