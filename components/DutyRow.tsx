@@ -3,6 +3,8 @@ import React from "react";
 import Duty from "./Duty";
 import Trip from "./Trip";
 import TypeofWorkPickerComponent from "./typeofwork";
+import PickerComponentStation from "./stationpicker";
+import TrainNumberInput from "./trainNumber";
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -16,6 +18,20 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
   const handleTripDataChange = (tripId: number, field: keyof Trip, value: string | number) => {
     updateTripData(duty.id, tripId, field, value);
   };
+
+  const handleStationChange = (dutyId: number, tripId: number, sourceStation: string, destinationStation: string, distance: number) => {
+    // Assuming updateTripData is a method that updates the trip information
+    updateTripData(dutyId, tripId, 'sourceStation', sourceStation);
+    updateTripData(dutyId, tripId, 'destinationStation', destinationStation);
+    updateTripData(dutyId, tripId, 'distance', distance);
+  };
+  
+  const handleTrainNumberChange = (trainNumber: string,dutyId: number, tripId: number) => {
+    updateTripData(dutyId, tripId, 'trainNumber', trainNumber);
+    // Here you could also update the state or send this to a backend server
+  };
+  
+  
 
   return (
     <React.Fragment>
@@ -33,6 +49,9 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
         TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
       />
           </td>
+          <td>
+          <TrainNumberInput onChange={handleTrainNumberChange} />
+          </td>
           {/* <td>
             <input
               type="time"
@@ -48,17 +67,20 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
             /> */}
           {/* </td> */}
           <td>
-            <input
-              type="number"
-              value={trip.distance}
-              onChange={(e) => handleTripDataChange(trip.id, "distance", Number(e.target.value))}
-            />
+          <PickerComponentStation
+          onStationChange={handleStationChange}
+          dutyId={duty.id}
+          tripId={trip.id}
+          disabled={false} // Or some logic to determine if it should be disabled
+        />
           </td>
+      
           <td>
             {index === duty.trips.length - 1 && (
               <button onClick={() => handleEndDuty(duty)}>End Duty</button>
             )}
           </td>
+          
         </tr>
       ))}
       <tr>

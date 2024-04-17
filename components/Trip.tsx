@@ -2,12 +2,14 @@ class Trip {
   id: number;
   date: string;
   typeOfWork: string;
+  trainNumber:string;
   departureTime: string;
   arrivalTime: string;
   timeDifference: number;
   sourceStation: string;
   destinationStation: string;
   distance: number;
+
   allowance: number;
   remarks: string;
 
@@ -22,6 +24,7 @@ class Trip {
     this.destinationStation = "";
     this.distance = 0;
     this.allowance = 0;
+    this.trainNumber="";
     this.remarks = "";
   }
 }
