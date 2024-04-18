@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import MainTable from "./MainTable";
+import MainTable from "./main-table/MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
 
 const CalculationPage = ({ route, navigation }) => {

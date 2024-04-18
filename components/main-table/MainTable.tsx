@@ -1,10 +1,10 @@
 import React from "react";
-import Duty from "./Duty";
-import Trip from "./Trip";
-import DutyRow from "./DutyRow";
-import EndDutyModal from "./EndDutyModal";
+import Duty from "../duty/Duty";
+import Trip from "../trip/Trip";
+import DutyRow from "../duty/DutyRow";
+import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import "./MainTable.css";
-import Modal from "./Modal";
+import Modal from "../modal/Modal";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 

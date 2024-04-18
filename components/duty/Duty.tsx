@@ -1,4 +1,4 @@
-import Trip from "./Trip";
+import Trip from "../trip/Trip";
 
 class Duty {
   id: number;
@@ -7,6 +7,8 @@ class Duty {
   signOff: Date | null;
   dutyHours: number;
   nightDutyHours: number;
+  isOSDA: boolean;
+  isRRA: boolean
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -15,6 +17,8 @@ class Duty {
     this.signOff = null;
     this.dutyHours = 0;
     this.nightDutyHours = 0;
+    this.isOSDA = false;
+    this.isRRA = false;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import {pickerItems} from "../utils/constants";
+import {pickerItems} from "../../utils/constants";
 
 interface TypeofWorkPickerComponentProps {
   TypeofWork: (newValue: string) => void;

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
 import { Picker } from "@react-native-picker/picker";
-import { combinations } from "../utils/combinations";
-import { styles } from "../styles_component/styles_stationpicker";
+import { combinations } from "../../utils/combinations";
+import { styles } from "../../styles_component/styles_stationpicker";
 
 interface PickerComponentStationProps {
   onStationChange: (

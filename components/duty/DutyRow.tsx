@@ -1,11 +1,13 @@
 // DutyRow.tsx
 import React from "react";
 import Duty from "./Duty";
-import Trip from "./Trip";
-import TypeofWorkPickerComponent from "./typeofwork";
-import PickerComponentStation from "./stationpicker";
-import TrainNumberInput from "./trainNumber";
-import ArrivalDepartureTimePicker from "./ArrivalDepartureTimePicker";
+import Trip from "../trip/Trip";
+import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
+import PickerComponentStation from "../station-picker/stationpicker";
+import TrainNumberInput from "../trainNumber";
+import ArrivalDepartureTimePicker from "../ArrivalDepartureTimePicker";
+import DutyInfo  from "./DutyInfo";
+
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -130,6 +132,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <td colSpan={6}>
           <button onClick={() => addTrip(duty.id)}>Add Trip</button>
           <button onClick={() => handleEndDuty(duty)}> End Duty</button>
+          <DutyInfo duty={duty} />
         </td>
       </tr>
       {duty.trips.length > 0 && (

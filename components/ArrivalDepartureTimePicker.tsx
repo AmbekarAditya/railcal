@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import TimePicker from './TimePicker';
+import TimePicker from './time-picker/TimePicker';
 
 interface ArrivalDepartureTimePickerProps {
   onTimesChange: (arrival: string, departure: string, dutyHours: string) => void;
