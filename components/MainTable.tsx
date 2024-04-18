@@ -53,25 +53,32 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   addDuty = () => {
-    const newDuty = new Duty(this.state.duties.length + 1, [Trip]);
-    this.setState(
-      (prevState) => ({
-        duties: [...prevState.duties, newDuty],
-      }),
-
-      () => {
-        console.log("New duty added:", newDuty);
-        console.log("Updated duties:", this.state.duties);
-      }
-    );
+    const newDuty = new Duty(this.state.duties.length + 1);
+    this.setState((prevState) => ({
+      duties: [...prevState.duties, newDuty],
+    }));
   };
-
+  
   addTrip = (dutyId: number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
-          const newTrip = new Trip(duty.trips.length + 1);
-          return { ...duty, trips: [...duty.trips, newTrip] };
+          const newTrip: Trip = {
+            id: duty.trips.length + 1,
+            date: "",
+            typeOfWork: "",
+            arrivalTime: "",
+            departureTime: "",
+            timeDifference: 0,
+            sourceStation: "",
+            destinationStation: "",
+            distance: 0,
+            allowance: 0,
+            remarks: "",
+            trainNumber: "",
+            dutyHours: "",
+          };
+          return new Duty(duty.id, [...duty.trips, newTrip]);
         }
         return duty;
       }),
@@ -98,13 +105,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
-          const updatedTrips = duty.trips.map((trip) => {
-            if (trip.id === tripId) {
-              return { ...trip, [field]: value };
-            }
-            return trip;
-          });
-          return { ...duty, trips: updatedTrips };
+          const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+          if (tripToUpdate) {
+            const updatedTrip = { ...tripToUpdate, [field]: value };
+            duty.updateTrip(tripId, updatedTrip);
+          }
         }
         return duty;
       }),
