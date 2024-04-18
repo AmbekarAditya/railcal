@@ -50,12 +50,12 @@ const styles = StyleSheet.create({
   picker: {
     flex: 1,
     margin: 1,
-    height: 37,
+    height: 25,
   },
   picker1: {
     flex: 1,
     margin: 1,
-    height: 37,
+    height: 25,
   },
 });
 

@@ -4,7 +4,7 @@ import { Picker } from '@react-native-picker/picker';
 import InterdependentPickers from './InterdependentPicker';
 import { styles } from '../styles_component/styles_homescreen';
 import { designations, months } from '../utils/constants';
-import CalculationPage from './CalculationPage';
+
 interface EmployeeInfoProps {
   navigation: any; // You can define a more specific type based on your navigation structure
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import TimePicker from './TimePicker';
+import TimePicker from './time-picker/TimePicker';
 
 interface ArrivalDepartureTimePickerProps {
   onTimesChange: (arrival: string, departure: string, dutyHours: string) => void;
@@ -68,10 +68,14 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.timePickerContainer}>
+      <Text style={[styles.label, styles.leftAlign]}>Arrival Time : </Text>
         <TimePicker onTimeChange={handleArrivalTimeChange} />
+        </View>
+        <View style={styles.timePickerContainer}>
+        <Text style={[styles.label, styles.leftAlign]}>Departure Time : </Text>
         <TimePicker onTimeChange={handleDepartureTimeChange} />
       </View>
-      <Text>Time Difference: {calculateTimeDifference(arrivalTime, departureTime)}</Text>
+      {/* <Text>Time Difference: {calculateTimeDifference(arrivalTime, departureTime)}</Text> */}
     </View>
   );
 };
@@ -80,9 +84,18 @@ const styles = StyleSheet.create({
   container: {
     // Adjust your styling here
   },
+  label:{
+   
+    marginTop:5,
+  },
+  leftAlign: {
+    textAlign: 'left',
+  },
   timePickerContainer: {
+  
+    padding:2,
     flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

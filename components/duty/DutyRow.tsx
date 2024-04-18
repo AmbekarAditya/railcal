@@ -1,11 +1,13 @@
 // DutyRow.tsx
 import React from "react";
 import Duty from "./Duty";
-import Trip from "./Trip";
-import TypeofWorkPickerComponent from "./typeofwork";
-import PickerComponentStation from "./stationpicker";
-import TrainNumberInput from "./trainNumber";
-import ArrivalDepartureTimePicker from "./ArrivalDepartureTimePicker";
+import Trip from "../trip/Trip";
+import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
+import PickerComponentStation from "../station-picker/stationpicker";
+import TrainNumberInput from "../trainNumber";
+import ArrivalDepartureTimePicker from "../ArrivalDepartureTimePicker";
+import DutyInfo  from "./DutyInfo";
+
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -16,6 +18,7 @@ interface DutyRowProps {
     field: keyof Trip,
     value: string | number
   ) => void;
+  selectedMonth: string;
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -23,15 +26,31 @@ const DutyRow: React.FC<DutyRowProps> = ({
   addTrip,
   handleEndDuty,
   updateTripData,
+  selectedMonth,
 }) => {
   console.log("Rendering DutyRow with duty:", duty);
+
+  const getMonthIndex = (month: string) => {
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return monthNames.indexOf(month);
+  };
 
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
     value: string | number
   ) => {
-    updateTripData(duty.id, tripId, field, value);
+    if (field === "date") {
+      const selectedYear = new Date().getFullYear();
+      const monthIndex = getMonthIndex(selectedMonth)
+      const selectedDate = new Date(selectedYear, monthIndex, Number(value));
+      updateTripData(duty.id, tripId, field, selectedDate.toISOString().slice(0, 10));
+    } else {
+      updateTripData(duty.id, tripId, field, value);
+    }
   };
 
   const handleStationChange = (
@@ -83,20 +102,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
               }
             />
           </td>
-          {/* <td>
-            <input
-              type="time"
-              value={trip.startTime}
-              onChange={(e) => handleTripDataChange(trip.id, "startTime", e.target.value)}
-            />
-          </td>
-          <td> */}
-          {/* <input
-              type="time"
-              value={trip.endTime}
-              onChange={(e) => handleTripDataChange(trip.id, "endTime", e.target.value)}
-            /> */}
-          {/* </td> */}
           <td>
             <PickerComponentStation
               onStationChange={handleStationChange}
@@ -119,16 +124,14 @@ const DutyRow: React.FC<DutyRowProps> = ({
             />
           </td>
           <td>{trip.dutyHours}</td>
-          {/* <td>
-            {index === duty.trips.length - 1 && (
-              <button onClick={() => handleEndDuty(duty)}>End Duty</button>
-            )}
-          </td> */}
+   
         </tr>
       ))}
       <tr>
         <td colSpan={6}>
           <button onClick={() => addTrip(duty.id)}>Add Trip</button>
+          <button onClick={() => handleEndDuty(duty)}> End Duty</button>
+          <DutyInfo duty={duty} />
         </td>
       </tr>
       {duty.trips.length > 0 && (

@@ -35,3 +35,23 @@
   .duty-table button:hover {
     background-color: #45a049;
   }
+
+  .tableContainer {
+    overflow-x: auto; /* Ensures horizontal scrolling if content is too wide */
+    overflow-y: auto; /* Ensures vertical scrolling if content is too tall */
+    max-height: 80vh; /* Adjust based on your layout needs */
+    width: 100%; /* Ensures the container fills its horizontal space */
+  }
+  .tableContainer::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .tableContainer::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    border-radius: 10px;
+  }
+  
+  .tableContainer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
