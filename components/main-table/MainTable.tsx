@@ -5,11 +5,13 @@ import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import "./MainTable.css";
 import Modal from "../modal/Modal";
+import { NavigationProp } from '@react-navigation/native';
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
 interface MainTableProps {
-  payband: number;
+  navigation: NavigationProp<any>;
+  selectedMonth: string;
 }
 
 interface MainTableState {
@@ -130,7 +132,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   render() {
     const { duties, showModal, selectedDuty } = this.state;
-    const { payband } = this.props;
+    const { selectedMonth } = this.props;
+
 
     return (
       <div>
@@ -154,6 +157,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 addTrip={this.addTrip}
                 handleEndDuty={this.handleEndDuty}
                 updateTripData={this.updateTripData}
+                selectedMonth={selectedMonth}
               />
             ))}
           </tbody>

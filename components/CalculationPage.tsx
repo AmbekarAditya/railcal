@@ -1,9 +1,29 @@
+// CalculationPage.tsx
 import React from "react";
 import { View, Text } from "react-native";
 import MainTable from "./main-table/MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
+import { RouteProp } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
 
-const CalculationPage = ({ route, navigation }) => {
+type RootStackParamList = {
+  CalculationPage: {
+    designation: string;
+    payBand: number;
+    level: number;
+    rateOfPay: number;
+    selectedMonth: string;
+  };
+};
+
+type CalculationPageRouteProp = RouteProp<RootStackParamList, 'CalculationPage'>;
+
+interface CalculationPageProps {
+  route: CalculationPageRouteProp;
+  navigation: NavigationProp<RootStackParamList>;
+}
+
+const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) => {
   const { designation, payBand, level, rateOfPay, selectedMonth } = route.params;
 
   return (
@@ -21,7 +41,7 @@ const CalculationPage = ({ route, navigation }) => {
           <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
         </View>
       </View>
-      <MainTable navigation={navigation} payband={23}/>
+      <MainTable navigation={navigation} selectedMonth={selectedMonth}/>
     </View>
   );
 };
