@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Picker, StyleSheet } from 'react-native';
-
+import { View, StyleSheet } from 'react-native';
+import { Picker } from "@react-native-picker/picker";
 interface TimePickerProps {
   onTimeChange: (hour: string, minute: string) => void;
 }
