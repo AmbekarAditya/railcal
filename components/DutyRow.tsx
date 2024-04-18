@@ -75,7 +75,10 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
           disabled={false} // Or some logic to determine if it should be disabled
         />
           </td>
-      
+
+            <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
+               {trip.distance.toFixed(2)}
+            </td>
           <td>
             {index === duty.trips.length - 1 && (
               <button onClick={() => handleEndDuty(duty)}>End Duty</button>
