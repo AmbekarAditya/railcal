@@ -1,5 +1,6 @@
 // DutyRow.tsx
 import React from "react";
+import { useEffect } from "react";
 import Duty from "./Duty";
 import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
@@ -7,18 +8,16 @@ import PickerComponentStation from "../station-picker/stationpicker";
 import TrainNumberInput from "../trainNumber";
 import ArrivalDepartureTimePicker from "../ArrivalDepartureTimePicker";
 import DutyInfo  from "./DutyInfo";
+import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
   handleEndDuty: (duty: Duty) => void;
-  updateTripData: (
-    dutyId: number,
-    tripId: number,
-    field: keyof Trip,
-    value: string | number
-  ) => void;
+
   selectedMonth: string;
+  updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
+
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -43,16 +42,25 @@ const DutyRow: React.FC<DutyRowProps> = ({
     field: keyof Trip,
     value: string | number
   ) => {
-    if (field === "date") {
-      const selectedYear = new Date().getFullYear();
-      const monthIndex = getMonthIndex(selectedMonth)
-      const selectedDate = new Date(selectedYear, monthIndex, Number(value));
-      updateTripData(duty.id, tripId, field, selectedDate.toISOString().slice(0, 10));
-    } else {
-      updateTripData(duty.id, tripId, field, value);
+    const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
+    const trip = duty.trips[tripIndex];
+  
+    // First, update the trip field
+    updateTripData(duty.id, tripId, field, value);
+  
+    if (field === "distance" || field === "typeOfWork" || field === "dutyHours") {
+      // Calculate and update the allowance and remarks
+      const { allowance, remarks } = calculateAllowanceAndRemarks(
+        trip.distance,
+        trip.typeOfWork,
+        parseFloat(trip.dutyHours) * 60 // Convert hours to minutes
+      );
+  
+      updateTripData(duty.id, tripId, "allowance", allowance);
+      updateTripData(duty.id, tripId, "remarks", remarks);
     }
   };
-
+  
   const handleStationChange = (
     dutyId: number,
     tripId: number,
@@ -74,7 +82,19 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "trainNumber", trainNumber);
     // Here you could also update the state or send this to a backend server
   };
+  useEffect(() => {
+    duty.trips.forEach((trip) => {
+      const { allowance, remarks } = calculateAllowanceAndRemarks(
+        trip.distance,
+        trip.typeOfWork,
+        parseFloat(trip.dutyHours) * 60 // Convert hours to minutes if necessary
+      );
 
+      // Update the trip allowance
+      updateTripData(duty.id, trip.id, 'allowance', allowance);
+      // Optionally update remarks or other fields if needed
+    });
+  }, [duty.trips, updateTripData]); 
   return (
     <React.Fragment>
       {duty.trips.map((trip, index) => (
@@ -124,7 +144,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
             />
           </td>
           <td>{trip.dutyHours}</td>
-   
+          <td>{trip.allowance}</td>
+          <td>{trip.remarks}</td>
         </tr>
       ))}
       <tr>
@@ -144,3 +165,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
 };
 
 export default DutyRow;
+function updateDuty(id: number, arg1: Duty) {
+  throw new Error("Function not implemented.");
+}
+
