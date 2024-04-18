@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import TimePicker from './TimePicker';
 
 interface ArrivalDepartureTimePickerProps {
   onTimesChange: (arrival: string, departure: string, dutyHours: string) => void;
@@ -56,38 +57,33 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     return Math.round((adjustedDepartureTime.getTime() - arrivalTime.getTime()) / 60000);
   };
 
+  const handleArrivalTimeChange = (hour: string, minute: string) => {
+    setArrivalTime(`${hour}:${minute}`);
+  };
+
+  const handleDepartureTimeChange = (hour: string, minute: string) => {
+    setDepartureTime(`${hour}:${minute}`);
+  };
+
   return (
     <View style={styles.container}>
-       <TextInput
-        style={styles.input}
-        onChangeText={setArrivalTime}
-        value={arrivalTime}
-        placeholder="HH:MM"
-        keyboardType="numeric"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setDepartureTime}
-        value={departureTime}
-        placeholder="HH:MM"
-        keyboardType="numeric"
-      />
-     
-      {/* <Text>Time Difference: {calculateTimeDifference(arrivalTime, departureTime)}</Text> */}
+      <View style={styles.timePickerContainer}>
+        <TimePicker onTimeChange={handleArrivalTimeChange} />
+        <TimePicker onTimeChange={handleDepartureTimeChange} />
+      </View>
+      <Text>Time Difference: {calculateTimeDifference(arrivalTime, departureTime)}</Text>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     // Adjust your styling here
   },
-  input: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginBottom: 5,
-    width: 100,
-  }
+  timePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
 });
 
 export default ArrivalDepartureTimePicker;
