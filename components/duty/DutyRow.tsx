@@ -43,23 +43,32 @@ const DutyRow: React.FC<DutyRowProps> = ({
     value: string | number
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
-    const trip = duty.trips[tripIndex];
+    let trip = duty.trips[tripIndex];
   
-    // First, update the trip field
+    // Update the trip data immediately for synchronous processing
+    trip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
   
-    if (field === "distance" || field === "typeOfWork" || field === "dutyHours") {
-      // Calculate and update the allowance and remarks
+    // Perform calculations only on specific field changes
+    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
+      const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0; // Convert safely
+  
+      console.log(`Calculating allowance for distance: ${trip.distance}, typeOfWork: ${trip.typeOfWork}, dutyHours: ${dutyHoursAsNumber}`);
+  
       const { allowance, remarks } = calculateAllowanceAndRemarks(
         trip.distance,
         trip.typeOfWork,
-        parseFloat(trip.dutyHours) * 60 // Convert hours to minutes
+        dutyHoursAsNumber * 60 // Convert hours to minutes if necessary
       );
   
+      console.log(`Calculated allowance: ${allowance}, remarks: ${remarks}`);
+  
+      // Update allowance and remarks
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
   };
+  
   
   const handleStationChange = (
     dutyId: number,
@@ -82,19 +91,28 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "trainNumber", trainNumber);
     // Here you could also update the state or send this to a backend server
   };
+
   useEffect(() => {
     duty.trips.forEach((trip) => {
-      const { allowance, remarks } = calculateAllowanceAndRemarks(
-        trip.distance,
-        trip.typeOfWork,
-        parseFloat(trip.dutyHours) * 60 // Convert hours to minutes if necessary
-      );
-
-      // Update the trip allowance
-      updateTripData(duty.id, trip.id, 'allowance', allowance);
-      // Optionally update remarks or other fields if needed
+      if (trip.distance > 0 && trip.typeOfWork) {
+        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0; // default to 0 if parsing fails
+        const { allowance, remarks } = calculateAllowanceAndRemarks(
+          trip.distance,
+          trip.typeOfWork,
+          dutyHoursAsNumber * 60 // Convert hours to minutes
+        );
+  
+        // Debugging
+        console.log(`Updated calculations for Trip ID ${trip.id}: Allowance - ${allowance}, Remarks - ${remarks}`);
+  
+        updateTripData(duty.id, trip.id, 'allowance', allowance);
+        updateTripData(duty.id, trip.id, 'remarks', remarks);
+      }
     });
-  }, [duty.trips, updateTripData]); 
+  }, [duty.trips]); // Dependency on trips to re-calculate when trips data changes
+  
+
+
   return (
     <React.Fragment>
       {duty.trips.map((trip, index) => (
