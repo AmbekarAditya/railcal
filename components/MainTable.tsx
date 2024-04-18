@@ -4,6 +4,7 @@ import Trip from "./Trip";
 import DutyRow from "./DutyRow";
 import EndDutyModal from "./EndDutyModal";
 import "./MainTable.css";
+import Modal from "./Modal";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -138,10 +139,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             <tr>
               <th>Date</th>
               <th>Type of Duty</th>
-              <th>Start Time</th>
-              <th>End Time</th>
+              <th>Train Number</th>
+              <th>Start & End Station</th>
               <th>Trip Distance</th>
-              <th>Actions</th>
+              <th>Start & End Time</th>
+              <th>Trip Duration</th>
             </tr>
           </thead>
           <tbody>
@@ -164,13 +166,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           {/* Display the summary of the complete allowance */}
           <div>{`Total Allowance: ${this.calculateTotalAllowance()}`}</div>
         </div>
-        {showModal && selectedDuty && (
+        <Modal isOpen={showModal} onClose={() => this.setState({ showModal: false })}>
+        {selectedDuty && (
           <EndDutyModal
             duty={selectedDuty}
             updateDutyDetails={this.updateDutyDetails}
             closeModal={() => this.setState({ showModal: false })}
           />
         )}
+      </Modal>
       </div>
     );
   }

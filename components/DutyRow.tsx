@@ -129,6 +129,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
       <tr>
         <td colSpan={6}>
           <button onClick={() => addTrip(duty.id)}>Add Trip</button>
+          <button onClick={() => handleEndDuty(duty)}> End Duty</button>
         </td>
       </tr>
       {duty.trips.length > 0 && (
