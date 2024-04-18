@@ -10,29 +10,51 @@ interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
   handleEndDuty: (duty: Duty) => void;
-  updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => void;
+  updateTripData: (
+    dutyId: number,
+    tripId: number,
+    field: keyof Trip,
+    value: string | number
+  ) => void;
 }
 
-const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateTripData }) => {
+const DutyRow: React.FC<DutyRowProps> = ({
+  duty,
+  addTrip,
+  handleEndDuty,
+  updateTripData,
+}) => {
   console.log("Rendering DutyRow with duty:", duty);
 
-  const handleTripDataChange = (tripId: number, field: keyof Trip, value: string | number) => {
+  const handleTripDataChange = (
+    tripId: number,
+    field: keyof Trip,
+    value: string | number
+  ) => {
     updateTripData(duty.id, tripId, field, value);
   };
 
-  const handleStationChange = (dutyId: number, tripId: number, sourceStation: string, destinationStation: string, distance: number) => {
+  const handleStationChange = (
+    dutyId: number,
+    tripId: number,
+    sourceStation: string,
+    destinationStation: string,
+    distance: number
+  ) => {
     // Assuming updateTripData is a method that updates the trip information
-    updateTripData(dutyId, tripId, 'sourceStation', sourceStation);
-    updateTripData(dutyId, tripId, 'destinationStation', destinationStation);
-    updateTripData(dutyId, tripId, 'distance', distance);
+    updateTripData(dutyId, tripId, "sourceStation", sourceStation);
+    updateTripData(dutyId, tripId, "destinationStation", destinationStation);
+    updateTripData(dutyId, tripId, "distance", distance);
   };
-  
-  const handleTrainNumberChange = (trainNumber: string,dutyId: number, tripId: number) => {
-    updateTripData(dutyId, tripId, 'trainNumber', trainNumber);
+
+  const handleTrainNumberChange = (
+    trainNumber: string,
+    dutyId: number,
+    tripId: number
+  ) => {
+    updateTripData(dutyId, tripId, "trainNumber", trainNumber);
     // Here you could also update the state or send this to a backend server
   };
-  
-  
 
   return (
     <React.Fragment>
@@ -42,16 +64,24 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
             <input
               type="date"
               value={trip.date}
-              onChange={(e) => handleTripDataChange(trip.id, "date", e.target.value)}
+              onChange={(e) =>
+                handleTripDataChange(trip.id, "date", e.target.value)
+              }
             />
           </td>
           <td>
-          <TypeofWorkPickerComponent
-        TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
-      />
+            <TypeofWorkPickerComponent
+              TypeofWork={(newValue) =>
+                handleTripDataChange(trip.id, "typeOfWork", newValue)
+              }
+            />
           </td>
           <td>
-          <TrainNumberInput onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)} />
+            <TrainNumberInput
+              onChange={(trainNumber) =>
+                handleTrainNumberChange(trainNumber, duty.id, trip.id)
+              }
+            />
           </td>
           {/* <td>
             <input
@@ -61,41 +91,39 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
             />
           </td>
           <td> */}
-            {/* <input
+          {/* <input
               type="time"
               value={trip.endTime}
               onChange={(e) => handleTripDataChange(trip.id, "endTime", e.target.value)}
             /> */}
           {/* </td> */}
           <td>
-          <PickerComponentStation
-          onStationChange={handleStationChange}
-          dutyId={duty.id}
-          tripId={trip.id}
-          disabled={false} // Or some logic to determine if it should be disabled
-        />
+            <PickerComponentStation
+              onStationChange={handleStationChange}
+              dutyId={duty.id}
+              tripId={trip.id}
+              disabled={false} // Or some logic to determine if it should be disabled
+            />
           </td>
 
-            <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
-               {trip.distance.toFixed(2)}
-            </td>
-            <td>
+          <td style={{ textAlign: "center", fontWeight: "bold" }}>
+            {trip.distance.toFixed(2)}
+          </td>
+          <td>
             <ArrivalDepartureTimePicker
-  onTimesChange={(arrivalTime, departureTime, dutyHours) => {
-    handleTripDataChange(trip.id, 'arrivalTime', arrivalTime);
-    handleTripDataChange(trip.id, 'departureTime', departureTime);
-    handleTripDataChange(trip.id, 'dutyHours', dutyHours);
-  }}/>
-            </td>
-            <td>
-              {trip.dutyHours}
-            </td>
+              onTimesChange={(arrivalTime, departureTime, dutyHours) => {
+                handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
+                handleTripDataChange(trip.id, "departureTime", departureTime);
+                handleTripDataChange(trip.id, "dutyHours", dutyHours);
+              }}
+            />
+          </td>
+          <td>{trip.dutyHours}</td>
           {/* <td>
             {index === duty.trips.length - 1 && (
               <button onClick={() => handleEndDuty(duty)}>End Duty</button>
             )}
           </td> */}
-          
         </tr>
       ))}
       <tr>
