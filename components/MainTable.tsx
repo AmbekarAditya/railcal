@@ -40,6 +40,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       distance: 0,
       allowance: 1,
       remarks: "",
+      dutyHours:"",
     };
 
     const duty: Duty = new Duty(1, [trip]);

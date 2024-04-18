@@ -5,7 +5,7 @@ import Trip from "./Trip";
 import TypeofWorkPickerComponent from "./typeofwork";
 import PickerComponentStation from "./stationpicker";
 import TrainNumberInput from "./trainNumber";
-
+import ArrivalDepartureTimePicker from "./ArrivalDepartureTimePicker";
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
@@ -79,11 +79,22 @@ const DutyRow: React.FC<DutyRowProps> = ({ duty, addTrip, handleEndDuty, updateT
             <td style={{ textAlign: 'center', fontWeight: 'bold' }}>
                {trip.distance.toFixed(2)}
             </td>
-          <td>
+            <td>
+            <ArrivalDepartureTimePicker
+  onTimesChange={(arrivalTime, departureTime, dutyHours) => {
+    handleTripDataChange(trip.id, 'arrivalTime', arrivalTime);
+    handleTripDataChange(trip.id, 'departureTime', departureTime);
+    handleTripDataChange(trip.id, 'dutyHours', dutyHours);
+  }}/>
+            </td>
+            <td>
+              {trip.dutyHours}
+            </td>
+          {/* <td>
             {index === duty.trips.length - 1 && (
               <button onClick={() => handleEndDuty(duty)}>End Duty</button>
             )}
-          </td>
+          </td> */}
           
         </tr>
       ))}

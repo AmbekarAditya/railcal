@@ -9,7 +9,7 @@ class Trip {
   sourceStation: string;
   destinationStation: string;
   distance: number;
-
+  dutyHours:string;
   allowance: number;
   remarks: string;
 
@@ -26,6 +26,7 @@ class Trip {
     this.allowance = 0;
     this.trainNumber="";
     this.remarks = "";
+    this.dutyHours="";
   }
 }
 
