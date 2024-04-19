@@ -46,7 +46,7 @@ const AppNavigator: React.FC<AppNavigatorProps> = () => {
     <NavigationContainer>
       <Drawer.Navigator initialRouteName="Home">
         <Drawer.Screen name="Home" component={HomeScreen} />
-        <Drawer.Screen name="CalculationPage" component={CalculationPage} />
+        <Drawer.Screen name="Allowance Calculation Page" component={CalculationPage} />
 
       </Drawer.Navigator>
     </NavigationContainer>
