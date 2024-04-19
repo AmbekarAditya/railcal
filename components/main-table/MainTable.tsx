@@ -58,7 +58,23 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   addDuty = () => {
-    const newDuty = new Duty(this.state.duties.length + 1);
+    const newTrip: Trip = {
+      id: 1,
+      date: "",
+      typeOfWork: "",
+      arrivalTime: "",
+      departureTime: "",
+      timeDifference: 0,
+      sourceStation: "",
+      destinationStation: "",
+      distance: 0,
+      allowance: 0,
+      remarks: "",
+      trainNumber: "",
+      dutyHours: "",
+    };
+  
+    const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
     this.setState((prevState) => ({
       duties: [...prevState.duties, newDuty],
     }));
