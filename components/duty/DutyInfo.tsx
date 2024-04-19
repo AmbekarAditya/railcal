@@ -11,8 +11,11 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
     <div className="duty-info">
       <div>Sign In: {duty.signIn ? duty.signIn.toLocaleString() : "-"}</div>
       <div>Sign Off: {duty.signOff ? duty.signOff.toLocaleString() : "-"}</div>
-      <div>Is OSDA: {duty.isOSDA ? "Yes" : "No"}</div>
-      <div>Is RRA: {duty.isRRA ? "Yes" : "No"}</div>
+      <div> OSDA: {duty.isOSDA ? "Yes" : "No"}</div>
+      <div> RRA: {duty.isRRA ? "Yes" : "No"}</div>
+      <div>Total Allowance: {duty.calculateTotalAllowance().toFixed(2)}</div>
+      <div>Total Distance: {duty.calculateTotalDistance().toFixed(2)}</div>
+      <div>Duty Hours: {duty.dutyHours.toFixed(2)}</div>
     </div>
   );
 };

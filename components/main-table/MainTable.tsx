@@ -171,6 +171,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   <th>Trip Distance</th>
                   <th>Start & End Time</th>
                   <th>Trip Duration</th>
+                  <th>Allowance</th>
+                  <th>Remarks</th>
                 </tr>
               </thead>
               <tbody>
