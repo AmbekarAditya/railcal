@@ -191,9 +191,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
         </div>
-        <div className="summary-block">
-          <div>{`Total Allowance: ${this.calculateTotalAllowance()}`}</div>
-        </div>
+
         <SummaryBlock
           totalAllowance={totalAllowance}
           totalKilometers={totalKilometers}
