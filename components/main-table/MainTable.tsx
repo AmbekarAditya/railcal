@@ -7,6 +7,7 @@ import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import "./MainTable.css";
 import Modal from "../modal/Modal";
 import { NavigationProp } from '@react-navigation/native';
+import SummaryBlock from "../summary-block/SummaryBlock";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -134,6 +135,20 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   render() {
     const { duties, showModal, selectedDuty } = this.state;
     const { selectedMonth } = this.props;
+
+    const totalAllowance = this.calculateTotalAllowance();
+    const totalKilometers = duties.reduce((acc, duty) => {
+      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
+      return acc + dutyDistance;
+    }, 0);
+    const mileage = 1.5; // Replace with the actual mileage calculation
+    const nightDutyAllowance = 100; // Replace with the actual night duty allowance calculation
+    const nationalHolidayAllowance = 200; // Replace with the actual national holiday allowance calculation
+    const leaveMileageAllowance = 150; // Replace with the actual leave mileage allowance calculation
+    const rraOsda = 50; // Replace with the actual RRA/OSDA calculation
+    const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
+    const startDate = "24/05/2023"; // Replace with the actual start date
+    const endDate = "06/06/2023"; // Replace with the actual end date
   
     return (
       <ScrollView
@@ -179,6 +194,18 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         <div className="summary-block">
           <div>{`Total Allowance: ${this.calculateTotalAllowance()}`}</div>
         </div>
+        <SummaryBlock
+          totalAllowance={totalAllowance}
+          totalKilometers={totalKilometers}
+          mileage={mileage}
+          nightDutyAllowance={nightDutyAllowance}
+          nationalHolidayAllowance={nationalHolidayAllowance}
+          leaveMileageAllowance={leaveMileageAllowance}
+          rraOsda={rraOsda}
+          overTimeAllowance={overTimeAllowance}
+          startDate={startDate}
+          endDate={endDate}
+        />
         <Modal isOpen={showModal} onClose={() => this.setState({ showModal: false })}>
           {selectedDuty && (
             <EndDutyModal
