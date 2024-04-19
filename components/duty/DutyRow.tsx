@@ -1,23 +1,22 @@
 // DutyRow.tsx
-import React from "react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import Duty from "./Duty";
 import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
 import PickerComponentStation from "../station-picker/stationpicker";
 import TrainNumberInput from "../trainNumber";
 import ArrivalDepartureTimePicker from "../ArrivalDepartureTimePicker";
-import DutyInfo  from "./DutyInfo";
+import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
+import DatePickerComponent from "../DatePicker/DatePickerComponent";
+import WebDatePicker from "../DatePicker/WebDatePicker";
+import { Platform } from "react-native";
 
 interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
   handleEndDuty: (duty: Duty) => void;
-
-  selectedMonth: string;
   updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
-
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -25,51 +24,34 @@ const DutyRow: React.FC<DutyRowProps> = ({
   addTrip,
   handleEndDuty,
   updateTripData,
-  selectedMonth,
 }) => {
-  console.log("Rendering DutyRow with duty:", duty);
-
-  const getMonthIndex = (month: string) => {
-    const monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    return monthNames.indexOf(month);
-  };
-
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
     value: string | number
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
-    let trip = duty.trips[tripIndex];
-  
+    const trip = duty.trips[tripIndex];
+
     // Update the trip data immediately for synchronous processing
-    trip = { ...trip, [field]: value };
+    const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-  
+
     // Perform calculations only on specific field changes
     if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
-      const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0; // Convert safely
-  
-      console.log(`Calculating allowance for distance: ${trip.distance}, typeOfWork: ${trip.typeOfWork}, dutyHours: ${dutyHoursAsNumber}`);
-  
+      const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
+
       const { allowance, remarks } = calculateAllowanceAndRemarks(
-        trip.distance,
-        trip.typeOfWork,
-        dutyHoursAsNumber * 60 // Convert hours to minutes if necessary
+        updatedTrip.distance,
+        updatedTrip.typeOfWork,
+        dutyHoursAsNumber * 60
       );
-  
-      console.log(`Calculated allowance: ${allowance}, remarks: ${remarks}`);
-  
-      // Update allowance and remarks
+
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
   };
-  
-  
+
   const handleStationChange = (
     dutyId: number,
     tripId: number,
@@ -77,7 +59,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
     destinationStation: string,
     distance: number
   ) => {
-    // Assuming updateTripData is a method that updates the trip information
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
@@ -89,42 +70,42 @@ const DutyRow: React.FC<DutyRowProps> = ({
     tripId: number
   ) => {
     updateTripData(dutyId, tripId, "trainNumber", trainNumber);
-    // Here you could also update the state or send this to a backend server
   };
 
   useEffect(() => {
     duty.trips.forEach((trip) => {
       if (trip.distance > 0 && trip.typeOfWork) {
-        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0; // default to 0 if parsing fails
+        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
+
         const { allowance, remarks } = calculateAllowanceAndRemarks(
           trip.distance,
           trip.typeOfWork,
-          dutyHoursAsNumber * 60 // Convert hours to minutes
+          dutyHoursAsNumber * 60
         );
-  
-        // Debugging
-        console.log(`Updated calculations for Trip ID ${trip.id}: Allowance - ${allowance}, Remarks - ${remarks}`);
-  
+
         updateTripData(duty.id, trip.id, 'allowance', allowance);
         updateTripData(duty.id, trip.id, 'remarks', remarks);
       }
     });
-  }, [duty.trips]); // Dependency on trips to re-calculate when trips data changes
-  
+  }, [duty.trips, updateTripData]);
 
+  console.log(duty);
 
   return (
     <React.Fragment>
       {duty.trips.map((trip, index) => (
         <tr key={trip.id}>
           <td>
-            <input
-              type="date"
-              value={trip.date}
-              onChange={(e) =>
-                handleTripDataChange(trip.id, "date", e.target.value)
-              }
-            />
+            {Platform.OS === "web" ? (
+              <WebDatePicker
+                value={trip.date}
+                onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+              />
+            ) : (
+              <DatePickerComponent
+                onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
+              />
+            )}
           </td>
           <td>
             <TypeofWorkPickerComponent
@@ -145,10 +126,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
               onStationChange={handleStationChange}
               dutyId={duty.id}
               tripId={trip.id}
-              disabled={false} // Or some logic to determine if it should be disabled
+              disabled={false}
             />
           </td>
-
           <td style={{ textAlign: "center", fontWeight: "bold" }}>
             {trip.distance.toFixed(2)}
           </td>
@@ -183,7 +163,3 @@ const DutyRow: React.FC<DutyRowProps> = ({
 };
 
 export default DutyRow;
-function updateDuty(id: number, arg1: Duty) {
-  throw new Error("Function not implemented.");
-}
-
