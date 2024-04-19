@@ -8,7 +8,9 @@ class Duty {
   dutyHours: number;
   nightDutyHours: number;
   isOSDA: boolean;
-  isRRA: boolean
+  isRRA: boolean;
+  dutyAllowance:number;
+  dutyDistance:number;
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -19,6 +21,8 @@ class Duty {
     this.nightDutyHours = 0;
     this.isOSDA = false;
     this.isRRA = false;
+    this.dutyAllowance=0;
+    this.dutyDistance=0;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {
@@ -33,6 +37,16 @@ class Duty {
       this.nightDutyHours = this.calculateNightDutyHours();
     }
   }
+
+  calculateTotalAllowance() {
+    return this.trips.reduce((total, trip) => total + trip.allowance, 0);
+  }
+  
+  calculateTotalDistance() {
+    return this.trips.reduce((total, trip) => total + trip.distance, 0);
+  }
+  
+ 
 
   updateTrip(tripId: number, updatedTrip: Trip) {
     const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
