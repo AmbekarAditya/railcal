@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 
 interface TrainNumberInputProps {
-  onChange: (trainNumber: string) => void; // Callback to send data to parent
+  onChange: (trainNumber: string) => void;
+  disabled: boolean;
 }
 
-const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange }) => {
+const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange,disabled }) => {
   const [trainNumber, setTrainNumber] = useState('');
 
   const handleInputChange = (text: string) => {
@@ -20,7 +21,8 @@ const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange }) => {
         onChangeText={handleInputChange}
         value={trainNumber}
         placeholder="Enter train number"
-        keyboardType="default" // 'default' since it can include numbers and characters
+        keyboardType="default" 
+        disabled={disabled}
       />
     </View>
   );

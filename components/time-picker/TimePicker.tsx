@@ -5,9 +5,10 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimePickerProps {
   onTimeChange: (hour: string, minute: string) => void;
+  disabled:boolean;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
+const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange,disabled }) => {
   const [selectedHour, setSelectedHour] = useState<string | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<string | null>(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -47,6 +48,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
         <Picker
           selectedValue={selectedHour}
           style={styles.picker}
+          disabled={disabled}
           onValueChange={handleHourChange}
         >
           <Picker.Item label="-" value="-" />
@@ -62,6 +64,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
           selectedValue={selectedMinute}
           style={styles.picker1}
           onValueChange={handleMinuteChange}
+          disabled={disabled}
         >
           <Picker.Item label="-" value="-" />
           {Array.from({ length: 60 }).map((_, index) => (

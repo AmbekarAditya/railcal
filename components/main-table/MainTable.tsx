@@ -170,6 +170,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   setTotalLeaves = (newTotalLeaves: number) => {
     this.setState({ totalLeaves: newTotalLeaves });
   };
+
+  
   render() {
     const { duties, showModal, selectedDuty } = this.state;
     const { selectedMonth } = this.props;
@@ -188,7 +190,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
     const startDate = "24/05/2023"; // Replace with the actual start date
     const endDate = "06/06/2023"; // Replace with the actual end date
-  
+    
+    
     return (
       <ScrollView
         horizontal

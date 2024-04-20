@@ -56,7 +56,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
         updatedTrip.typeOfWork,
         dutyHoursAsNumber * 60
       );
-  
+      
+      shouldDisableInputFields(trip.typeOfWork);
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
@@ -100,6 +101,16 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   console.log(duty);
 
+  const shouldDisableInputFields = (typeOfWork: string) => {
+    const disabledTypes = [
+      "Waiting for duty",
+      "Periodic rest",
+      "Paid Leave",
+      "Sick Leave",
+      "Casual Leave",
+    ];
+    return disabledTypes.includes(typeOfWork);
+  };
   return (
     <React.Fragment>
       <tr>
@@ -139,6 +150,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
               onChange={(trainNumber) =>
                 handleTrainNumberChange(trainNumber, duty.id, trip.id)
               }
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </td>
           <td>
@@ -146,7 +158,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
               onStationChange={handleStationChange}
               dutyId={duty.id}
               tripId={trip.id}
-              disabled={false}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </td>
           <td style={{ textAlign: "center", fontWeight: "bold" }}>
@@ -159,6 +171,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 handleTripDataChange(trip.id, "departureTime", departureTime);
                 handleTripDataChange(trip.id, "dutyHours", dutyHours);
               }}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </td>
           <td>{trip.dutyHours}</td>
@@ -171,9 +184,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
       ))}
       <tr>
         <td colSpan={6}>
-          <button onClick={() => addTrip(duty.id)}>Add Trip</button>
+          <button onClick={() => addTrip(duty.id)} disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}>Add Trip</button>
        
-          <button onClick={() => handleEndDuty(duty)}> End Duty</button>
+          <button onClick={() => handleEndDuty(duty)} disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}> End Duty</button>
           <DutyInfo duty={duty} />
         </td>
       </tr>
