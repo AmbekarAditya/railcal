@@ -195,17 +195,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           <div style={{ minWidth: 1200 }}> {/* Adjust minWidth based on your content width */}
             <table className="duty-table">
               <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Type of Duty</th>
-                  <th>Train Number</th>
-                  <th>Start & End Station</th>
-                  <th>Trip Distance</th>
-                  <th>Start & End Time</th>
-                  <th>Trip Duration</th>
-                  <th>Allowance</th>
-                  <th>Remarks</th>
-                </tr>
+                
               </thead>
               <tbody>
                 {duties.map((duty) => (
@@ -266,6 +256,13 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     maxHeight: '80%', // Adjust as needed
+  },
+  summaryBlockContainer: {
+    height: '15%', // Adjust as needed
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 export default MainTable;

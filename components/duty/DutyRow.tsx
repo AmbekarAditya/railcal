@@ -95,6 +95,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   return (
     <React.Fragment>
+      <tr>
+                  <th>Date</th>
+                  <th>Type of Duty</th>
+                  <th>Train Number</th>
+                  <th>Start & End Station</th>
+                  <th>Trip Distance</th>
+                  <th>Start & End Time</th>
+                  <th>Trip Duration</th>
+                  <th>Allowance</th>
+                  <th>Remarks</th>
+                </tr>
       {duty.trips.map((trip, index) => (
         <tr key={trip.id}>
           <td>
