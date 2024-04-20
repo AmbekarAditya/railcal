@@ -8,10 +8,11 @@ interface ArrivalDepartureTimePickerProps {
     departure: string,
     dutyHours: string
   ) => void;
+  disabled: boolean; 
 }
 
 const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
-  onTimesChange,
+  onTimesChange,disabled
 }) => {
   const [arrivalTime, setArrivalTime] = useState("");
   const [departureTime, setDepartureTime] = useState("");
@@ -86,13 +87,13 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Arrival Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker onTimeChange={handleArrivalTimeChange} />
+          <TimePicker onTimeChange={handleArrivalTimeChange} disabled={disabled}/>
         </View>
       </View>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Departure Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker onTimeChange={handleDepartureTimeChange} />
+          <TimePicker onTimeChange={handleDepartureTimeChange} disabled={disabled}/>
         </View>
       </View>
     </View>

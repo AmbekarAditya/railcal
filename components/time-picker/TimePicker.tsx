@@ -1,33 +1,38 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Platform,Text } from 'react-native';
+import { View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimePickerProps {
   onTimeChange: (hour: string, minute: string) => void;
+  disabled: boolean;  // Adding disabled prop to the interface
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
+const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange, disabled }) => {
   const [selectedHour, setSelectedHour] = useState<string | null>(null);
   const [selectedMinute, setSelectedMinute] = useState<string | null>(null);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
   const handleHourChange = (itemValue: string) => {
-    setSelectedHour(itemValue);
-    if (itemValue !== '-') {
-      onTimeChange(itemValue, selectedMinute || '');
+    if (!disabled) {  // Check if the picker is disabled
+      setSelectedHour(itemValue);
+      if (itemValue !== '-') {
+        onTimeChange(itemValue, selectedMinute || '');
+      }
     }
   };
 
   const handleMinuteChange = (itemValue: string) => {
-    setSelectedMinute(itemValue);
-    if (itemValue !== '-') {
-      onTimeChange(selectedHour || '', itemValue);
+    if (!disabled) {  // Check if the picker is disabled
+      setSelectedMinute(itemValue);
+      if (itemValue !== '-') {
+        onTimeChange(selectedHour || '', itemValue);
+      }
     }
   };
 
   const handleTimeChange = (event: any, selectedTime?: Date) => {
-    if (event.type === 'set') {
+    if (event.type === 'set' && !disabled) {  // Check if the picker is disabled
       const hour = String(selectedTime?.getHours()).padStart(2, '0');
       const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
       setSelectedHour(hour);
@@ -38,7 +43,9 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
   };
 
   const openTimePicker = () => {
-    setShowTimePicker(true);
+    if (!disabled) {  // Check if the picker is disabled
+      setShowTimePicker(true);
+    }
   };
 
   if (Platform.OS === 'web') {
@@ -48,6 +55,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
           selectedValue={selectedHour}
           style={styles.picker}
           onValueChange={handleHourChange}
+          enabled={!disabled}  // Disable picker interaction if disabled
         >
           <Picker.Item label="-" value="-" />
           {Array.from({ length: 24 }).map((_, index) => (
@@ -62,6 +70,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
           selectedValue={selectedMinute}
           style={styles.picker1}
           onValueChange={handleMinuteChange}
+          enabled={!disabled}  // Disable picker interaction if disabled
         >
           <Picker.Item label="-" value="-" />
           {Array.from({ length: 60 }).map((_, index) => (
@@ -79,7 +88,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
   return (
     <View>
       <View style={styles.container}>
-        <View onTouchStart={openTimePicker}>
+        <TouchableOpacity onPress={openTimePicker} disabled={disabled}>
           <View style={styles.timeContainer}>
             <View>
               <Text>{selectedHour || '--'}</Text>
@@ -89,7 +98,7 @@ const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange }) => {
               <Text>{selectedMinute || '--'}</Text>
             </View>
           </View>
-        </View>
+        </TouchableOpacity>
       </View>
       {showTimePicker && (
         <DateTimePicker

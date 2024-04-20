@@ -3,9 +3,10 @@ import { View, TextInput, StyleSheet } from 'react-native';
 
 interface TrainNumberInputProps {
   onChange: (trainNumber: string) => void; // Callback to send data to parent
+  disabled: boolean; 
 }
 
-const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange }) => {
+const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange , disabled}) => {
   const [trainNumber, setTrainNumber] = useState('');
 
   const handleInputChange = (text: string) => {
@@ -15,12 +16,13 @@ const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange }) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
+         <TextInput
         style={styles.input}
         onChangeText={handleInputChange}
         value={trainNumber}
         placeholder="Enter train number"
-        keyboardType="default" // 'default' since it can include numbers and characters
+        keyboardType="default"
+        editable={!disabled}  // Use the disabled prop to control editability
       />
     </View>
   );

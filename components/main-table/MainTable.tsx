@@ -111,15 +111,36 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   updateDutyDetails = (updatedDuty: Duty) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
+    console.log('updateDutyDetails called with updatedDuty:', updatedDuty);
+    this.setState((prevState) => {
+      // Check if the updated duty has at least one trip with a leave type
+      const hasLeaveTypeTrip = updatedDuty.trips.some((trip) =>
+        ['Sick leave', 'Casual leave', 'Paid leave'].includes(trip.typeOfWork)
+      );
+  
+      console.log('hasLeaveTypeTrip:', hasLeaveTypeTrip);
+  
+      // If there is at least one trip with a leave type, set dutyHours to "7h 25m"
+      if (hasLeaveTypeTrip) {
+        updatedDuty.dutyHours = "7h 25m";
+        console.log('updatedDuty.dutyHours set to "7h 25m"');
+      }
+  
+      const updatedDuties = prevState.duties.map((duty) => {
         if (duty.id === updatedDuty.id) {
+          console.log('Updating duty with id:', duty.id);
           return updatedDuty;
         }
         return duty;
-      }),
-      showModal: false,
-    }));
+      });
+  
+      console.log('updatedDuties:', updatedDuties);
+  
+      return {
+        duties: updatedDuties,
+        showModal: false,
+      };
+    });
   };
 
   updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
@@ -207,6 +228,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 updateTripData={this.updateTripData}
                 selectedMonth={selectedMonth}
                 deleteTrip={this.deleteTrip}
+                updateDutyDetails={this.updateDutyDetails}
               >
                
               </DutyRow>
