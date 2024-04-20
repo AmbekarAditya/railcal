@@ -17,6 +17,7 @@ interface DutyRowProps {
   addTrip: (dutyId: number) => void;
   handleEndDuty: (duty: Duty) => void;
   updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
+  deleteTrip: (dutyId: number, tripId: number) => void;
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -24,6 +25,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
   addTrip,
   handleEndDuty,
   updateTripData,
+  deleteTrip,
 }) => {
   const handleTripDataChange = (
     tripId: number,
@@ -144,11 +146,15 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <td>{trip.dutyHours}</td>
           <td>{trip.allowance}</td>
           <td>{trip.remarks}</td>
+           <td>
+            <button onClick={() => deleteTrip(duty.id, trip.id)}>Delete Trip</button>
+          </td>
         </tr>
       ))}
       <tr>
         <td colSpan={6}>
           <button onClick={() => addTrip(duty.id)}>Add Trip</button>
+       
           <button onClick={() => handleEndDuty(duty)}> End Duty</button>
           <DutyInfo duty={duty} />
         </td>

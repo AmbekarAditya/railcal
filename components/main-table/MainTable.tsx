@@ -146,8 +146,23 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     return totalDistance;
   };
+  deleteTrip = (dutyId: number, tripId: number) => {
+    this.setState((prevState) => ({
+      duties: prevState.duties.map((duty) => {
+        if (duty.id === dutyId) {
+          const updatedTrips = duty.trips.filter((trip) => trip.id !== tripId);
+          return new Duty(duty.id, updatedTrips);
+        }
+        return duty;
+      }),
+    }));
+  };
 
-
+  deleteDuty = (dutyId: number) => {
+    this.setState((prevState) => ({
+      duties: prevState.duties.filter((duty) => duty.id !== dutyId),
+    }));
+  };
   render() {
     const { duties, showModal, selectedDuty } = this.state;
     const { selectedMonth } = this.props;
@@ -157,6 +172,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
       return acc + dutyDistance;
     }, 0);
+
     const mileage = 1.5; // Replace with the actual mileage calculation
     const nightDutyAllowance = 100; // Replace with the actual night duty allowance calculation
     const nationalHolidayAllowance = 200; // Replace with the actual national holiday allowance calculation
@@ -193,14 +209,17 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               </thead>
               <tbody>
                 {duties.map((duty) => (
-                  <DutyRow
-                    key={duty.id}
-                    duty={duty}
-                    addTrip={this.addTrip}
-                    handleEndDuty={this.handleEndDuty}
-                    updateTripData={this.updateTripData}
-                    selectedMonth={selectedMonth}
-                  />
+                <DutyRow
+                key={duty.id}
+                duty={duty}
+                addTrip={this.addTrip}
+                handleEndDuty={this.handleEndDuty}
+                updateTripData={this.updateTripData}
+                selectedMonth={selectedMonth}
+                deleteTrip={this.deleteTrip}
+              >
+               
+              </DutyRow>
                 ))}
               </tbody>
             </table>
@@ -208,6 +227,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </ScrollView>
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
+          <button onClick={() => this.deleteDuty(duties.length > 0 ? duties[duties.length - 1].id : null)}>Delete Duty</button>
+
         </div>
 
         <SummaryBlock
