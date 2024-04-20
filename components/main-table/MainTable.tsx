@@ -20,6 +20,7 @@ interface MainTableState {
   duties: Duty[];
   showModal: boolean;
   selectedDuty: Duty | null;
+  totalLeaves: number;
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -27,6 +28,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     duties: [],
     showModal: false,
     selectedDuty: null,
+    totalLeaves: 0,
   };
 
   constructor(props: MainTableProps) {
@@ -122,6 +124,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }));
   };
 
+   
+
   updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
@@ -162,6 +166,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState((prevState) => ({
       duties: prevState.duties.filter((duty) => duty.id !== dutyId),
     }));
+  };
+  setTotalLeaves = (newTotalLeaves: number) => {
+    this.setState({ totalLeaves: newTotalLeaves });
   };
   render() {
     const { duties, showModal, selectedDuty } = this.state;
@@ -207,6 +214,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 updateTripData={this.updateTripData}
                 selectedMonth={selectedMonth}
                 deleteTrip={this.deleteTrip}
+                setTotalLeaves={this.setTotalLeaves}
               >
                
               </DutyRow>

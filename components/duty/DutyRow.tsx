@@ -18,6 +18,7 @@ interface DutyRowProps {
   handleEndDuty: (duty: Duty) => void;
   updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
   deleteTrip: (dutyId: number, tripId: number) => void;
+  setTotalLeaves: (newTotalLeaves: number) => void;
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -26,7 +27,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
   handleEndDuty,
   updateTripData,
   deleteTrip,
+  setTotalLeaves,
 }) => {
+  
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
@@ -34,26 +37,30 @@ const DutyRow: React.FC<DutyRowProps> = ({
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-
+  
+    // Update the dutyHours for leave types before updating the trip data
+    if (field === "typeOfWork") {
+      duty.updateDutyHoursForLeaveTypes(value as string);
+    }
+  
     // Update the trip data immediately for synchronous processing
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-
+  
     // Perform calculations only on specific field changes
     if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
       const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-
+  
       const { allowance, remarks } = calculateAllowanceAndRemarks(
         updatedTrip.distance,
         updatedTrip.typeOfWork,
         dutyHoursAsNumber * 60
       );
-
+  
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
   };
-
   const handleStationChange = (
     dutyId: number,
     tripId: number,

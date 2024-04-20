@@ -47,7 +47,20 @@ class Duty {
   }
   
  
-
+  updateDutyHoursForLeaveTypes(typeOfWork: string) {
+    const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+  
+    if (leaveTypes.includes(typeOfWork)) {
+      this.dutyHours = 7.41;
+      this.dutyAllowance = 0;
+      this.dutyDistance = 0;
+    } else {
+      this.dutyHours = this.calculateDutyHours();
+      this.dutyAllowance = this.calculateTotalAllowance();
+      this.dutyDistance = this.calculateTotalDistance();
+    }
+  }
+  
   updateTrip(tripId: number, updatedTrip: Trip) {
     const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
     if (tripIndex !== -1) {
