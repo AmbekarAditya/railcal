@@ -192,9 +192,29 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   render() {
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { selectedMonth } = this.props;
+    const { rateOfPay, selectedMonth } = this.props;
 
-    const totalAllowance = this.calculateTotalAllowance();
+    // Calculate the number of days in the month from the first trip date if available
+    let daysInMonth = 1;
+    let startDate = ""; // Default to 1 to prevent division by zero errors
+    if (duties.length > 0 && duties[0].trips.length > 0) {
+      const firstTripDate = duties[0].trips[0].date;
+      if (firstTripDate) {
+        startDate = firstTripDate;
+        const year = new Date(firstTripDate).getFullYear();
+        const month = new Date(firstTripDate).getMonth();
+        daysInMonth = new Date(year, month + 1, 0).getDate(); // Correctly calculate days in month
+      }
+    }
+
+    // Calculate leave mileage allowance
+    const { lmc, lma } = calculateLeaveMileage({
+      rateOfPay,
+      daysInMonth,
+      totalLeaves,
+    });
+
+    // Calculate total kilometers from duties
     const totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
         (tripAcc, trip) => tripAcc + (trip.distance || 0),
@@ -203,35 +223,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       return acc + dutyDistance;
     }, 0);
 
+    const totalAllowance = this.calculateTotalAllowance();
+    const mileage = 1.5; // Example mileage rate, replace as needed
+    const nightDutyAllowance = 100; // Example fixed night duty allowance, replace as needed
+    const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
+    const overTimeAllowance = 75; // Example overtime allowance, replace as needed
 
-    const { lmc, lma } = calculateLeaveMileage({
-      rateOfPay: 1000,
-      daysInMonth: 30,
-      totalLeaves: 5,
-    });
-    const mileage = 1.5; // Replace with the actual mileage calculation
-    const nightDutyAllowance = 100; // Replace with the actual night duty allowance calculation
-    const nationalHolidayAllowance = 1; // Replace with the actual national holiday allowance calculation
-    const leaveMileageAllowance =lma;// Replace with the actual leave mileage allowance calculation
-    const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
-
-  
-
-    let startDate = "";
-    let daysInMonth = 0;
-
-    if (duties.length > 0 && duties[0].trips.length > 0) {
-      const firstTripDate = duties[0].trips[0].date;
-      if (firstTripDate) {
-        startDate = firstTripDate;
-        const year = new Date(firstTripDate).getFullYear();
-        const month = new Date(firstTripDate).getMonth();
-        daysInMonth = new Date(year, month + 1, 0).getDate();
-      }
-    }
-
-    const endDate = "";
-    const rateOfPay = this.props.rateOfPay;
     const osdaCount = this.state.duties.reduce(
       (count, duty) => (duty.isOSDA ? count + 1 : count),
       0
@@ -240,7 +237,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (count, duty) => (duty.isRRA ? count + 1 : count),
       0
     );
-    
+
     console.log("OSDA Count:", osdaCount);
     console.log("RRA Count:", rraCount);
     console.log("Leaves: ", totalLeaves);
@@ -295,10 +292,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             mileage={mileage}
             nightDutyAllowance={nightDutyAllowance}
             nationalHolidayAllowance={nationalHolidayAllowance}
-            leaveMileageAllowance={leaveMileageAllowance}
+            leaveMileageAllowance={lma}
             overTimeAllowance={overTimeAllowance}
             startDate={startDate}
-            endDate={endDate}
+            endDate={""}
             daysInMonth={daysInMonth}
           />
         )}
