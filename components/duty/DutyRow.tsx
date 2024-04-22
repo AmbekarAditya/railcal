@@ -123,6 +123,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                   <th>Trip Duration</th>
                   <th>Allowance</th>
                   <th>Remarks</th>
+                  <th>Actions</th>
                 </tr>
       {duty.trips.map((trip, index) => (
         <tr key={trip.id}>
