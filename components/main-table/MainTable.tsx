@@ -229,6 +229,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 selectedMonth={selectedMonth}
                 deleteTrip={this.deleteTrip}
                 updateDutyDetails={this.updateDutyDetails}
+                deleteDuty={this.deleteDuty}
               >
                
               </DutyRow>
@@ -239,8 +240,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </ScrollView>
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
-          <button onClick={() => this.deleteDuty(duties.length > 0 ? duties[duties.length - 1].id : null)}>Delete Duty</button>
-
         </div>
 
         <SummaryBlock
