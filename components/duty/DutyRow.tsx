@@ -57,7 +57,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         dutyHoursAsNumber * 60
       );
       
-      shouldDisableInputFields(trip.typeOfWork);
+      // shouldDisableInputFields(trip.typeOfWork);
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
@@ -105,9 +105,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
     const disabledTypes = [
       "Waiting for duty",
       "Periodic rest",
-      "Paid Leave",
-      "Sick Leave",
-      "Casual Leave",
+      "Paid leave",
+      "Sick leave",
+      "Casual leave",
     ];
     return disabledTypes.includes(typeOfWork);
   };

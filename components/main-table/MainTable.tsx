@@ -21,6 +21,8 @@ interface MainTableState {
   showModal: boolean;
   selectedDuty: Duty | null;
   totalLeaves: number;
+  totalRRA: number;
+  totalOSDA: number;
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -30,10 +32,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     selectedDuty: null,
     totalLeaves: 0,
   };
-
   constructor(props: MainTableProps) {
     super(props);
-
+  
     const trip: Trip = {
       id: 1,
       date: "",
@@ -49,16 +50,18 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       remarks: "",
       dutyHours:"",
     };
-
+  
     const duty: Duty = new Duty(1, [trip]);
-
+  
     this.state = {
       duties: [duty],
       showModal: false,
       selectedDuty: null,
+      totalLeaves: 0,
+      totalRRA: 0,
+      totalOSDA: 0,
     };
   }
-
   addDuty = () => {
     const newTrip: Trip = {
       id: 1,
@@ -133,6 +136,39 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
           if (tripToUpdate) {
             const updatedTrip = { ...tripToUpdate, [field]: value };
+            if (field === "typeOfWork") {
+              const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+              const isLeave = leaveTypes.includes(value as string);
+              if (isLeave) {
+                this.setState((prevState) => ({
+                  totalLeaves: prevState.totalLeaves + 1,
+                }));
+              } else {
+                this.setState((prevState) => ({
+                  totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
+                }));
+              }
+  
+              if (updatedTrip.isRRA) {
+                this.setState((prevState) => ({
+                  totalRRA: prevState.totalRRA + 1,
+                }));
+              } else {
+                this.setState((prevState) => ({
+                  totalRRA: Math.max(prevState.totalRRA - 1, 0),
+                }));
+              }
+  
+              if (updatedTrip.isOSDA) {
+                this.setState((prevState) => ({
+                  totalOSDA: prevState.totalOSDA + 1,
+                }));
+              } else {
+                this.setState((prevState) => ({
+                  totalOSDA: Math.max(prevState.totalOSDA - 1, 0),
+                }));
+              }
+            }
             duty.updateTrip(tripId, updatedTrip);
           }
         }
@@ -173,7 +209,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   
   render() {
-    const { duties, showModal, selectedDuty } = this.state;
+    const { duties, showModal, selectedDuty, totalLeaves, totalRRA, totalOSDA } = this.state;
+  
     const { selectedMonth } = this.props;
 
     const totalAllowance = this.calculateTotalAllowance();
@@ -231,7 +268,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           <button onClick={() => this.deleteDuty(duties.length > 0 ? duties[duties.length - 1].id : null)}>Delete Duty</button>
 
         </div>
-
+        <div>
+        <p>Total Leaves: {totalLeaves}</p>
+        <p>Total RRA: {totalRRA}</p>
+        <p>Total OSDA: {totalOSDA}</p>
+      </div>
         <SummaryBlock
           totalAllowance={totalAllowance}
           totalKilometers={totalKilometers}
