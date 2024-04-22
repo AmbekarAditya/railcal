@@ -6,7 +6,7 @@ import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import "./MainTable.css";
 import Modal from "../modal/Modal";
-import { NavigationProp } from '@react-navigation/native';
+import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
@@ -34,7 +34,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
   constructor(props: MainTableProps) {
     super(props);
-  
+
     const trip: Trip = {
       id: 1,
       date: "",
@@ -44,15 +44,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       timeDifference: 0,
       sourceStation: "",
       destinationStation: "",
-      trainNumber:"",
+      trainNumber: "",
       distance: 0,
       allowance: 1,
       remarks: "",
-      dutyHours:"",
+      dutyHours: "",
     };
-  
+
     const duty: Duty = new Duty(1, [trip]);
-  
+
     this.state = {
       duties: [duty],
       showModal: false,
@@ -78,13 +78,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       trainNumber: "",
       dutyHours: "",
     };
-  
+
     const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
     this.setState((prevState) => ({
       duties: [...prevState.duties, newDuty],
     }));
   };
-  
+
   addTrip = (dutyId: number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
@@ -127,9 +127,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }));
   };
 
-   
-
-  updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
+  updateTripData = (
+    dutyId: number,
+    tripId: number,
+    field: keyof Trip,
+    value: string | number
+  ) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
@@ -148,7 +151,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
                 }));
               }
-  
+
               if (updatedTrip.isRRA) {
                 this.setState((prevState) => ({
                   totalRRA: prevState.totalRRA + 1,
@@ -158,7 +161,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   totalRRA: Math.max(prevState.totalRRA - 1, 0),
                 }));
               }
-  
+
               if (updatedTrip.isOSDA) {
                 this.setState((prevState) => ({
                   totalOSDA: prevState.totalOSDA + 1,
@@ -180,7 +183,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   calculateTotalAllowance = () => {
     const { duties } = this.state;
     const totalDistance = duties.reduce((acc, duty) => {
-      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
+      const dutyDistance = duty.trips.reduce(
+        (tripAcc, trip) => tripAcc + (trip.distance || 0),
+        0
+      );
       return acc + dutyDistance;
     }, 0);
 
@@ -207,15 +213,24 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ totalLeaves: newTotalLeaves });
   };
 
-  
   render() {
-    const { duties, showModal, selectedDuty, totalLeaves, totalRRA, totalOSDA } = this.state;
-  
+    const {
+      duties,
+      showModal,
+      selectedDuty,
+      totalLeaves,
+      totalRRA,
+      totalOSDA,
+    } = this.state;
+
     const { selectedMonth } = this.props;
 
     const totalAllowance = this.calculateTotalAllowance();
     const totalKilometers = duties.reduce((acc, duty) => {
-      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
+      const dutyDistance = duty.trips.reduce(
+        (tripAcc, trip) => tripAcc + (trip.distance || 0),
+        0
+      );
       return acc + dutyDistance;
     }, 0);
 
@@ -227,37 +242,31 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
     const startDate = "24/05/2023"; // Replace with the actual start date
     const endDate = "06/06/2023"; // Replace with the actual end date
-    
-    
+
     return (
       <ScrollView
         horizontal
         style={styles.container}
         contentContainerStyle={styles.horizontalContent}
       >
-        <ScrollView
-          vertical
-          style={styles.tableContainer}
-        >
-          <div style={{ minWidth: 1200 }}> {/* Adjust minWidth based on your content width */}
+        <ScrollView vertical style={styles.tableContainer}>
+          <div style={{ minWidth: 1200 }}>
+            {" "}
+            {/* Adjust minWidth based on your content width */}
             <table className="duty-table">
-              <thead>
-                
-              </thead>
+              <thead></thead>
               <tbody>
                 {duties.map((duty) => (
-                <DutyRow
-                key={duty.id}
-                duty={duty}
-                addTrip={this.addTrip}
-                handleEndDuty={this.handleEndDuty}
-                updateTripData={this.updateTripData}
-                selectedMonth={selectedMonth}
-                deleteTrip={this.deleteTrip}
-                setTotalLeaves={this.setTotalLeaves}
-              >
-               
-              </DutyRow>
+                  <DutyRow
+                    key={duty.id}
+                    duty={duty}
+                    addTrip={this.addTrip}
+                    handleEndDuty={this.handleEndDuty}
+                    updateTripData={this.updateTripData}
+                    selectedMonth={selectedMonth}
+                    deleteTrip={this.deleteTrip}
+                    setTotalLeaves={this.setTotalLeaves}
+                  ></DutyRow>
                 ))}
               </tbody>
             </table>
@@ -265,14 +274,16 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </ScrollView>
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
-          <button onClick={() => this.deleteDuty(duties.length > 0 ? duties[duties.length - 1].id : null)}>Delete Duty</button>
-
+          <button
+            onClick={() =>
+              this.deleteDuty(
+                duties.length > 0 ? duties[duties.length - 1].id : null
+              )
+            }
+          >
+            Delete Duty
+          </button>
         </div>
-        <div>
-        <p>Total Leaves: {totalLeaves}</p>
-        <p>Total RRA: {totalRRA}</p>
-        <p>Total OSDA: {totalOSDA}</p>
-      </div>
         <SummaryBlock
           totalAllowance={totalAllowance}
           totalKilometers={totalKilometers}
@@ -285,7 +296,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           startDate={startDate}
           endDate={endDate}
         />
-        <Modal isOpen={showModal} onClose={() => this.setState({ showModal: false })}>
+        <Modal
+          isOpen={showModal}
+          onClose={() => this.setState({ showModal: false })}
+        >
           {selectedDuty && (
             <EndDutyModal
               duty={selectedDuty}
@@ -297,21 +311,21 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       </ScrollView>
     );
   }
-}  
+}
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   horizontalContent: {
-    flexDirection: 'column',
+    flexDirection: "column",
     flexGrow: 1, // This makes sure it takes up as much space as it needs
   },
   tableContainer: {
-    maxHeight: '80%', // Adjust as needed
+    maxHeight: "80%", // Adjust as needed
   },
   summaryBlockContainer: {
-    height: '15%', // Adjust as needed
-    position: 'absolute',
+    height: "15%", // Adjust as needed
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
