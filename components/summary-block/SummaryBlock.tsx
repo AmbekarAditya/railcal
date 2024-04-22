@@ -2,14 +2,14 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 interface SummaryBlockProps {
-  totalAllowance: number;
-  totalKilometers: number;
-  mileage: number;
-  nightDutyAllowance: number;
-  nationalHolidayAllowance: number;
-  leaveMileageAllowance: number;
-  rraOsda: number;
-  overTimeAllowance: number;
+  totalAllowance: number | undefined;
+  totalKilometers: number | undefined;
+  mileage: number | undefined;
+  nightDutyAllowance: number | undefined;
+  nationalHolidayAllowance: number | undefined;
+  leaveMileageAllowance: number | undefined;
+  rraOsda: number | undefined;
+  overTimeAllowance: number | undefined;
   startDate: string;
   endDate: string;
 }
@@ -26,6 +26,10 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   startDate,
   endDate,
 }) => {
+  const formatNumber = (value: number | undefined) => {
+    return value !== undefined ? value.toFixed(2) : "-";
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Summary:</Text>
@@ -33,44 +37,45 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
       <View style={styles.row}>
         <View style={styles.column}>
           <Text style={styles.label}>Total Allowance:</Text>
-          <Text style={styles.value}>₹{totalAllowance.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(totalAllowance)}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Total Kilometers:</Text>
-          <Text style={styles.value}>{totalKilometers.toFixed(2)}</Text>
+          <Text style={styles.value}>{formatNumber(totalKilometers)}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Mileage:</Text>
-          <Text style={styles.value}>₹{mileage.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
         </View>
       </View>
       <View style={styles.row}>
         <View style={styles.column}>
           <Text style={styles.label}>Night Duty:</Text>
-          <Text style={styles.value}>₹{nightDutyAllowance.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(nightDutyAllowance)}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>National Holiday:</Text>
-          <Text style={styles.value}>₹{nationalHolidayAllowance.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(nationalHolidayAllowance)}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Leave Mileage:</Text>
-          <Text style={styles.value}>₹{leaveMileageAllowance.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(leaveMileageAllowance)}</Text>
         </View>
       </View>
       <View style={styles.row}>
         <View style={styles.column}>
           <Text style={styles.label}>RRA / OSDA:</Text>
-          <Text style={styles.value}>₹{rraOsda.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
         </View>
         <View style={styles.column}>
           <Text style={styles.label}>Over Time:</Text>
-          <Text style={styles.value}>₹{overTimeAllowance.toFixed(2)}</Text>
+          <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
         </View>
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

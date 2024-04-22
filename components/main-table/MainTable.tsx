@@ -190,27 +190,36 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
+
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-
     const { selectedMonth } = this.props;
-
+  
     const totalAllowance = this.calculateTotalAllowance();
     const totalKilometers = duties.reduce((acc, duty) => {
-      const dutyDistance = duty.trips.reduce(
-        (tripAcc, trip) => tripAcc + (trip.distance || 0),
-        0
-      );
+      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
       return acc + dutyDistance;
     }, 0);
-
+  
     const mileage = 1.5; // Replace with the actual mileage calculation
     const nightDutyAllowance = 100; // Replace with the actual night duty allowance calculation
     const nationalHolidayAllowance = 200; // Replace with the actual national holiday allowance calculation
     const leaveMileageAllowance = 150; // Replace with the actual leave mileage allowance calculation
-    const rraOsda = 50; // Replace with the actual RRA/OSDA calculation
     const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
-    const startDate = "24/05/2023"; // Replace with the actual start date
-    const endDate = "06/06/2023"; // Replace with the actual end date
+  
+    let startDate = '';
+    let daysInMonth = 0;
+  
+    if (duties.length > 0 && duties[0].trips.length > 0) {
+      const firstTripDate = duties[0].trips[0].date;
+      if (firstTripDate) {
+        startDate = firstTripDate;
+        const year = new Date(firstTripDate).getFullYear();
+        const month = new Date(firstTripDate).getMonth();
+        daysInMonth = new Date(year, month + 1, 0).getDate();
+      }
+    }
+  
+    const endDate = '';
     const rateOfPay = this.props.rateOfPay;
     const osdaCount = this.state.duties.reduce(
       (count, duty) => (duty.isOSDA ? count + 1 : count),
@@ -225,6 +234,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("RRA Count:", rraCount);
     console.log("Leaves: ",totalLeaves);
     console.log("Rate Of Pay: ",rateOfPay);
+    console.log("Start Date: ",startDate);
+    console.log("Days In Month: ",daysInMonth);
     return (
       <ScrollView
         horizontal
@@ -266,18 +277,20 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             Delete Duty
           </button>
         </div>
-        <SummaryBlock
-          totalAllowance={totalAllowance}
-          totalKilometers={totalKilometers}
-          mileage={mileage}
-          nightDutyAllowance={nightDutyAllowance}
-          nationalHolidayAllowance={nationalHolidayAllowance}
-          leaveMileageAllowance={leaveMileageAllowance}
-          rraOsda={rraOsda}
-          overTimeAllowance={overTimeAllowance}
-          startDate={startDate}
-          endDate={endDate}
-        />
+        {duties.length > 0 && duties[0].trips.length > 0 && (
+      <SummaryBlock
+        totalAllowance={totalAllowance}
+        totalKilometers={totalKilometers}
+        mileage={mileage}
+        nightDutyAllowance={nightDutyAllowance}
+        nationalHolidayAllowance={nationalHolidayAllowance}
+        leaveMileageAllowance={leaveMileageAllowance}
+        overTimeAllowance={overTimeAllowance}
+        startDate={startDate}
+        endDate={endDate}
+        daysInMonth={daysInMonth}
+      />
+    )}
         <Modal
           isOpen={showModal}
           onClose={() => this.setState({ showModal: false })}
