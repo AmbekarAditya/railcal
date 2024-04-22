@@ -8,13 +8,14 @@ import "./MainTable.css";
 import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
+import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
 interface MainTableProps {
   navigation: NavigationProp<any>;
   selectedMonth: string;
-  rateOfPay:Number;
+  rateOfPay: Number;
 }
 interface MainTableState {
   duties: Duty[];
@@ -190,25 +191,35 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
-
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
     const { selectedMonth } = this.props;
-  
+
     const totalAllowance = this.calculateTotalAllowance();
     const totalKilometers = duties.reduce((acc, duty) => {
-      const dutyDistance = duty.trips.reduce((tripAcc, trip) => tripAcc + (trip.distance || 0), 0);
+      const dutyDistance = duty.trips.reduce(
+        (tripAcc, trip) => tripAcc + (trip.distance || 0),
+        0
+      );
       return acc + dutyDistance;
     }, 0);
-  
+
+
+    const { lmc, lma } = calculateLeaveMileage({
+      rateOfPay: 1000,
+      daysInMonth: 30,
+      totalLeaves: 5,
+    });
     const mileage = 1.5; // Replace with the actual mileage calculation
     const nightDutyAllowance = 100; // Replace with the actual night duty allowance calculation
-    const nationalHolidayAllowance = 200; // Replace with the actual national holiday allowance calculation
-    const leaveMileageAllowance = 150; // Replace with the actual leave mileage allowance calculation
+    const nationalHolidayAllowance = 1; // Replace with the actual national holiday allowance calculation
+    const leaveMileageAllowance =lma;// Replace with the actual leave mileage allowance calculation
     const overTimeAllowance = 75; // Replace with the actual over time allowance calculation
+
   
-    let startDate = '';
+
+    let startDate = "";
     let daysInMonth = 0;
-  
+
     if (duties.length > 0 && duties[0].trips.length > 0) {
       const firstTripDate = duties[0].trips[0].date;
       if (firstTripDate) {
@@ -218,8 +229,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         daysInMonth = new Date(year, month + 1, 0).getDate();
       }
     }
-  
-    const endDate = '';
+
+    const endDate = "";
     const rateOfPay = this.props.rateOfPay;
     const osdaCount = this.state.duties.reduce(
       (count, duty) => (duty.isOSDA ? count + 1 : count),
@@ -229,13 +240,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (count, duty) => (duty.isRRA ? count + 1 : count),
       0
     );
-
+    
     console.log("OSDA Count:", osdaCount);
     console.log("RRA Count:", rraCount);
-    console.log("Leaves: ",totalLeaves);
-    console.log("Rate Of Pay: ",rateOfPay);
-    console.log("Start Date: ",startDate);
-    console.log("Days In Month: ",daysInMonth);
+    console.log("Leaves: ", totalLeaves);
+    console.log("Rate Of Pay: ", rateOfPay);
+    console.log("Start Date: ", startDate);
+    console.log("Days In Month: ", daysInMonth);
     return (
       <ScrollView
         horizontal
@@ -278,19 +289,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           </button>
         </div>
         {duties.length > 0 && duties[0].trips.length > 0 && (
-      <SummaryBlock
-        totalAllowance={totalAllowance}
-        totalKilometers={totalKilometers}
-        mileage={mileage}
-        nightDutyAllowance={nightDutyAllowance}
-        nationalHolidayAllowance={nationalHolidayAllowance}
-        leaveMileageAllowance={leaveMileageAllowance}
-        overTimeAllowance={overTimeAllowance}
-        startDate={startDate}
-        endDate={endDate}
-        daysInMonth={daysInMonth}
-      />
-    )}
+          <SummaryBlock
+            totalAllowance={totalAllowance}
+            totalKilometers={totalKilometers}
+            mileage={mileage}
+            nightDutyAllowance={nightDutyAllowance}
+            nationalHolidayAllowance={nationalHolidayAllowance}
+            leaveMileageAllowance={leaveMileageAllowance}
+            overTimeAllowance={overTimeAllowance}
+            startDate={startDate}
+            endDate={endDate}
+            daysInMonth={daysInMonth}
+          />
+        )}
         <Modal
           isOpen={showModal}
           onClose={() => this.setState({ showModal: false })}
