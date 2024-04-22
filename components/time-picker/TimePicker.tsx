@@ -1,117 +1,147 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
-import { Picker } from "@react-native-picker/picker";
+import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimePickerProps {
   onTimeChange: (hour: string, minute: string) => void;
-  disabled: boolean;  // Adding disabled prop to the interface
+  disabled: boolean;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange, disabled }) => {
-  const [selectedHour, setSelectedHour] = useState<string | null>(null);
-  const [selectedMinute, setSelectedMinute] = useState<string | null>(null);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+interface TimePickerState {
+  selectedHour: string | null;
+  selectedMinute: string | null;
+  showTimePicker: boolean;
+}
 
-  const handleHourChange = (itemValue: string) => {
-    if (!disabled) {  // Check if the picker is disabled
-      setSelectedHour(itemValue);
-      if (itemValue !== '-') {
-        onTimeChange(itemValue, selectedMinute || '');
-      }
+class TimePicker extends React.Component<TimePickerProps, TimePickerState> {
+  constructor(props: TimePickerProps) {
+    super(props);
+    this.state = {
+      selectedHour: null,
+      selectedMinute: null,
+      showTimePicker: false,
+    };
+  }
+
+  handleHourChange = (itemValue: string) => {
+    const { onTimeChange, disabled } = this.props;
+    if (!disabled) {
+      this.setState({ selectedHour: itemValue }, () => {
+        if (itemValue !== '-') {
+          onTimeChange(itemValue, this.state.selectedMinute || '');
+        }
+      });
     }
   };
 
-  const handleMinuteChange = (itemValue: string) => {
-    if (!disabled) {  // Check if the picker is disabled
-      setSelectedMinute(itemValue);
-      if (itemValue !== '-') {
-        onTimeChange(selectedHour || '', itemValue);
-      }
+  handleMinuteChange = (itemValue: string) => {
+    const { onTimeChange, disabled } = this.props;
+    if (!disabled) {
+      this.setState({ selectedMinute: itemValue }, () => {
+        if (itemValue !== '-') {
+          onTimeChange(this.state.selectedHour || '', itemValue);
+        }
+      });
     }
   };
 
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
-    if (event.type === 'set' && !disabled) {  // Check if the picker is disabled
+  handleTimeChange = (event: any, selectedTime?: Date) => {
+    const { onTimeChange, disabled } = this.props;
+    if (event.type === 'set' && !disabled) {
       const hour = String(selectedTime?.getHours()).padStart(2, '0');
       const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
-      setSelectedHour(hour);
-      setSelectedMinute(minute);
-      onTimeChange(hour, minute);
+      this.setState(
+        {
+          selectedHour: hour,
+          selectedMinute: minute,
+          showTimePicker: false,
+        },
+        () => {
+          onTimeChange(hour, minute);
+        }
+      );
+    } else {
+      this.setState({ showTimePicker: false });
     }
-    setShowTimePicker(false);
   };
 
-  const openTimePicker = () => {
-    if (!disabled) {  // Check if the picker is disabled
-      setShowTimePicker(true);
+  openTimePicker = () => {
+    const { disabled } = this.props;
+    if (!disabled) {
+      this.setState({ showTimePicker: true });
     }
   };
 
-  if (Platform.OS === 'web') {
+  render() {
+    const { disabled } = this.props;
+    const { selectedHour, selectedMinute, showTimePicker } = this.state;
+
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.container}>
+          <Picker
+            selectedValue={selectedHour}
+            style={styles.picker}
+            onValueChange={this.handleHourChange}
+            enabled={!disabled}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 24 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={selectedMinute}
+            style={styles.picker1}
+            onValueChange={this.handleMinuteChange}
+            enabled={!disabled}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 60 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+        </View>
+      );
+    }
+
     return (
-      <View style={styles.container}>
-        <Picker
-          selectedValue={selectedHour}
-          style={styles.picker}
-          onValueChange={handleHourChange}
-          enabled={!disabled}  // Disable picker interaction if disabled
-        >
-          <Picker.Item label="-" value="-" />
-          {Array.from({ length: 24 }).map((_, index) => (
-            <Picker.Item
-              key={index}
-              label={String(index).padStart(2, '0')}
-              value={String(index).padStart(2, '0')}
-            />
-          ))}
-        </Picker>
-        <Picker
-          selectedValue={selectedMinute}
-          style={styles.picker1}
-          onValueChange={handleMinuteChange}
-          enabled={!disabled}  // Disable picker interaction if disabled
-        >
-          <Picker.Item label="-" value="-" />
-          {Array.from({ length: 60 }).map((_, index) => (
-            <Picker.Item
-              key={index}
-              label={String(index).padStart(2, '0')}
-              value={String(index).padStart(2, '0')}
-            />
-          ))}
-        </Picker>
+      <View>
+        <View style={styles.container}>
+          <TouchableOpacity onPress={this.openTimePicker} disabled={disabled}>
+            <View style={styles.timeContainer}>
+              <View>
+                <Text>{selectedHour || '--'}</Text>
+              </View>
+              <Text>:</Text>
+              <View>
+                <Text>{selectedMinute || '--'}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        {showTimePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={this.handleTimeChange}
+          />
+        )}
       </View>
     );
   }
-
-  return (
-    <View>
-      <View style={styles.container}>
-        <TouchableOpacity onPress={openTimePicker} disabled={disabled}>
-          <View style={styles.timeContainer}>
-            <View>
-              <Text>{selectedHour || '--'}</Text>
-            </View>
-            <Text>:</Text>
-            <View>
-              <Text>{selectedMinute || '--'}</Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
-      {showTimePicker && (
-        <DateTimePicker
-          value={new Date()}
-          mode="time"
-          is24Hour={true}
-          display="default"
-          onChange={handleTimeChange}
-        />
-      )}
-    </View>
-  );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
