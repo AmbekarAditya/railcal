@@ -16,7 +16,12 @@ interface DutyRowProps {
   duty: Duty;
   addTrip: (dutyId: number) => void;
   handleEndDuty: (duty: Duty) => void;
-  updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
+  updateTripData: (
+    dutyId: number,
+    tripId: number,
+    field: keyof Trip,
+    value: any
+  ) => void;
   deleteTrip: (dutyId: number, tripId: number) => void;
   setTotalLeaves: (newTotalLeaves: number) => void;
 }
@@ -27,9 +32,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
   handleEndDuty,
   updateTripData,
   deleteTrip,
+  deleteDuty,
   setTotalLeaves,
 }) => {
-  
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
@@ -37,26 +42,30 @@ const DutyRow: React.FC<DutyRowProps> = ({
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-  
+
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value as string);
     }
-  
+
     // Update the trip data immediately for synchronous processing
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-  
+
     // Perform calculations only on specific field changes
-    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
+    if (
+      field === "distance" ||
+      field === "typeOfWork" ||
+      (field === "dutyHours" && value !== "")
+    ) {
       const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-  
+
       const { allowance, remarks } = calculateAllowanceAndRemarks(
         updatedTrip.distance,
         updatedTrip.typeOfWork,
         dutyHoursAsNumber * 60
       );
-      
+
       // shouldDisableInputFields(trip.typeOfWork);
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
@@ -93,8 +102,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
           dutyHoursAsNumber * 60
         );
 
-        updateTripData(duty.id, trip.id, 'allowance', allowance);
-        updateTripData(duty.id, trip.id, 'remarks', remarks);
+        updateTripData(duty.id, trip.id, "allowance", allowance);
+        updateTripData(duty.id, trip.id, "remarks", remarks);
       }
     });
   }, [duty.trips, updateTripData]);
@@ -114,17 +123,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
   return (
     <React.Fragment>
       <tr>
-                  <th>Date</th>
-                  <th>Type of Duty</th>
-                  <th>Train Number</th>
-                  <th>Start & End Station</th>
-                  <th>Trip Distance</th>
-                  <th>Start & End Time</th>
-                  <th>Trip Duration</th>
-                  <th>Allowance</th>
-                  <th>Remarks</th>
-                  <th>Actions</th>
-                </tr>
+        <th>Date</th>
+        <th>Type of Duty</th>
+        <th>Train Number</th>
+        <th>Start & End Station</th>
+        <th>Trip Distance</th>
+        <th>Start & End Time</th>
+        <th>Trip Duration</th>
+        <th>Allowance</th>
+        <th>Remarks</th>
+        <th>Actions</th>
+      </tr>
       {duty.trips.map((trip, index) => (
         <tr key={trip.id}>
           <td>
@@ -135,7 +144,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
               />
             ) : (
               <DatePickerComponent
-                onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
+                onDateSelected={(date) =>
+                  handleTripDataChange(trip.id, "date", date)
+                }
               />
             )}
           </td>
@@ -178,16 +189,32 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <td>{trip.dutyHours}</td>
           <td>{trip.allowance}</td>
           <td>{trip.remarks}</td>
-           <td>
-            <button onClick={() => deleteTrip(duty.id, trip.id)}>Delete Trip</button>
+          <td>
+            <button onClick={() => deleteTrip(duty.id, trip.id)}>
+              Delete Trip
+            </button>
           </td>
         </tr>
       ))}
       <tr>
         <td colSpan={6}>
-          <button onClick={() => addTrip(duty.id)} disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}>Add Trip</button>
-       
-          <button onClick={() => handleEndDuty(duty)} disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}> End Duty</button>
+          <button
+            onClick={() => addTrip(duty.id)}
+            disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          >
+            Add Trip
+          </button>
+
+          <button
+            onClick={() => handleEndDuty(duty)}
+            disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          >
+            {" "}
+            End Duty
+          </button>
+
+          <button onClick={() => deleteDuty(duty.id)}> Delete Duty</button>
+
           <DutyInfo duty={duty} />
         </td>
       </tr>
