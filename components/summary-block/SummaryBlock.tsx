@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
 
 interface SummaryBlockProps {
   totalAllowance: number | undefined;
@@ -32,75 +32,76 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Summary:</Text>
-      <Text style={styles.dates}>{startDate} to {endDate}</Text>
-      <View style={styles.row}>
-        <View style={styles.column}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.heading}>Summary:</Text>
+        <Text style={styles.dates}>{startDate} to {endDate}</Text>
+      </View>
+      <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Total Allowance:</Text>
           <Text style={styles.value}>₹{formatNumber(totalAllowance)}</Text>
         </View>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Total Kilometers:</Text>
           <Text style={styles.value}>{formatNumber(totalKilometers)}</Text>
         </View>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Mileage:</Text>
           <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
         </View>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Night Duty:</Text>
           <Text style={styles.value}>₹{formatNumber(nightDutyAllowance)}</Text>
         </View>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>National Holiday:</Text>
           <Text style={styles.value}>₹{formatNumber(nationalHolidayAllowance)}</Text>
         </View>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Leave Mileage:</Text>
           <Text style={styles.value}>₹{formatNumber(leaveMileageAllowance)}</Text>
         </View>
-      </View>
-      <View style={styles.row}>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>RRA / OSDA:</Text>
           <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
         </View>
-        <View style={styles.column}>
+        <View style={styles.infoContainer}>
           <Text style={styles.label}>Over Time:</Text>
           <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f0f0f0",
-    padding: 16,
     borderRadius: 8,
     marginVertical: 16,
+    maxHeight: Dimensions.get("window").height * 0.1,
+  },
+  headerContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
   heading: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 8,
   },
   dates: {
     fontSize: 14,
-    marginBottom: 12,
   },
-  row: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 12,
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
   },
-  column: {
-    flex: 1,
-    marginRight: 12,
+  infoContainer: {
+    marginRight: 24,
+    alignItems: "flex-start",
   },
   label: {
     fontSize: 12,
