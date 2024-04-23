@@ -123,20 +123,20 @@ const DutyRow: React.FC<DutyRowProps> = ({
   return (
     <React.Fragment>
       <tr>
-        <th>Date</th>
-        <th>Type of Duty</th>
-        <th>Train Number</th>
-        <th>Start & End Station</th>
-        <th>Trip Distance</th>
-        <th>Start & End Time</th>
-        <th>Trip Duration</th>
-        <th>Allowance</th>
-        <th>Remarks</th>
-        <th>Actions</th>
+        <th style={{ width: '80px' }}>Date</th>
+        <th style={{ width: '150px' }}>Duty Type</th>
+        <th style={{ width: '80px' }}>Train No.</th>
+        <th style={{ width: '100px' }}>Stations</th>
+        <th style={{ width: '60px' }}>Distance</th>
+        <th style={{ width: '120px' }}>Start & End Time</th>
+        <th style={{ width: '80px' }}>Duration</th>
+        <th style={{ width: '80px' }}>Allowance</th>
+        <th style={{ width: '120px' }}>Remarks</th>
+        <th style={{ width: '80px' }}>Actions</th>
       </tr>
       {duty.trips.map((trip, index) => (
         <tr key={trip.id}>
-          <td>
+          <td style={{ width: '80px' }}>
             {Platform.OS === "web" ? (
               <WebDatePicker
                 value={trip.date}
@@ -144,39 +144,37 @@ const DutyRow: React.FC<DutyRowProps> = ({
               />
             ) : (
               <DatePickerComponent
-                onDateSelected={(date) =>
-                  handleTripDataChange(trip.id, "date", date)
-                }
+                onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
               />
             )}
           </td>
-          <td>
+          <td style={{ width: '150px' }}>
             <TypeofWorkPickerComponent
-              TypeofWork={(newValue) =>
-                handleTripDataChange(trip.id, "typeOfWork", newValue)
-              }
+              TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
             />
           </td>
-          <td>
+          <td style={{ width: '80px' }}>
             <TrainNumberInput
-              onChange={(trainNumber) =>
-                handleTrainNumberChange(trainNumber, duty.id, trip.id)
-              }
+              onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
+              maxLength={7}
+              style={{ width: '100%' }}
             />
           </td>
-          <td>
+          <td style={{ width: '100px' }}>
             <PickerComponentStation
               onStationChange={handleStationChange}
               dutyId={duty.id}
               tripId={trip.id}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
+              maxLength={5}
+              style={{ width: '100%' }}
             />
           </td>
-          <td style={{ textAlign: "center", fontWeight: "bold" }}>
+          <td style={{ textAlign: "center", fontWeight: "bold", width: '60px' }}>
             {trip.distance.toFixed(2)}
           </td>
-          <td>
+          <td style={{ width: '120px' }}>
             <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) => {
                 handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
@@ -184,43 +182,38 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 handleTripDataChange(trip.id, "dutyHours", dutyHours);
               }}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
+              style={{ width: '100%' }}
             />
           </td>
-          <td>{trip.dutyHours}</td>
-          <td>{trip.allowance}</td>
-          <td>{trip.remarks}</td>
-          <td>
-            <button onClick={() => deleteTrip(duty.id, trip.id)}>
-              Delete Trip
-            </button>
+          <td style={{ width: '80px' }}>{trip.dutyHours}</td>
+          <td style={{ width: '80px' }}>{trip.allowance}</td>
+          <td style={{ width: '120px' }}>{trip.remarks}</td>
+          <td style={{ width: '80px' }}>
+            <button onClick={() => deleteTrip(duty.id, trip.id)}>Delete</button>
           </td>
         </tr>
       ))}
       <tr>
-        <td colSpan={6}>
+        <td colSpan={10}>
           <button
             onClick={() => addTrip(duty.id)}
             disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
           >
             Add Trip
           </button>
-
           <button
             onClick={() => handleEndDuty(duty)}
             disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
           >
-            {" "}
             End Duty
           </button>
-
-          <button onClick={() => deleteDuty(duty.id)}> Delete Duty</button>
-
+          <button onClick={() => deleteDuty(duty.id)}>Delete Duty</button>
           <DutyInfo duty={duty} />
         </td>
       </tr>
       {duty.trips.length > 0 && (
         <tr className="duty-separator">
-          <td colSpan={6}></td>
+          <td colSpan={10}></td>
         </tr>
       )}
     </React.Fragment>

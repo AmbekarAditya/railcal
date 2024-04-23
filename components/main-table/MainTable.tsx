@@ -276,15 +276,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </ScrollView>
         <div>
           <button onClick={this.addDuty}>Add Duty</button>
-          {/* <button
-            onClick={() =>
-              this.deleteDuty(
-                duties.length > 0 ? duties[duties.length - 1].id : null
-              )
-            }
-          >
-            Delete Duty
-          </button> */}
         </div>
         {duties.length > 0 && duties[0].trips.length > 0 && (
           <SummaryBlock
