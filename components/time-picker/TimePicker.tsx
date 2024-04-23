@@ -1,111 +1,137 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Platform,Text } from 'react-native';
+import React from 'react';
+import { View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
 import { Picker } from "@react-native-picker/picker";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface TimePickerProps {
   onTimeChange: (hour: string, minute: string) => void;
-  disabled:boolean;
+  disabled: boolean;
 }
 
-const TimePicker: React.FC<TimePickerProps> = ({ onTimeChange,disabled }) => {
-  const [selectedHour, setSelectedHour] = useState<string | null>(null);
-  const [selectedMinute, setSelectedMinute] = useState<string | null>(null);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+interface TimePickerState {
+  selectedHour: string | null;
+  selectedMinute: string | null;
+  showTimePicker: boolean;
+}
 
-  const handleHourChange = (itemValue: string) => {
-    setSelectedHour(itemValue);
-    if (itemValue !== '-') {
-      onTimeChange(itemValue, selectedMinute || '');
-    }
+class TimePicker extends React.Component<TimePickerProps, TimePickerState> {
+  constructor(props: TimePickerProps) {
+    super(props);
+    this.state = {
+      selectedHour: null,
+      selectedMinute: null,
+      showTimePicker: false,
+    };
+  }
+
+  handleHourChange = (itemValue: string) => {
+    this.setState({ selectedHour: itemValue }, () => {
+      if (itemValue !== '-') {
+        this.props.onTimeChange(itemValue, this.state.selectedMinute || '');
+      }
+    });
   };
 
-  const handleMinuteChange = (itemValue: string) => {
-    setSelectedMinute(itemValue);
-    if (itemValue !== '-') {
-      onTimeChange(selectedHour || '', itemValue);
-    }
+  handleMinuteChange = (itemValue: string) => {
+    this.setState({ selectedMinute: itemValue }, () => {
+      if (itemValue !== '-') {
+        this.props.onTimeChange(this.state.selectedHour || '', itemValue);
+      }
+    });
   };
 
-  const handleTimeChange = (event: any, selectedTime?: Date) => {
+  handleTimeChange = (event: any, selectedTime?: Date) => {
     if (event.type === 'set') {
       const hour = String(selectedTime?.getHours()).padStart(2, '0');
       const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
-      setSelectedHour(hour);
-      setSelectedMinute(minute);
-      onTimeChange(hour, minute);
+      this.setState(
+        {
+          selectedHour: hour,
+          selectedMinute: minute,
+          showTimePicker: false,
+        },
+        () => {
+          this.props.onTimeChange(hour, minute);
+        }
+      );
+    } else {
+      this.setState({ showTimePicker: false });
     }
-    setShowTimePicker(false);
   };
 
-  const openTimePicker = () => {
-    setShowTimePicker(true);
+  openTimePicker = () => {
+    this.setState({ showTimePicker: true });
   };
 
-  if (Platform.OS === 'web') {
+  render() {
+    const { disabled } = this.props;
+    const { selectedHour, selectedMinute, showTimePicker } = this.state;
+
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.container}>
+          <Picker
+            selectedValue={selectedHour}
+            style={styles.picker}
+            disabled={disabled}
+            onValueChange={this.handleHourChange}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 24 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={selectedMinute}
+            style={styles.picker1}
+            onValueChange={this.handleMinuteChange}
+            disabled={disabled}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 60 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+        </View>
+      );
+    }
+
     return (
-      <View style={styles.container}>
-        <Picker
-          selectedValue={selectedHour}
-          style={styles.picker}
-          disabled={disabled}
-          onValueChange={handleHourChange}
-        >
-          <Picker.Item label="-" value="-" />
-          {Array.from({ length: 24 }).map((_, index) => (
-            <Picker.Item
-              key={index}
-              label={String(index).padStart(2, '0')}
-              value={String(index).padStart(2, '0')}
-            />
-          ))}
-        </Picker>
-        <Picker
-          selectedValue={selectedMinute}
-          style={styles.picker1}
-          onValueChange={handleMinuteChange}
-          disabled={disabled}
-        >
-          <Picker.Item label="-" value="-" />
-          {Array.from({ length: 60 }).map((_, index) => (
-            <Picker.Item
-              key={index}
-              label={String(index).padStart(2, '0')}
-              value={String(index).padStart(2, '0')}
-            />
-          ))}
-        </Picker>
+      <View>
+        <View style={styles.container}>
+          <TouchableOpacity onPress={this.openTimePicker} disabled={disabled}>
+            <View style={styles.timeContainer}>
+              <View>
+                <Text>{selectedHour || '--'}</Text>
+              </View>
+              <Text>:</Text>
+              <View>
+                <Text>{selectedMinute || '--'}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        {showTimePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={this.handleTimeChange}
+          />
+        )}
       </View>
     );
   }
-
-  return (
-    <View>
-      <View style={styles.container}>
-        <View onTouchStart={openTimePicker}>
-          <View style={styles.timeContainer}>
-            <View>
-              <Text>{selectedHour || '--'}</Text>
-            </View>
-            <Text>:</Text>
-            <View>
-              <Text>{selectedMinute || '--'}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-      {showTimePicker && (
-        <DateTimePicker
-          value={new Date()}
-          mode="time"
-          is24Hour={true}
-          display="default"
-          onChange={handleTimeChange}
-        />
-      )}
-    </View>
-  );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
