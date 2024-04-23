@@ -12,6 +12,7 @@ interface SummaryBlockProps {
   overTimeAllowance: number | undefined;
   startDate: string;
   endDate: string;
+  dearnessAllowance:number;
 }
 
 const SummaryBlock: React.FC<SummaryBlockProps> = ({
@@ -25,6 +26,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   overTimeAllowance,
   startDate,
   endDate,
+  dearnessAllowance
 }) => {
   const formatNumber = (value: number | undefined) => {
     return value !== undefined ? value.toFixed(2) : "-";
@@ -54,8 +56,8 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           <Text style={styles.value}>₹{formatNumber(nightDutyAllowance)}</Text>
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.label}>National Holiday:</Text>
-          <Text style={styles.value}>₹{formatNumber(nationalHolidayAllowance)}</Text>
+          <Text style={styles.label}>Dearness Allowance:</Text>
+          <Text style={styles.value}>₹{dearnessAllowance}</Text>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Leave Mileage:</Text>

@@ -9,6 +9,7 @@ import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
+import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -228,6 +229,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const nightDutyAllowance = 100; // Example fixed night duty allowance, replace as needed
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtime allowance, replace as needed
+    const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
+
 
     const osdaCount = this.state.duties.reduce(
       (count, duty) => (duty.isOSDA ? count + 1 : count),
@@ -244,6 +247,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Rate Of Pay: ", rateOfPay);
     console.log("Start Date: ", startDate);
     console.log("Days In Month: ", daysInMonth);
+    console.log("Dearness Allowance: ",dearnessAllowance);
     return (
       <ScrollView
         horizontal
@@ -286,6 +290,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             nationalHolidayAllowance={nationalHolidayAllowance}
             leaveMileageAllowance={lma}
             overTimeAllowance={overTimeAllowance}
+            dearnessAllowance={dearnessAllowance}
             startDate={startDate}
             endDate={""}
             daysInMonth={daysInMonth}
