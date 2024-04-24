@@ -2,6 +2,8 @@
 import React from 'react';
 import Duty from '../duty/Duty';
 
+import './enddutymodalstyles.css';
+
 interface EndDutyModalProps {
   duty: Duty;
   updateDutyDetails: (updatedDuty: Duty) => void;
@@ -62,7 +64,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
               onChange={(e) => this.setState({ dutyEndDateTime: e.target.value })}
             />
           </div>
-          <div>
+          <div className="checkbox-group">
             <label>
               <input
                 type="checkbox"
@@ -72,7 +74,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
               Is OSDA Applicable
             </label>
           </div>
-          <div>
+          <div className="checkbox-group">
             <label>
               <input
                 type="checkbox"

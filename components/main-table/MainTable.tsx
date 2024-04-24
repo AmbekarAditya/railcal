@@ -312,7 +312,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Days In Month: ", daysInMonth);
     console.log("Dearness Allowance: ",dearnessAllowance);
     console.log("OSDA Allowance: ",osdaAllowance);
-    console.log("total night duty hours ",totalNightDutyHours);
+    console.log("Total night duty hours ",totalNightDutyHours);
     console.log("Night Duty Allowance ",nightDutyAllowance);
     return (
       <ScrollView

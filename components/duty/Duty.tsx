@@ -81,41 +81,31 @@ class Duty {
 
   private calculateNightDutyHours(): number {
     if (this.signIn && this.signOff) {
-      let nightDutyHours = 0;
-      let currentDate = new Date(this.signIn);
+        const NIGHT_START_HOUR = 22; // 10 PM
+        const NIGHT_END_HOUR = 6; // 6 AM
+        let nightDutyMinutes = 0;
 
-      while (currentDate < this.signOff) {
-        const nightStart = new Date(currentDate);
-        nightStart.setHours(22, 0, 0, 0); // 10 PM
+        // Start counting from signIn and stop at signOff
+        let current = new Date(this.signIn);
 
-        const nightEnd = new Date(currentDate);
-        nightEnd.setHours(30, 0, 0, 0); // 6 AM the next day (30 hours)
-
-        const intersectionStart = Math.max(
-          currentDate.getTime(),
-          nightStart.getTime()
-        );
-        const intersectionEnd = Math.min(
-          this.signOff.getTime(),
-          nightEnd.getTime()
-        );
-
-        if (intersectionStart < intersectionEnd) {
-          const intersectionDuration = intersectionEnd - intersectionStart;
-          const hours = Math.floor(intersectionDuration / (1000 * 60 * 60));
-          const minutes = Math.floor(
-            (intersectionDuration % (1000 * 60 * 60)) / (1000 * 60)
-          );
-          nightDutyHours += hours + minutes / 60;
+        while (current < this.signOff) {
+            let hour = current.getHours();
+            if ((hour >= NIGHT_START_HOUR && hour <= 23) || (hour >= 0 && hour < NIGHT_END_HOUR)) {
+                nightDutyMinutes++; // Count each minute during the night hours
+            }
+            current.setMinutes(current.getMinutes() + 1); // Move to next minute
         }
 
-        currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      return nightDutyHours;
+        // Convert total minutes to hours in decimal
+        let nightDutyHours = nightDutyMinutes / 60;
+        
+        return nightDutyHours;
     }
+
     return 0;
-  }
+}
+
+
 }
 
 export default Duty;
