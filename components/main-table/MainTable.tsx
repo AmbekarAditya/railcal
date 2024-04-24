@@ -11,6 +11,7 @@ import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
+import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -184,6 +185,16 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }));
   };
 
+  calculateTotalNightDutyHours = (): number => {
+    const { duties } = this.state;
+    const totalNightDutyHours = duties.reduce(
+      (acc, duty) => acc + duty.nightDutyHours,
+      0
+    );
+
+    return totalNightDutyHours;
+  };
+
   deleteDuty = (dutyId: number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.filter((duty) => duty.id !== dutyId),
@@ -231,12 +242,16 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     const totalAllowance = this.calculateTotalAllowance();
     const mileage = 1.5; // Example mileage rate, replace as needed
-    const nightDutyAllowance = 100; // Example fixed night duty allowance, replace as needed
+
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtime allowance, replace as needed
     const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
-
-
+    const totalNightDutyHours = this.calculateTotalNightDutyHours();
+    const nightDutyAllowance = computeNightDutyAllowance(
+      rateOfPay,
+      dearnessAllowance,
+      totalNightDutyHours
+    );
     const osdaCount = this.state.duties.reduce(
       (count, duty) => (duty.isOSDA ? count + 1 : count),
       0
@@ -256,6 +271,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Days In Month: ", daysInMonth);
     console.log("Dearness Allowance: ",dearnessAllowance);
     console.log("OSDA Allowance: ",osdaAllowance);
+    console.log("total night duty hours ",totalNightDutyHours);
+    console.log("Night Duty Allowance ",nightDutyAllowance);
     return (
       <ScrollView
         horizontal
