@@ -74,7 +74,8 @@ const calculateFortnight = (duties: Duty[], offsetDays: number, startDate: Date 
       return;
     }
 
-    const overtimeForDuty = duty.dutyHours * 60 + duty.nightDutyHours * 60;
+    const overtimeForDuty = duty.dutyHours * 60 ;
+
     console.log(`Adding ${overtimeForDuty} minutes to total overtime`);
     overtimeTotalTime += overtimeForDuty;
   });
