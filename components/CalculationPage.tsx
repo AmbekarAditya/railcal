@@ -41,7 +41,7 @@ const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) 
           <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
         </View>
       </View>
-      <MainTable navigation={navigation} rateOfPay={rateOfPay} selectedMonth={selectedMonth}/>
+      <MainTable navigation={navigation} rateOfPay={rateOfPay} designation={designation} selectedMonth={selectedMonth}/>
     </View>
   );
 };

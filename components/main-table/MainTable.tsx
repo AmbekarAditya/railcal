@@ -10,6 +10,7 @@ import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
+import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -17,6 +18,7 @@ interface MainTableProps {
   navigation: NavigationProp<any>;
   selectedMonth: string;
   rateOfPay: Number;
+  designation:string;
 }
 interface MainTableState {
   duties: Duty[];
@@ -193,8 +195,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   render() {
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { rateOfPay, selectedMonth } = this.props;
-
+    const { rateOfPay, selectedMonth, designation} = this.props;
+    console.log('Received designation prop:', designation);
+    if (designation === undefined) {
+      console.error('Designation prop is undefined');
+    }
     // Calculate the number of days in the month from the first trip date if available
     let daysInMonth = 1;
     let startDate = ""; // Default to 1 to prevent division by zero errors
@@ -241,6 +246,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       0
     );
 
+    const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
+    
     console.log("OSDA Count:", osdaCount);
     console.log("RRA Count:", rraCount);
     console.log("Leaves: ", totalLeaves);
@@ -248,6 +255,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Start Date: ", startDate);
     console.log("Days In Month: ", daysInMonth);
     console.log("Dearness Allowance: ",dearnessAllowance);
+    console.log("OSDA Allowance: ",osdaAllowance);
     return (
       <ScrollView
         horizontal

@@ -36,15 +36,20 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
     // if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
     //   this.setState({ showWarning: true });
     // } else {
+      const selectedDesignation = designations.find((item) => item.label === designation);
+  const designationValue = selectedDesignation ? selectedDesignation.value : '';
+
+      console.log('Designation value:', designation);
       this.setState({ showWarning: false });
       this.props.navigation.navigate('CalculationPage', {
-        designation: designation,
+        designation: designationValue, 
         payBand: payBand,
         level: level,
         rateOfPay: rateOfPay,
         selectedMonth: selectedMonth,
       });
     // }
+    
   };
 
   render() {
