@@ -38,6 +38,7 @@ class Duty {
     }
   }
 
+  
   calculateTotalAllowance() {
     return this.trips.reduce((total, trip) => total + trip.allowance, 0);
   }
