@@ -12,7 +12,7 @@ import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
-import { overtimeCalculation } from '../allowancecalculation/overtimeAllowance';
+import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -20,7 +20,7 @@ interface MainTableProps {
   navigation: NavigationProp<any>;
   selectedMonth: string;
   rateOfPay: Number;
-  designation:string;
+  designation: string;
 }
 interface MainTableState {
   duties: Duty[];
@@ -36,7 +36,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     showModal: false,
     selectedDuty: null,
     totalLeaves: 0,
-    overtimeResult: null
+    overtimeResult: null,
   };
   constructor(props: MainTableProps) {
     super(props);
@@ -81,7 +81,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       remarks: "",
       trainNumber: "",
       dutyHours: "",
-
     };
 
     const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
@@ -138,31 +137,37 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     field: keyof Trip,
     value: string | number
   ) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
-        if (duty.id === dutyId) {
-          const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
-          if (tripToUpdate) {
-            const updatedTrip = { ...tripToUpdate, [field]: value };
-            if (field === "typeOfWork") {
-              const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
-              const isLeave = leaveTypes.includes(value as string);
-              if (isLeave) {
-                this.setState((prevState) => ({
-                  totalLeaves: prevState.totalLeaves + 1,
-                }));
-              } else {
-                this.setState((prevState) => ({
-                  totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
-                }));
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === dutyId) {
+            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+            if (tripToUpdate) {
+              const updatedTrip = { ...tripToUpdate, [field]: value };
+              if (field === "typeOfWork") {
+                const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+                const isLeave = leaveTypes.includes(value as string);
+                if (isLeave) {
+                  this.setState((prevState) => ({
+                    totalLeaves: prevState.totalLeaves + 1,
+                  }));
+                } else {
+                  this.setState((prevState) => ({
+                    totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
+                  }));
+                }
               }
+              duty.updateTrip(tripId, updatedTrip);
             }
-            duty.updateTrip(tripId, updatedTrip);
           }
-        }
-        return duty;
+          return duty;
+        }),
       }),
-    }));
+      () => {
+        // Call handleDutiesChange after state is updated
+        this.handleDutiesChange(this.state.duties);
+      }
+    );
   };
 
   calculateTotalAllowance = () => {
@@ -208,13 +213,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   //         startDate = new Date(firstTripDate);
   //       }
   //     }
-  
+
   //     const overtimeResult = overtimeCalculation(this.state.duties, startDate);
   //     this.setState({ overtimeResult });
   //   }
   // }
 
-   calculateOvertimeResult = (duties: Duty[], startDate: Date) => {
+  calculateOvertimeResult = (duties: Duty[], startDate: Date) => {
     return overtimeCalculation(duties, startDate);
   };
 
@@ -235,8 +240,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         startDate = new Date(firstTripDate);
       }
     }
-  
-    const overtimeResult = this.calculateOvertimeResult(updatedDuties, startDate);
+
+    const overtimeResult = this.calculateOvertimeResult(
+      updatedDuties,
+      startDate
+    );
     this.setState({ duties: updatedDuties, overtimeResult });
   };
 
@@ -244,37 +252,57 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const { overtimeResult } = this.state;
     const totalDuties = this.state.duties;
 
-totalDuties.forEach((duty, index) => {
-  const progressiveDutyHours = duty.calculateprogressiveDutyHours(index, totalDuties);
-  
-});
+    totalDuties.forEach((duty, index) => {
+      const progressiveDutyHours = duty.calculateprogressiveDutyHours(
+        index,
+        totalDuties
+      );
+    });
 
-  if (overtimeResult) {
-    console.log('Overtime Calculation Result:', overtimeResult);
+    if (overtimeResult) {
+      console.log("Overtime Calculation Result:", overtimeResult);
 
-    if (overtimeResult.firstFortnight) {
-      console.log('First Fortnight:');
-      console.log('Start Date:', overtimeResult.firstFortnight.startDate);
-      console.log('End Date:', overtimeResult.firstFortnight.endDate);
-      console.log('Overtime Hours:', overtimeResult.firstFortnight.overtimeHours);
-      console.log('Overtime Minutes:', overtimeResult.firstFortnight.overtimeMinutes);
-      console.log('Overtime Unit:', overtimeResult.firstFortnight.overtimeUnit);
+      if (overtimeResult.firstFortnight) {
+        console.log("First Fortnight:");
+        console.log("Start Date:", overtimeResult.firstFortnight.startDate);
+        console.log("End Date:", overtimeResult.firstFortnight.endDate);
+        console.log(
+          "Overtime Hours:",
+          overtimeResult.firstFortnight.overtimeHours
+        );
+        console.log(
+          "Overtime Minutes:",
+          overtimeResult.firstFortnight.overtimeMinutes
+        );
+        console.log(
+          "Overtime Unit:",
+          overtimeResult.firstFortnight.overtimeUnit
+        );
+      }
+
+      if (overtimeResult.secondFortnight) {
+        console.log("Second Fortnight:");
+        console.log("Start Date:", overtimeResult.secondFortnight.startDate);
+        console.log("End Date:", overtimeResult.secondFortnight.endDate);
+        console.log(
+          "Overtime Hours:",
+          overtimeResult.secondFortnight.overtimeHours
+        );
+        console.log(
+          "Overtime Minutes:",
+          overtimeResult.secondFortnight.overtimeMinutes
+        );
+        console.log(
+          "Overtime Unit:",
+          overtimeResult.secondFortnight.overtimeUnit
+        );
+      }
     }
-
-    if (overtimeResult.secondFortnight) {
-      console.log('Second Fortnight:');
-      console.log('Start Date:', overtimeResult.secondFortnight.startDate);
-      console.log('End Date:', overtimeResult.secondFortnight.endDate);
-      console.log('Overtime Hours:', overtimeResult.secondFortnight.overtimeHours);
-      console.log('Overtime Minutes:', overtimeResult.secondFortnight.overtimeMinutes);
-      console.log('Overtime Unit:', overtimeResult.secondFortnight.overtimeUnit);
-    }
-  }
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { rateOfPay, selectedMonth, designation} = this.props;
-    console.log('Received designation prop:', designation);
+    const { rateOfPay, selectedMonth, designation } = this.props;
+    console.log("Received designation prop:", designation);
     if (designation === undefined) {
-      console.error('Designation prop is undefined');
+      console.error("Designation prop is undefined");
     }
     // Calculate the number of days in the month from the first trip date if available
     let daysInMonth = 1;
@@ -336,11 +364,11 @@ totalDuties.forEach((duty, index) => {
     console.log("Rate Of Pay: ", rateOfPay);
     console.log("Start Date: ", startDate);
     console.log("Days In Month: ", daysInMonth);
-    console.log("Dearness Allowance: ",dearnessAllowance);
-    console.log("OSDA Allowance: ",osdaAllowance);
-    console.log("Total night duty hours ",totalNightDutyHours);
-    console.log("Night Duty Allowance ",nightDutyAllowance);
-    console.log("Progressive Duty Hours :",progressiveDutyHours);
+    console.log("Dearness Allowance: ", dearnessAllowance);
+    console.log("OSDA Allowance: ", osdaAllowance);
+    console.log("Total night duty hours ", totalNightDutyHours);
+    console.log("Night Duty Allowance ", nightDutyAllowance);
+    console.log("Progressive Duty Hours :", progressiveDutyHours);
     return (
       <ScrollView
         horizontal
