@@ -1,40 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import TimePicker from "./time-picker/TimePicker";
 
 interface ArrivalDepartureTimePickerProps {
-  onTimesChange: (
-    arrival: string,
-    departure: string,
-    dutyHours: string
-  ) => void;
+  onTimesChange: (arrivalTime: string, departureTime: string, dutyHours: string) => void;
   disabled: boolean;
-  
 }
 
 const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   onTimesChange,
   disabled,
-
 }) => {
   const [arrivalTime, setArrivalTime] = useState("");
   const [departureTime, setDepartureTime] = useState("");
+  const [timeDifference, setTimeDifference] = useState("");
 
-  useEffect(() => {
-    if (arrivalTime && departureTime) {
-      const timeDiff = calculateTimeDifference(arrivalTime, departureTime);
-      onTimesChange(arrivalTime, departureTime, timeDiff);
-    }
-  }, [arrivalTime, departureTime, onTimesChange]);
-
-  const calculateTimeDifference = (arrival: string, departure: string) => {
-    const arrivalDate = new Date(`2021/01/01 ${arrival}`);
-    const departureDate = new Date(`2021/01/01 ${departure}`);
-    const timeDiff = getTimeDifference(arrivalDate, departureDate);
-    const hours = Math.floor(timeDiff / 60);
-    const minutes = timeDiff % 60;
-    return `${hours}h ${minutes}m`;
-  };
+  const calculateTimeDifference = useCallback(
+    (arrival: string, departure: string) => {
+      const arrivalDate = new Date(`2021/01/01 ${arrival}`);
+      const departureDate = new Date(`2021/01/01 ${departure}`);
+      const timeDiff = getTimeDifference(arrivalDate, departureDate);
+      return timeDiff;
+    },
+    []
+  );
 
   const getTimeDifference = (
     arrivalTime: Date,
@@ -53,50 +42,53 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       return 0;
     }
 
-    if (
-      arrivalTime.getHours() === 0 &&
-      arrivalTime.getMinutes() === 0 &&
-      departureTime.getHours() === 0 &&
-      departureTime.getMinutes() === 0
-    ) {
-      return 24 * 60;
+    let timeDiff = departureTime.getTime() - arrivalTime.getTime();
+
+    // If the departure time is earlier than the arrival time, add 24 hours
+    if (timeDiff < 0) {
+      timeDiff += 24 * 60 * 60 * 1000;
     }
 
-    let adjustedDepartureTime = departureTime;
-    if (
-      departureTime <= arrivalTime &&
-      !(arrivalTime.getHours() === 0 && arrivalTime.getMinutes() === 0)
-    ) {
-      adjustedDepartureTime = new Date(
-        departureTime.getTime() + 24 * 60 * 60 * 1000
-      );
-    }
-
-    return Math.round(
-      (adjustedDepartureTime.getTime() - arrivalTime.getTime()) / 60000
-    );
+    return Math.round(timeDiff / 60000);
   };
 
+  useEffect(() => {
+    if (arrivalTime && departureTime) {
+      const calculatedTimeDifference = calculateTimeDifference(arrivalTime, departureTime);
+      onTimesChange(arrivalTime, departureTime, calculatedTimeDifference);
+    }
+  }, [arrivalTime, departureTime, onTimesChange, calculateTimeDifference]);
+
   const handleArrivalTimeChange = (hour: string, minute: string) => {
-    setArrivalTime(`${hour}:${minute}`);
+    const newArrivalTime = `${hour}:${minute}`;
+    setArrivalTime(newArrivalTime);
   };
 
   const handleDepartureTimeChange = (hour: string, minute: string) => {
-    setDepartureTime(`${hour}:${minute}`);
+    const newDepartureTime = `${hour}:${minute}`;
+    setDepartureTime(newDepartureTime);
   };
+
+
 
   return (
     <View style={styles.container}>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Arrival Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker disabled={disabled} onTimeChange={handleArrivalTimeChange} />
+          <TimePicker
+            disabled={disabled}
+            onTimeChange={handleArrivalTimeChange}
+          />
         </View>
       </View>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Departure Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker disabled={disabled}  onTimeChange={handleDepartureTimeChange} />
+          <TimePicker
+            disabled={disabled}
+            onTimeChange={handleDepartureTimeChange}
+          />
         </View>
       </View>
     </View>

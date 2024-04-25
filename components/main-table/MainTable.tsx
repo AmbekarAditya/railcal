@@ -119,7 +119,21 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ selectedDuty: duty, showModal: true });
   };
 
+  calculateOvertimeResult = () => {
+    let startDate = null;
+    if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
+      const firstTripDate = this.state.duties[0].trips[0].date;
+      if (firstTripDate) {
+        startDate = new Date(firstTripDate);
+      }
+    }
+
+    const overtimeResult = overtimeCalculation(this.state.duties, startDate);
+    this.setState({ overtimeResult });
+  }
+
   updateDutyDetails = (updatedDuty: Duty) => {
+    console.log("Before calling setState in updateDutyDetails");
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
         if (duty.id === updatedDuty.id) {
@@ -128,40 +142,29 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         return duty;
       }),
       showModal: false,
-    }));
+    }), () => {
+      this.calculateOvertimeResult();
+    });
+    console.log("After calling setState in updateDutyDetails");
   };
 
-  updateTripData = (
-    dutyId: number,
-    tripId: number,
-    field: keyof Trip,
-    value: string | number
-  ) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
-        if (duty.id === dutyId) {
-          const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
-          if (tripToUpdate) {
-            const updatedTrip = { ...tripToUpdate, [field]: value };
-            if (field === "typeOfWork") {
-              const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
-              const isLeave = leaveTypes.includes(value as string);
-              if (isLeave) {
-                this.setState((prevState) => ({
-                  totalLeaves: prevState.totalLeaves + 1,
-                }));
-              } else {
-                this.setState((prevState) => ({
-                  totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
-                }));
-              }
-            }
-            duty.updateTrip(tripId, updatedTrip);
-          }
+ 
+  updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
+    const dutiesUpdated = this.state.duties.map((duty) => {
+      if (duty.id === dutyId) {
+        const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+        if (tripToUpdate) {
+          const updatedTrip = { ...tripToUpdate, [field]: value };
+          duty.updateTrip(tripId, updatedTrip);
         }
-        return duty;
-      }),
-    }));
+      }
+      return duty;
+    });
+    this.updateDutiesState(dutiesUpdated);
+  };
+
+  updateDutiesState = (dutiesUpdated: Duty[]) => {
+    this.setState({ duties: dutiesUpdated });
   };
 
   calculateTotalAllowance = () => {
@@ -198,20 +201,20 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return totalNightDutyHours;
   };
 
-  componentDidUpdate(prevProps: MainTableProps, prevState: MainTableState) {
-    if (prevState.duties !== this.state.duties) {
-      let startDate = null;
-      if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
-        const firstTripDate = this.state.duties[0].trips[0].date;
-        if (firstTripDate) {
-          startDate = new Date(firstTripDate);
-        }
-      }
+  // componentDidUpdate(prevProps: MainTableProps, prevState: MainTableState) {
+  //   if (prevState.duties !== this.state.duties) {
+  //     let startDate = null;
+  //     if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
+  //       const firstTripDate = this.state.duties[0].trips[0].date;
+  //       if (firstTripDate) {
+  //         startDate = new Date(firstTripDate);
+  //       }
+  //     }
   
-      const overtimeResult = overtimeCalculation(this.state.duties, startDate);
-      this.setState({ overtimeResult });
-    }
-  }
+  //     const overtimeResult = overtimeCalculation(this.state.duties, startDate);
+  //     this.setState({ overtimeResult });
+  //   }
+  // }
 
   deleteDuty = (dutyId: number) => {
     this.setState((prevState) => ({

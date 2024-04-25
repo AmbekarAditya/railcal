@@ -35,23 +35,24 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteDuty,
   setTotalLeaves,
 }) => {
+
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
     value: string | number
   ) => {
+    console.log("Before calling updateTripData");
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-
+  
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value as string);
     }
-
+  
     // Update the trip data immediately for synchronous processing
     const updatedTrip = { ...trip, [field]: value };
-    updateTripData(duty.id, tripId, field, value);
-
+  
     // Perform calculations only on specific field changes
     if (
       field === "distance" ||
@@ -59,18 +60,24 @@ const DutyRow: React.FC<DutyRowProps> = ({
       (field === "dutyHours" && value !== "")
     ) {
       const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-
+  
       const { allowance, remarks } = calculateAllowanceAndRemarks(
         updatedTrip.distance,
         updatedTrip.typeOfWork,
         dutyHoursAsNumber * 60
       );
-
-      // shouldDisableInputFields(trip.typeOfWork);
-      updateTripData(duty.id, tripId, "allowance", allowance);
-      updateTripData(duty.id, tripId, "remarks", remarks);
+  
+      // Update the trip data with the calculated allowance and remarks
+      updatedTrip.allowance = allowance;
+      updatedTrip.remarks = remarks;
     }
+  
+    // Update the trip in the duty's trips array
+    duty.updateTrip(tripId, updatedTrip);
+  
+    console.log("After calling updateTripData");
   };
+
   const handleStationChange = (
     dutyId: number,
     tripId: number,
@@ -167,7 +174,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
               dutyId={duty.id}
               tripId={trip.id}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
-              maxLength={5}
               style={{ width: '100%' }}
             />
           </td>
@@ -176,6 +182,16 @@ const DutyRow: React.FC<DutyRowProps> = ({
           </td>
           <td style={{ width: '120px' }}>
             <ArrivalDepartureTimePicker
+  onTimesChange={(arrivalTime, departureTime) => {
+    handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
+    handleTripDataChange(trip.id, "departureTime", departureTime);
+  }}
+  disabled={shouldDisableInputFields(trip.typeOfWork)}
+  timeDifference={(timeDifference) => {
+    handleTripDataChange(trip.id, "dutyHours", timeDifference);
+  }}
+/>
+            {/* <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) => {
                 handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
                 handleTripDataChange(trip.id, "departureTime", departureTime);
@@ -183,7 +199,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
               }}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
               style={{ width: '100%' }}
-            />
+            /> */}
           </td>
           <td style={{ width: '80px' }}>{trip.dutyHours}</td>
           <td style={{ width: '80px' }}>{trip.allowance}</td>
