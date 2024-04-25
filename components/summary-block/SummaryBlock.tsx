@@ -53,6 +53,11 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     return value !== undefined ? value.toFixed(2) : "-";
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -98,9 +103,8 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
             <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
           </View>
         </View>
-      </ScrollView>
-      {overtimeResult && (
-        <ScrollView vertical style={styles.overtimeContainer}>
+        {overtimeResult && (
+         <View style={{flexDirection:'row'}}>
           {overtimeResult.firstFortnight && (
             <View style={styles.overtimeRow}>
               <View style={styles.overtimeInfo}>
@@ -116,11 +120,11 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
               <View style={styles.overtimeDates}>
                 <Text style={styles.label}>Start Date:</Text>
                 <Text style={styles.value}>
-                {new Date(overtimeResult.firstFortnight.startDate).toLocaleString()}
+                {formatDate(overtimeResult.firstFortnight.startDate)}
                 </Text>
                 <Text style={styles.label}>End Date:</Text>
                 <Text style={styles.value}>
-                {new Date(overtimeResult.firstFortnight.endDate).toLocaleString()}
+                {formatDate(overtimeResult.firstFortnight.endDate)}
                 </Text>
               </View>
             </View>
@@ -140,17 +144,18 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
               <View style={styles.overtimeDates}>
                 <Text style={styles.label}>Start Date:</Text>
                 <Text style={styles.value}>
-                {new Date(overtimeResult.secondFortnight.startDate).toLocaleString()}
+                {formatDate(overtimeResult.secondFortnight.startDate)}
                 </Text>
                 <Text style={styles.label}>End Date:</Text>
                 <Text style={styles.value}>
-                {new Date(overtimeResult.secondFortnight.endDate).toLocaleString()}
+                {formatDate(overtimeResult.secondFortnight.endDate)}
                 </Text>
               </View>
             </View>
           )}
-        </ScrollView>
+            </View>
       )}
+      </ScrollView>
     </View>
   );
 };
@@ -159,22 +164,24 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: "#f0f0f0",
     borderRadius: 8,
-    marginVertical: 16,
-    maxHeight: Dimensions.get("window").height * 0.3, // Increased maxHeight
+    marginVertical: 1,
+    // maxHeight: Dimensions.get("window").height * 0.3, // Increased maxHeight
   },
   headerContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
+    // justifyContent: "space-between",
+    // alignItems: "center",
+    // paddingHorizontal: 2,
+    marginLeft : 2,
     paddingTop: 8,
   },
   heading: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
+    marginLeft:5,
   },
   dates: {
-    fontSize: 14,
+    fontSize: 12,
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -183,19 +190,21 @@ const styles = StyleSheet.create({
   infoContainerWrapper: {
     flexDirection: "row",
     flexWrap: "wrap",
+    
   },
   infoContainer: {
     marginRight: 24,
     alignItems: "flex-start",
   },
   overtimeContainer: {
-    maxHeight: "60%", // Added maxHeight
+    maxHeight: "30%", // Added maxHeight
+    flexDirection: "row",
   },
   overtimeRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    // justifyContent: "space-between",
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    // paddingVertical: 1,
   },
   overtimeInfo: {
     alignItems: "flex-start",

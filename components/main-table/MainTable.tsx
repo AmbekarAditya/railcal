@@ -81,6 +81,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       remarks: "",
       trainNumber: "",
       dutyHours: "",
+
     };
 
     const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
@@ -198,20 +199,24 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return totalNightDutyHours;
   };
 
-  componentDidUpdate(prevProps: MainTableProps, prevState: MainTableState) {
-    if (prevState.duties !== this.state.duties) {
-      let startDate = null;
-      if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
-        const firstTripDate = this.state.duties[0].trips[0].date;
-        if (firstTripDate) {
-          startDate = new Date(firstTripDate);
-        }
-      }
+  // componentDidUpdate(prevProps: MainTableProps, prevState: MainTableState) {
+  //   if (prevState.duties !== this.state.duties) {
+  //     let startDate = null;
+  //     if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
+  //       const firstTripDate = this.state.duties[0].trips[0].date;
+  //       if (firstTripDate) {
+  //         startDate = new Date(firstTripDate);
+  //       }
+  //     }
   
-      const overtimeResult = overtimeCalculation(this.state.duties, startDate);
-      this.setState({ overtimeResult });
-    }
-  }
+  //     const overtimeResult = overtimeCalculation(this.state.duties, startDate);
+  //     this.setState({ overtimeResult });
+  //   }
+  // }
+
+   calculateOvertimeResult = (duties: Duty[], startDate: Date) => {
+    return overtimeCalculation(duties, startDate);
+  };
 
   deleteDuty = (dutyId: number) => {
     this.setState((prevState) => ({
@@ -220,6 +225,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
   setTotalLeaves = (newTotalLeaves: number) => {
     this.setState({ totalLeaves: newTotalLeaves });
+  };
+
+  handleDutiesChange = (updatedDuties: Duty[] | any[]) => {
+    let startDate = null;
+    if (updatedDuties.length > 0 && updatedDuties[0].trips.length > 0) {
+      const firstTripDate = updatedDuties[0].trips[0].date;
+      if (firstTripDate) {
+        startDate = new Date(firstTripDate);
+      }
+    }
+  
+    const overtimeResult = this.calculateOvertimeResult(updatedDuties, startDate);
+    this.setState({ duties: updatedDuties, overtimeResult });
   };
 
   render() {
