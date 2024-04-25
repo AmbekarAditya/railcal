@@ -9,8 +9,8 @@ class Duty {
   nightDutyHours: number;
   isOSDA: boolean;
   isRRA: boolean;
-  dutyAllowance:number;
-  dutyDistance:number;
+  dutyAllowance: number;
+  dutyDistance: number;
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -21,8 +21,8 @@ class Duty {
     this.nightDutyHours = 0;
     this.isOSDA = false;
     this.isRRA = false;
-    this.dutyAllowance=0;
-    this.dutyDistance=0;
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {
@@ -38,19 +38,17 @@ class Duty {
     }
   }
 
-  
   calculateTotalAllowance() {
     return this.trips.reduce((total, trip) => total + trip.allowance, 0);
   }
-  
+
   calculateTotalDistance() {
     return this.trips.reduce((total, trip) => total + trip.distance, 0);
   }
-  
- 
+
   updateDutyHoursForLeaveTypes(typeOfWork: string) {
     const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
-  
+
     if (leaveTypes.includes(typeOfWork)) {
       this.dutyHours = 7.41;
       this.dutyAllowance = 0;
@@ -61,7 +59,7 @@ class Duty {
       this.dutyDistance = this.calculateTotalDistance();
     }
   }
-  
+
   updateTrip(tripId: number, updatedTrip: Trip) {
     const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
     if (tripIndex !== -1) {
@@ -81,31 +79,29 @@ class Duty {
 
   private calculateNightDutyHours(): number {
     if (this.signIn && this.signOff) {
-        const NIGHT_START_HOUR = 22; // 10 PM
-        const NIGHT_END_HOUR = 6; // 6 AM
-        let nightDutyMinutes = 0;
+      const NIGHT_START_HOUR = 22; // 10 PM
+      const NIGHT_END_HOUR = 6; // 6 AM
+      let nightDutyMinutes = 0;
 
-        // Start counting from signIn and stop at signOff
-        let current = new Date(this.signIn);
+      // Start counting from signIn and stop at signOff
+      let current = new Date(this.signIn);
 
-        while (current < this.signOff) {
-            let hour = current.getHours();
-            if ((hour >= NIGHT_START_HOUR && hour <= 23) || (hour >= 0 && hour < NIGHT_END_HOUR)) {
-                nightDutyMinutes++; // Count each minute during the night hours
-            }
-            current.setMinutes(current.getMinutes() + 1); // Move to next minute
+      while (current < this.signOff) {
+        let hour = current.getHours();
+        if (hour >= NIGHT_START_HOUR || hour < NIGHT_END_HOUR) {
+          nightDutyMinutes++; // Count each minute during the night hours
         }
+        current.setMinutes(current.getMinutes() + 1); // Move to next minute
+      }
 
-        // Convert total minutes to hours in decimal
-        let nightDutyHours = nightDutyMinutes / 60;
-        
-        return nightDutyHours;
+      // Convert total minutes to hours in decimal
+      let nightDutyHours = nightDutyMinutes / 60;
+
+      return nightDutyHours;
     }
 
     return 0;
-}
-
-
+  }
 }
 
 export default Duty;
