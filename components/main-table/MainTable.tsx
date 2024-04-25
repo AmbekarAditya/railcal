@@ -370,6 +370,7 @@ totalDuties.forEach((duty, index) => {
             progressiveDutyHours={progressiveDutyHours}
             endDate={""}
             daysInMonth={daysInMonth}
+            overtimeResult={overtimeResult}
           />
         )}
         <Modal
