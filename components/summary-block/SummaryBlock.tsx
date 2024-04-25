@@ -13,6 +13,7 @@ interface SummaryBlockProps {
   startDate: string;
   endDate: string;
   dearnessAllowance:number;
+  progressiveDutyHours:number;
 }
 
 const SummaryBlock: React.FC<SummaryBlockProps> = ({
@@ -26,6 +27,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   overTimeAllowance,
   startDate,
   endDate,
+  progressiveDutyHours,
   dearnessAllowance
 }) => {
   const formatNumber = (value: number | undefined) => {
@@ -39,6 +41,10 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
         <Text style={styles.dates}>{startDate} to {endDate}</Text>
       </View>
       <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
+      <View style={styles.infoContainer}>
+          <Text style={styles.label}>Hours Worked</Text>
+          <Text style={styles.value}>{progressiveDutyHours}H</Text>
+        </View>
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Total Allowance:</Text>
           <Text style={styles.value}>₹{formatNumber(totalAllowance)}</Text>

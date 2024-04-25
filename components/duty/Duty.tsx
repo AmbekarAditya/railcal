@@ -11,6 +11,7 @@ class Duty {
   isRRA: boolean;
   dutyAllowance: number;
   dutyDistance: number;
+  progressiveDutyHours:number;
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -23,6 +24,7 @@ class Duty {
     this.isRRA = false;
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
+    this.progressiveDutyHours=0;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {
@@ -46,6 +48,19 @@ class Duty {
     return this.trips.reduce((total, trip) => total + trip.distance, 0);
   }
 
+  calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
+    if (dutyIndex === 0) {
+      // For the first duty, the progressiveDutyHours is the same as dutyHours
+      this.progressiveDutyHours = this.dutyHours;
+    } else {
+      // Calculate the progressive duty hours based on the previous duty's progressiveDutyHours
+      const previousDuty = totalDuties[dutyIndex - 1];
+      this.progressiveDutyHours = previousDuty.progressiveDutyHours + this.dutyHours;
+    }
+  
+    return this.progressiveDutyHours;
+  }
+  
   updateDutyHoursForLeaveTypes(typeOfWork: string) {
     const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
 

@@ -224,6 +224,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   render() {
     const { overtimeResult } = this.state;
+    const totalDuties = this.state.duties;
+
+totalDuties.forEach((duty, index) => {
+  const progressiveDutyHours = duty.calculateprogressiveDutyHours(index, totalDuties);
+  
+});
 
   if (overtimeResult) {
     console.log('Overtime Calculation Result:', overtimeResult);
@@ -303,7 +309,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
 
     const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
-    
+    const lastDuty = duties[duties.length - 1];
+    const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
+
     console.log("OSDA Count:", osdaCount);
     console.log("RRA Count:", rraCount);
     console.log("Leaves: ", totalLeaves);
@@ -314,6 +322,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("OSDA Allowance: ",osdaAllowance);
     console.log("Total night duty hours ",totalNightDutyHours);
     console.log("Night Duty Allowance ",nightDutyAllowance);
+    console.log("Progressive Duty Hours :",progressiveDutyHours);
     return (
       <ScrollView
         horizontal
@@ -358,6 +367,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             overTimeAllowance={overTimeAllowance}
             dearnessAllowance={dearnessAllowance}
             startDate={startDate}
+            progressiveDutyHours={progressiveDutyHours}
             endDate={""}
             daysInMonth={daysInMonth}
           />
