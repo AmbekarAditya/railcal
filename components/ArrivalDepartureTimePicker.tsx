@@ -25,7 +25,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       const timeDiff = calculateTimeDifference(arrivalTime, departureTime);
       onTimesChange(arrivalTime, departureTime, timeDiff);
     }
-  }, [arrivalTime, departureTime, onTimesChange]);
+  }, [arrivalTime, departureTime]);
 
   const calculateTimeDifference = (arrival: string, departure: string) => {
     const arrivalDate = new Date(`2021/01/01 ${arrival}`);
