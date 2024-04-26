@@ -44,7 +44,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       const dutyHours = getTimeDifference(arrivalTime, departureTime).toString();
       onTimesChange(arrivalTime, departureTime);
     }
-  }, [arrivalTime, departureTime]);
+  }, [arrivalTime, departureTime,onTimesChange]);
 
   const handleArrivalTimeChange = (hour: string, minute: string) => {
     const newArrivalTime = `${hour}:${minute}`;
