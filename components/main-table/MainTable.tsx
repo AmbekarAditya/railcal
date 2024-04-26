@@ -150,17 +150,22 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
  
   updateTripData = (dutyId: number, tripId: number, field: keyof Trip, value: string | number) => {
-    const dutiesUpdated = this.state.duties.map((duty) => {
-      if (duty.id === dutyId) {
-        const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
-        if (tripToUpdate) {
-          const updatedTrip = { ...tripToUpdate, [field]: value };
-          duty.updateTrip(tripId, updatedTrip);
+    console.log(`updateTripData called with dutyId: ${dutyId}, tripId: ${tripId}, field: ${field}, value: ${value}`);
+    console.log('Before setState');
+    this.setState((prevState) => ({
+      duties: prevState.duties.map((duty) => {
+        if (duty.id === dutyId) {
+          const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+          if (tripToUpdate) {
+            const updatedTrip = { ...tripToUpdate, [field]: value };
+            duty.updateTrip(tripId, updatedTrip);
+          }
         }
-      }
-      return duty;
+        return duty;
+      }),
+    }), () => {
+      console.log('After setState');
     });
-    this.updateDutiesState(dutiesUpdated);
   };
 
   updateDutiesState = (dutiesUpdated: Duty[]) => {

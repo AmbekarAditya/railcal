@@ -36,46 +36,58 @@ const DutyRow: React.FC<DutyRowProps> = ({
   setTotalLeaves,
 }) => {
 
+ 
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
     value: string | number
   ) => {
-    console.log("Before calling updateTripData");
-    const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
-    const trip = duty.trips[tripIndex];
+    console.log(`handleTripDataChange called with tripId: ${tripId}, field: ${field}, value: ${value}`);
   
-    // Update the dutyHours for leave types before updating the trip data
+    updateTripData(duty.id, tripId, field, value);
+  
+    // Perform additional actions if needed
     if (field === "typeOfWork") {
-      duty.updateDutyHoursForLeaveTypes(value as string);
+      const trip = duty.trips.find((t) => t.id === tripId);
+      if (trip) {
+        duty.updateDutyHoursForLeaveTypes(value as string);
+      }
     }
   
-    // Update the trip data immediately for synchronous processing
-    const updatedTrip = { ...trip, [field]: value };
+    if (field === "arrivalTime" || field === "departureTime") {
+      const trip = duty.trips.find((t) => t.id === tripId);
+      if (trip) {
+        const isArrivalTimeValid = trip.arrivalTime && trip.arrivalTime !== "";
+        const isDepartureTimeValid = trip.departureTime && trip.departureTime !== "";
   
-    // Perform calculations only on specific field changes
-    if (
-      field === "distance" ||
-      field === "typeOfWork" ||
-      (field === "dutyHours" && value !== "")
-    ) {
-      const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-  
-      const { allowance, remarks } = calculateAllowanceAndRemarks(
-        updatedTrip.distance,
-        updatedTrip.typeOfWork,
-        dutyHoursAsNumber * 60
-      );
-  
-      // Update the trip data with the calculated allowance and remarks
-      updatedTrip.allowance = allowance;
-      updatedTrip.remarks = remarks;
+        if (isArrivalTimeValid && isDepartureTimeValid) {
+          const arrivalTime = new Date(`1970-01-01T${trip.arrivalTime}:00`);
+          const departureTime = new Date(`1970-01-01T${trip.departureTime}:00`);
+          const timeDifference = departureTime.getTime() - arrivalTime.getTime();
+          const dutyHours = timeDifference / (1000 * 60 * 60);
+          updateTripData(duty.id, tripId, "dutyHours", dutyHours.toString());
+        } else {
+          updateTripData(duty.id, tripId, "dutyHours", "0");
+        }
+      }
     }
+    
+    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
+      const trip = duty.trips.find((t) => t.id === tripId);
+      if (trip) {
+        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
+        const dutyHoursInMinutes = dutyHoursAsNumber * 60;
   
-    // Update the trip in the duty's trips array
-    duty.updateTrip(tripId, updatedTrip);
+        const { allowance, remarks } = calculateAllowanceAndRemarks(
+          trip.distance,
+          trip.typeOfWork,
+          dutyHoursInMinutes
+        );
   
-    console.log("After calling updateTripData");
+        updateTripData(duty.id, tripId, "allowance", allowance);
+        updateTripData(duty.id, tripId, "remarks", remarks);
+      }
+    }
   };
 
   const handleStationChange = (
@@ -181,15 +193,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
             {trip.distance.toFixed(2)}
           </td>
           <td style={{ width: '120px' }}>
-            <ArrivalDepartureTimePicker
+          <ArrivalDepartureTimePicker
   onTimesChange={(arrivalTime, departureTime) => {
     handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
     handleTripDataChange(trip.id, "departureTime", departureTime);
   }}
   disabled={shouldDisableInputFields(trip.typeOfWork)}
-  timeDifference={(timeDifference) => {
-    handleTripDataChange(trip.id, "dutyHours", timeDifference);
-  }}
 />
             {/* <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) => {

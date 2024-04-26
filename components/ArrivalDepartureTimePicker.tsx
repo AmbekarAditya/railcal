@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import TimePicker from "./time-picker/TimePicker";
 
 interface ArrivalDepartureTimePickerProps {
-  onTimesChange: (arrivalTime: string, departureTime: string, dutyHours: string) => void;
+  onTimesChange: (arrivalTime: string, departureTime: string) => void;
   disabled: boolean;
 }
 
@@ -13,51 +13,38 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
 }) => {
   const [arrivalTime, setArrivalTime] = useState("");
   const [departureTime, setDepartureTime] = useState("");
-  const [timeDifference, setTimeDifference] = useState("");
 
-  const calculateTimeDifference = useCallback(
-    (arrival: string, departure: string) => {
-      const arrivalDate = new Date(`2021/01/01 ${arrival}`);
-      const departureDate = new Date(`2021/01/01 ${departure}`);
-      const timeDiff = getTimeDifference(arrivalDate, departureDate);
-      return timeDiff;
+  const getTimeDifference = useCallback(
+    (arrivalTime: string, departureTime: string): number => {
+      if (!arrivalTime || !departureTime) {
+        return 0;
+      }
+  
+      const [arrivalHour, arrivalMinute] = arrivalTime.split(":");
+      const [departureHour, departureMinute] = departureTime.split(":");
+  
+      const arrivalDate = new Date(1970, 0, 1, parseInt(arrivalHour), parseInt(arrivalMinute));
+      const departureDate = new Date(1970, 0, 1, parseInt(departureHour), parseInt(departureMinute));
+  
+      let diffInMilliseconds = departureDate.getTime() - arrivalDate.getTime();
+  
+      // Handle case where departure time is on the next day
+      if (diffInMilliseconds < 0) {
+        diffInMilliseconds += 24 * 60 * 60 * 1000; // Add 24 hours in milliseconds
+      }
+  
+      const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+      return diffInHours;
     },
     []
   );
 
-  const getTimeDifference = (
-    arrivalTime: Date,
-    departureTime: Date
-  ): number => {
-    if (!arrivalTime || !departureTime) {
-      return 0;
-    }
-
-    // Check if arrival and departure times are equal
-    if (arrivalTime.getTime() === departureTime.getTime()) {
-      // Special case: both times are at midnight
-      if (arrivalTime.getHours() === 0 && arrivalTime.getMinutes() === 0) {
-        return 24 * 60;
-      }
-      return 0;
-    }
-
-    let timeDiff = departureTime.getTime() - arrivalTime.getTime();
-
-    // If the departure time is earlier than the arrival time, add 24 hours
-    if (timeDiff < 0) {
-      timeDiff += 24 * 60 * 60 * 1000;
-    }
-
-    return Math.round(timeDiff / 60000);
-  };
-
   useEffect(() => {
     if (arrivalTime && departureTime) {
-      const calculatedTimeDifference = calculateTimeDifference(arrivalTime, departureTime);
-      onTimesChange(arrivalTime, departureTime, calculatedTimeDifference);
+      const dutyHours = getTimeDifference(arrivalTime, departureTime).toString();
+      onTimesChange(arrivalTime, departureTime);
     }
-  }, [arrivalTime, departureTime, onTimesChange, calculateTimeDifference]);
+  }, [arrivalTime, departureTime]);
 
   const handleArrivalTimeChange = (hour: string, minute: string) => {
     const newArrivalTime = `${hour}:${minute}`;
@@ -68,8 +55,6 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     const newDepartureTime = `${hour}:${minute}`;
     setDepartureTime(newDepartureTime);
   };
-
-
 
   return (
     <View style={styles.container}>
