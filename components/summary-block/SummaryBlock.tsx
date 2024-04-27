@@ -88,7 +88,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Dearness Allowance:</Text>
-            <Text style={styles.value}>₹{dearnessAllowance}</Text>
+            <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Leave Mileage:</Text>
@@ -98,10 +98,10 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
             <Text style={styles.label}>RRA / OSDA:</Text>
             <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
           </View>
-          <View style={styles.infoContainer}>
+          {/* <View style={styles.infoContainer}>
             <Text style={styles.label}>Over Time:</Text>
             <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
-          </View>
+          </View> */}
         </View>
         {overtimeResult && (
          <View style={{flexDirection:'row'}}>

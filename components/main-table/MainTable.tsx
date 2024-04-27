@@ -13,6 +13,7 @@ import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowanc
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
+import mileageCalculation from "../allowancecalculation/mileageCalculation";
 // import { PDFDownloadLink } from "@react-pdf/renderer";
 // import ReportDocument from "./ReportDocument";
 
@@ -28,6 +29,7 @@ interface MainTableState {
   selectedDuty: Duty | null;
   totalLeaves: number;
   overtimeResult: OverTimeCalculationResult | null;
+  
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -37,7 +39,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     selectedDuty: null,
     totalLeaves: 0,
     overtimeResult: null,
+    
   };
+
+ 
+
   constructor(props: MainTableProps) {
     super(props);
 
@@ -172,15 +178,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   calculateTotalAllowance = () => {
     const { duties } = this.state;
-    const totalDistance = duties.reduce((acc, duty) => {
-      const dutyDistance = duty.trips.reduce(
-        (tripAcc, trip) => tripAcc + (trip.distance || 0),
+    const totalAllowance = duties.reduce((acc, duty) => {
+      const totalAllowance = duty.trips.reduce(
+        (tripAcc, trip) => tripAcc + (trip.allowance || 0),
         0
       );
-      return acc + dutyDistance;
+      return acc + totalAllowance;
     }, 0);
 
-    return totalDistance;
+    return totalAllowance;
   };
   deleteTrip = (dutyId: number, tripId: number) => {
     this.setState((prevState) => ({
@@ -334,10 +340,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }, 0);
 
     const totalAllowance = this.calculateTotalAllowance();
-    const mileage = 1.5; // Example mileage rate, replace as needed
+    const mileage = mileageCalculation(designation,totalAllowance); // Example mileage rate, replace as needed
 
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
-    const overTimeAllowance = 75; // Example overtime allowance, replace as needed
+    const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
     const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
     const totalNightDutyHours = this.calculateTotalNightDutyHours();
     const nightDutyAllowance = computeNightDutyAllowance(
