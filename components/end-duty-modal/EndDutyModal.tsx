@@ -34,6 +34,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
     updatedDuty.isRRA = isRRAApplicable;
     updateDutyDetails(updatedDuty);
   };
+  props: { duty: any; updateDutyDetails: any; };
 
   render() {
     const { closeModal } = this.props;
@@ -86,6 +87,9 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
         </View>
       </View>
     );
+  }
+  setState(arg0: { dutyStartDateTime: string; }): void {
+    throw new Error('Method not implemented.');
   }
 }
 
