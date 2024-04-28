@@ -10,14 +10,14 @@ const Drawer = createDrawerNavigator();
 
 type RootDrawerParamList = {
   Home: undefined;
-  Details: undefined;
+  // Details: undefined;
 };
 
 type HomeScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Home'>;
-type DetailsScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Details'>;
+// type DetailsScreenNavigationProp = DrawerNavigationProp<RootDrawerParamList, 'Details'>;
 
 interface AppNavigatorProps {
-  navigation: HomeScreenNavigationProp | DetailsScreenNavigationProp;
+  navigation: HomeScreenNavigationProp ;
 }
 
 const AppNavigator: React.FC<AppNavigatorProps> = () => {
