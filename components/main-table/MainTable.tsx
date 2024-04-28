@@ -1,10 +1,8 @@
 import React from "react";
+import { ScrollView, StyleSheet, View, FlatList ,Button} from "react-native";
 import Duty from "../duty/Duty";
-import Trip from "../trip/Trip";
-import { ScrollView, StyleSheet } from "react-native";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
-import "./MainTable.css";
 import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
@@ -14,8 +12,6 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
-// import { PDFDownloadLink } from "@react-pdf/renderer";
-// import ReportDocument from "./ReportDocument";
 
 interface MainTableProps {
   navigation: NavigationProp<any>;
@@ -377,67 +373,58 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Progressive Duty Hours :", progressiveDutyHours);
     return (
       <ScrollView
-        horizontal
-        style={styles.container}
-        contentContainerStyle={styles.horizontalContent}
-      >
-        <ScrollView vertical style={styles.tableContainer}>
-          <div style={{ minWidth: 1200 }}>
-            {" "}
-            {/* Adjust minWidth based on your content width */}
-            <table className="duty-table">
-              <thead></thead>
-              <tbody>
-                {duties.map((duty) => (
-                  <DutyRow
-                    key={duty.id}
-                    duty={duty}
-                    addTrip={this.addTrip}
-                    handleEndDuty={this.handleEndDuty}
-                    updateTripData={this.updateTripData}
-                    selectedMonth={selectedMonth}
-                    deleteTrip={this.deleteTrip}
-                    setTotalLeaves={this.setTotalLeaves}
-                    deleteDuty={this.deleteDuty}
-                  ></DutyRow>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </ScrollView>
-        <div>
-          <button onClick={this.addDuty}>Add Duty</button>
-        </div>
-        {duties.length > 0 && duties[0].trips.length > 0 && (
-          <SummaryBlock
-            totalAllowance={totalAllowance}
-            totalKilometers={totalKilometers}
-            mileage={mileage}
-            nightDutyAllowance={nightDutyAllowance}
-            nationalHolidayAllowance={nationalHolidayAllowance}
-            leaveMileageAllowance={lma}
-            overTimeAllowance={overTimeAllowance}
-            dearnessAllowance={dearnessAllowance}
-            startDate={startDate}
-            progressiveDutyHours={progressiveDutyHours}
-            endDate={""}
-            daysInMonth={daysInMonth}
-            overtimeResult={overtimeResult}
-          />
-        )}
-        <Modal
-          isOpen={showModal}
-          onClose={() => this.setState({ showModal: false })}
-        >
-          {selectedDuty && (
-            <EndDutyModal
-              duty={selectedDuty}
-              updateDutyDetails={this.updateDutyDetails}
-              closeModal={() => this.setState({ showModal: false })}
+      horizontal
+      style={styles.container}
+      contentContainerStyle={styles.horizontalContent}
+    >
+      <View style={styles.tableContainer}>
+        <FlatList
+          data={duties}
+          renderItem={({ item: duty }) => (
+            <DutyRow
+              key={duty.id}
+              duty={duty}
+              addTrip={this.addTrip}
+              handleEndDuty={this.handleEndDuty}
+              updateTripData={this.updateTripData}
+              selectedMonth={selectedMonth}
+              deleteTrip={this.deleteTrip}
+              setTotalLeaves={this.setTotalLeaves}
+              deleteDuty={this.deleteDuty}
             />
           )}
-        </Modal>
-      </ScrollView>
+        />
+      </View>
+      <View>
+        <Button title="Add Duty" onPress={this.addDuty} />
+      </View>
+      {duties.length > 0 && duties[0].trips.length > 0 && (
+        <SummaryBlock
+          totalAllowance={totalAllowance}
+          totalKilometers={totalKilometers}
+          mileage={mileage}
+          nightDutyAllowance={nightDutyAllowance}
+          nationalHolidayAllowance={nationalHolidayAllowance}
+          leaveMileageAllowance={lma}
+          overTimeAllowance={overTimeAllowance}
+          dearnessAllowance={dearnessAllowance}
+          startDate={startDate}
+          progressiveDutyHours={progressiveDutyHours}
+          endDate={""}
+          daysInMonth={daysInMonth}
+          overtimeResult={overtimeResult}
+        />
+      )}
+      <Modal isOpen={showModal} onClose={() => this.setState({ showModal: false })}>
+        {selectedDuty && (
+          <EndDutyModal
+            duty={selectedDuty}
+            updateDutyDetails={this.updateDutyDetails}
+            closeModal={() => this.setState({ showModal: false })}
+          />
+        )}
+      </Modal>
+    </ScrollView>
     );
   }
 }
