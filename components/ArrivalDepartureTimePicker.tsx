@@ -1,24 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform, TouchableOpacity } from "react-native";
 import TimePicker from "./time-picker/TimePicker";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface ArrivalDepartureTimePickerProps {
-  onTimesChange: (
-    arrival: string,
-    departure: string,
-    dutyHours: string
-  ) => void;
+  onTimesChange: (arrival: string, departure: string, dutyHours: string) => void;
   disabled: boolean;
-  
 }
 
 const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   onTimesChange,
   disabled,
-
 }) => {
   const [arrivalTime, setArrivalTime] = useState("");
   const [departureTime, setDepartureTime] = useState("");
+  const [showArrivalPicker, setShowArrivalPicker] = useState(false);
+  const [showDeparturePicker, setShowDeparturePicker] = useState(false);
 
   useEffect(() => {
     if (arrivalTime && departureTime) {
@@ -36,10 +33,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     return `${hours}h ${minutes}m`;
   };
 
-  const getTimeDifference = (
-    arrivalTime: Date,
-    departureTime: Date
-  ): number => {
+  const getTimeDifference = (arrivalTime: Date, departureTime: Date): number => {
     if (!arrivalTime || !departureTime) {
       return 0;
     }
@@ -85,18 +79,86 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     setDepartureTime(`${hour}:${minute}`);
   };
 
+  const openArrivalPicker = () => {
+    setShowArrivalPicker(true);
+  };
+
+  const openDeparturePicker = () => {
+    setShowDeparturePicker(true);
+  };
+
+  const handleArrivalDateTimeChange = (event: any, selectedTime?: Date) => {
+    if (event.type === "set") {
+      const hour = String(selectedTime?.getHours()).padStart(2, '0');
+      const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
+      setArrivalTime(`${hour}:${minute}`);
+      setShowArrivalPicker(false);
+    } else {
+      setShowArrivalPicker(false);
+    }
+  };
+
+  const handleDepartureDateTimeChange = (event: any, selectedTime?: Date) => {
+    if (event.type === "set") {
+      const hour = String(selectedTime?.getHours()).padStart(2, '0');
+      const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
+      setDepartureTime(`${hour}:${minute}`);
+      setShowDeparturePicker(false);
+    } else {
+      setShowDeparturePicker(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Arrival Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker disabled={disabled} onTimeChange={handleArrivalTimeChange} />
+          {Platform.OS === "web" ? (
+            <TimePicker disabled={disabled} onTimeChange={handleArrivalTimeChange} />
+          ) : (
+            <View>
+              <TouchableOpacity onPress={openArrivalPicker} disabled={disabled}>
+                <View style={styles.timeContainer}>
+                  <Text>{arrivalTime || "--:--"}</Text>
+                </View>
+              </TouchableOpacity>
+              {showArrivalPicker && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={handleArrivalDateTimeChange}
+                />
+              )}
+            </View>
+          )}
         </View>
       </View>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Departure Time:</Text>
         <View style={styles.timePickerWrapper}>
-          <TimePicker disabled={disabled}  onTimeChange={handleDepartureTimeChange} />
+          {Platform.OS === "web" ? (
+            <TimePicker disabled={disabled} onTimeChange={handleDepartureTimeChange} />
+          ) : (
+            <View>
+              <TouchableOpacity onPress={openDeparturePicker} disabled={disabled}>
+                <View style={styles.timeContainer}>
+                  <Text>{departureTime || "--:--"}</Text>
+                </View>
+              </TouchableOpacity>
+              {showDeparturePicker && (
+                <DateTimePicker
+                  value={new Date()}
+                  mode="time"
+                  is24Hour={true}
+                  display="default"
+                  onChange={handleDepartureDateTimeChange}
+                />
+              )}
+            </View>
+          )}
         </View>
       </View>
     </View>
@@ -115,7 +177,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   timePickerWrapper: {
-    width: 200, // Adjust the width as needed
+    width: 200,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
   },
 });
 

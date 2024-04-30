@@ -20,6 +20,15 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     
   },
+  IOSpicker: {
+    width: 150,
+    height:25,
+    
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    
+  },
   distanceText: {
     fontSize: 13,
     fontWeight: "bold",

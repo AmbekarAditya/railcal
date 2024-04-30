@@ -1,6 +1,7 @@
-import React, { useState } from "react";
-import { View, Text } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from "react-native-picker-select";
 import { combinations } from "../../utils/combinations";
 import { styles } from "../../styles_component/styles_stationpicker";
 
@@ -37,10 +38,6 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
     updateToStationAndDistance(fromStation, selectedStation);
   };
 
-  const uniqueFromStations = Array.from(
-    new Set(combinations.map((item) => item.from_station))
-  );
-
   const updateToStationAndDistance = (from: string, to: string) => {
     const combo = combinations.find(
       (c) => c.from_station === from && c.to_station === to
@@ -51,33 +48,76 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
     }
   };
 
+  const uniqueFromStations = Array.from(
+    new Set(combinations.map((item) => item.from_station))
+  );
+  const fromStationItems = uniqueFromStations.map((station) => ({
+    label: station,
+    value: station,
+  }));
+
+  const isIOS = Platform.OS === "ios";
+
   return (
     <View style={styles.container}>
       <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={fromStation}
-          onValueChange={handleFromStationChange}
-          enabled={!disabled}
-          style={styles.picker}
-        >
-          {uniqueFromStations.map((station, index) => (
-            <Picker.Item key={index} label={station} value={station} />
-          ))}
-        </Picker>
+        {isIOS ? (
+          <RNPickerSelect
+            value={fromStation}
+            onValueChange={handleFromStationChange}
+            disabled={disabled}
+            items={fromStationItems}
+            style={styles.IOSpicker}
+          />
+        ) : (
+          <Picker
+            selectedValue={fromStation}
+            onValueChange={handleFromStationChange}
+            enabled={!disabled}
+            style={styles.picker}
+          >
+            {uniqueFromStations.map((station, index) => (
+              <Picker.Item key={index} label={station} value={station} />
+            ))}
+          </Picker>
+        )}
       </View>
       <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={toStation}
-          onValueChange={handleToStationChange}
-          enabled={!disabled}
-          style={styles.picker}
-        >
-          {combinations
-            .filter((item) => item.from_station === fromStation)
-            .map((item, index) => (
-              <Picker.Item key={index} label={item.to_station} value={item.to_station} />
-            ))}
-        </Picker>
+        {isIOS ? (
+          <RNPickerSelect
+            value={toStation}
+            onValueChange={handleToStationChange}
+            disabled={disabled}
+            items={
+              fromStation
+                ? combinations
+                    .filter((item) => item.from_station === fromStation)
+                    .map((item) => ({
+                      label: item.to_station,
+                      value: item.to_station,
+                    }))
+                : []
+            }
+            style={styles.IOSpicker}
+          />
+        ) : (
+          <Picker
+            selectedValue={toStation}
+            onValueChange={handleToStationChange}
+            enabled={!disabled}
+            style={styles.picker}
+          >
+            {combinations
+              .filter((item) => item.from_station === fromStation)
+              .map((item, index) => (
+                <Picker.Item
+                  key={index}
+                  label={item.to_station}
+                  value={item.to_station}
+                />
+              ))}
+          </Picker>
+        )}
       </View>
       {/* <Text style={styles.distanceText}>Distance: {distance} km</Text> */}
     </View>

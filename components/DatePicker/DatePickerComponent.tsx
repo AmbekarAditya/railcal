@@ -1,7 +1,5 @@
-// DatePickerComponent.tsx
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 interface DatePickerComponentProps {
@@ -30,13 +28,14 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateSelecte
   return (
     <View style={{ borderWidth: 1, padding: 4 }}>
       <TouchableOpacity onPress={showDatePicker}>
-        <Text >{selectedDateString}</Text>
+        <Text>{selectedDateString}</Text>
       </TouchableOpacity>
       <DateTimePickerModal
         isVisible={isDatePickerVisible}
         mode="date"
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
+        isDarkModeEnabled={Platform.OS === 'ios'} // Example of platform-specific property
       />
     </View>
   );

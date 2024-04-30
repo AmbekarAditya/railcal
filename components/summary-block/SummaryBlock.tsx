@@ -68,7 +68,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
         <View style={styles.infoContainerWrapper}>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Hours Worked</Text>
-            <Text style={styles.value}>{progressiveDutyHours}H</Text>
+            <Text style={styles.value}>{formatNumber(progressiveDutyHours)}H</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Total Allowance:</Text>

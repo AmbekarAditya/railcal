@@ -9,7 +9,15 @@ import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import WebDatePicker from "../DatePicker/WebDatePicker";
-import { Platform, View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList } from "react-native";
+import {
+  Platform,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+} from "react-native";
 
 interface DutyRowProps {
   duty: Duty;
@@ -119,68 +127,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
     return disabledTypes.includes(typeOfWork);
   };
 
-  const renderTrip = ({ item }) => (
-    <View style={styles.tripRow}>
-      <View style={styles.tripCell}>
-        {Platform.OS === "web" ? (
-          <WebDatePicker
-            value={item.date}
-            onChange={(date) => handleTripDataChange(item.id, "date", date)}
-          />
-        ) : (
-          <DatePickerComponent
-            onDateSelected={(date) => handleTripDataChange(item.id, "date", date)}
-          />
-        )}
-      </View>
-      <View style={styles.tripCell}>
-        <TypeofWorkPickerComponent
-          TypeofWork={(newValue) => handleTripDataChange(item.id, "typeOfWork", newValue)}
-        />
-      </View>
-      <View style={styles.tripCell}>
-        <TrainNumberInput
-          onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, item.id)}
-          disabled={shouldDisableInputFields(item.typeOfWork)}
-          maxLength={7}
-        />
-      </View>
-      <View style={styles.tripCell}>
-        <PickerComponentStation
-          onStationChange={handleStationChange}
-          dutyId={duty.id}
-          tripId={item.id}
-          disabled={shouldDisableInputFields(item.typeOfWork)}
-          maxLength={5}
-        />
-      </View>
-      <Text style={styles.tripCell}>{item.distance.toFixed(2)}</Text>
-      <View style={styles.tripCell}>
-        <ArrivalDepartureTimePicker
-          onTimesChange={(arrivalTime, departureTime, dutyHours) => {
-            handleTripDataChange(item.id, "arrivalTime", arrivalTime);
-            handleTripDataChange(item.id, "departureTime", departureTime);
-            handleTripDataChange(item.id, "dutyHours", dutyHours);
-          }}
-          disabled={shouldDisableInputFields(item.typeOfWork)}
-        />
-      </View>
-      <Text style={styles.tripCell}>{item.dutyHours}</Text>
-      <Text style={styles.tripCell}>{item.allowance}</Text>
-      <Text style={styles.tripCell}>{item.remarks}</Text>
-      <View style={styles.tripCell}>
-        <TouchableOpacity onPress={() => deleteTrip(duty.id, item.id)}>
-          <Text>Delete</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
   return (
-  
-      
-
-      <ScrollView horizontal>
-        {/* <View style={styles.headerRow}>
+    <ScrollView horizontal>
+      {/* <View style={styles.headerRow}>
         <Text style={styles.headerCell}>Date</Text>
         <Text style={styles.headerCell}>Duty Type</Text>
         <Text style={styles.headerCell}>Train No.</Text>
@@ -192,29 +141,37 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <Text style={styles.headerCell}>Remarks</Text>
         <Text style={styles.headerCell}>Actions</Text>
       </View> */}
-      <View >
+      <View>
         {duty.trips.map((trip, index) => (
           <View key={trip.id} style={styles.row}>
             <View style={styles.dateCell}>
               {Platform.OS === "web" ? (
                 <WebDatePicker
                   value={trip.date}
-                  onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+                  onChange={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
                 />
               ) : (
                 <DatePickerComponent
-                  onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
+                  onDateSelected={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
                 />
               )}
             </View>
             <View style={styles.dutyTypeCell}>
               <TypeofWorkPickerComponent
-                TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
+                TypeofWork={(newValue) =>
+                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+                }
               />
             </View>
             <View style={styles.trainNoCell}>
               <TrainNumberInput
-                onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
+                onChange={(trainNumber) =>
+                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
+                }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={7}
               />
@@ -228,7 +185,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 maxLength={5}
               />
             </View>
-            <Text style={styles.distanceCell}>{trip.distance.toFixed(2)}km</Text>
+            <Text style={styles.distanceCell}>
+              {trip.distance.toFixed(2)}km
+            </Text>
             <View style={styles.timePickerCell}>
               <ArrivalDepartureTimePicker
                 onTimesChange={(arrivalTime, departureTime, dutyHours) => {
@@ -251,7 +210,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         ))}
         <View style={styles.buttonsRow}>
           <TouchableOpacity
-            style={[styles.button, {marginLeft:3, marginRight: 10 }]}
+            style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
             onPress={() => addTrip(duty.id)}
             disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
           >
@@ -264,14 +223,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
           >
             <Text>End Duty</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => deleteDuty(duty.id)}
+          >
             <Text>Delete Duty</Text>
           </TouchableOpacity>
         </View>
         <DutyInfo duty={duty} />
         {duty.trips.length > 0 && (
           <View style={styles.separator}>
-            <View style={{ height: 1, backgroundColor: 'gray' }} />
+            <View style={{ height: 1, backgroundColor: "gray" }} />
           </View>
         )}
       </View>
@@ -279,97 +241,102 @@ const DutyRow: React.FC<DutyRowProps> = ({
   );
 };
 
-
 const styles = StyleSheet.create({
   headerRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
     paddingHorizontal: 10,
   },
   headerCell: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     paddingVertical: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   buttonsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 10,
   },
-  separator:{
-    margin:5,
+  separator: {
+    margin: 5,
   },
   button: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
     borderRadius: 5,
   },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
     paddingHorizontal: 10,
   },
   dateCell: {
-    width: '10%',
+    width: "10%",
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   dutyTypeCell: {
-    width: '20%',
+    width: "20%",
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   trainNoCell: {
-    width: '15%',
+    width: "15%",
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   stationsCell: {
-    width: '25%',
+    width: "25%",
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   distanceCell: {
-    width: '10%',
+    width: "10%",
     paddingVertical: 10,
     paddingHorizontal: 5,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   timePickerCell: {
-    width: '25%',
+    width: "25%",
     paddingVertical: 10,
     paddingHorizontal: 5,
   },
   durationCell: {
-    width: '15%',
+    width: "15%",
     paddingVertical: 10,
     paddingHorizontal: 5,
-    textAlign: 'center',
-    marginHorizontal:10,
+    textAlign: "center",
+    marginHorizontal: 10,
   },
   allowanceCell: {
-    width: '15%',
+    width: "15%",
     paddingVertical: 10,
     paddingHorizontal: 5,
-    marginHorizontal:20,
-    textAlign: 'center',
+    marginHorizontal: 20,
+    textAlign: "center",
   },
   remarksCell: {
-    width: '20%',
+    width: "20%",
     paddingVertical: 10,
     paddingHorizontal: 5,
-    marginHorizontal:10,
+    marginHorizontal: 10,
   },
   actionsCell: {
-    width: '10%',
+    width: "10%",
     paddingVertical: 10,
     paddingHorizontal: 5,
-    alignItems: 'center',
+    alignItems: "center",
+  },
+  tripCell: {
+    width: "10%",
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    alignItems: "center",
   },
 });
 export default DutyRow;
