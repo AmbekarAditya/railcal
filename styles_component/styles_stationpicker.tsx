@@ -9,12 +9,12 @@ const styles = StyleSheet.create({
     // paddingVertical: 5,
   },
   pickerContainer: {
-    width: 180,
+    width: 150,
     marginVertical:3,
   },
   picker: {
-    width: 180,
-    height:20,
+    width: 150,
+    height:25,
     backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#ccc",

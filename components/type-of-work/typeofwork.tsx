@@ -20,7 +20,7 @@ const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({ T
         }}
         style={{
           height: 35,
-          width: 180,
+          width: 130,
           margin: 10,
           ...(Platform.OS === "ios" && { marginBottom: 197, height: 30 }),
           ...(Platform.OS === "android" && { width: 250, marginBottom: 30 }),
