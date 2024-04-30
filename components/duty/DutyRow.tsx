@@ -176,9 +176,11 @@ const DutyRow: React.FC<DutyRowProps> = ({
     </View>
   );
   return (
-    <ScrollView horizontal>
-    <View style={styles.container}>
-      <View style={styles.headerRow}>
+  
+      
+
+      <ScrollView horizontal>
+        {/* <View style={styles.headerRow}>
         <Text style={styles.headerCell}>Date</Text>
         <Text style={styles.headerCell}>Duty Type</Text>
         <Text style={styles.headerCell}>Train No.</Text>
@@ -189,89 +191,90 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <Text style={styles.headerCell}>Allowance</Text>
         <Text style={styles.headerCell}>Remarks</Text>
         <Text style={styles.headerCell}>Actions</Text>
-      </View>
-      {duty.trips.map((trip, index) => (
-        <View key={trip.id} style={styles.row}>
-          <View style={styles.dateCell}>
-            {Platform.OS === "web" ? (
-              <WebDatePicker
-                value={trip.date}
-                onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+      </View> */}
+      <View >
+        {duty.trips.map((trip, index) => (
+          <View key={trip.id} style={styles.row}>
+            <View style={styles.dateCell}>
+              {Platform.OS === "web" ? (
+                <WebDatePicker
+                  value={trip.date}
+                  onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+                />
+              ) : (
+                <DatePickerComponent
+                  onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
+                />
+              )}
+            </View>
+            <View style={styles.dutyTypeCell}>
+              <TypeofWorkPickerComponent
+                TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
               />
-            ) : (
-              <DatePickerComponent
-                onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
+            </View>
+            <View style={styles.trainNoCell}>
+              <TrainNumberInput
+                onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+                maxLength={7}
               />
-            )}
+            </View>
+            <View style={styles.stationsCell}>
+              <PickerComponentStation
+                onStationChange={handleStationChange}
+                dutyId={duty.id}
+                tripId={trip.id}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+                maxLength={5}
+              />
+            </View>
+            <Text style={styles.distanceCell}>{trip.distance.toFixed(2)}km</Text>
+            <View style={styles.timePickerCell}>
+              <ArrivalDepartureTimePicker
+                onTimesChange={(arrivalTime, departureTime, dutyHours) => {
+                  handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
+                  handleTripDataChange(trip.id, "departureTime", departureTime);
+                  handleTripDataChange(trip.id, "dutyHours", dutyHours);
+                }}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+              />
+            </View>
+            <Text style={styles.durationCell}>{trip.dutyHours}</Text>
+            <Text style={styles.allowanceCell}>{trip.allowance}₹</Text>
+            <Text style={styles.remarksCell}>{trip.remarks}</Text>
+            <View style={styles.actionsCell}>
+              <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}>
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        <View style={styles.dutyTypeCell}>
-          <TypeofWorkPickerComponent
-            TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
-          />
-        </View>
-        <View style={styles.trainNoCell}>
-          <TrainNumberInput
-            onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
-            disabled={shouldDisableInputFields(trip.typeOfWork)}
-            maxLength={7}
-          />
-        </View>
-        <View style={styles.stationsCell}>
-          <PickerComponentStation
-            onStationChange={handleStationChange}
-            dutyId={duty.id}
-            tripId={trip.id}
-            disabled={shouldDisableInputFields(trip.typeOfWork)}
-            maxLength={5}
-          />
-        </View>
-        <Text style={styles.distanceCell}>{trip.distance.toFixed(2)}</Text>
-        <View style={styles.timePickerCell}>
-          <ArrivalDepartureTimePicker
-            onTimesChange={(arrivalTime, departureTime, dutyHours) => {
-              handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
-              handleTripDataChange(trip.id, "departureTime", departureTime);
-              handleTripDataChange(trip.id, "dutyHours", dutyHours);
-            }}
-            disabled={shouldDisableInputFields(trip.typeOfWork)}
-          />
-        </View>
-        <Text style={styles.durationCell}>{trip.dutyHours}</Text>
-        <Text style={styles.allowanceCell}>{trip.allowance}</Text>
-        <Text style={styles.remarksCell}>{trip.remarks}</Text>
-        <View style={styles.actionsCell}>
-          <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}>
-            <Text>Delete</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    ))}
-      <View style={styles.row}>
-        <View style={styles.cell} colSpan={10}>
+        ))}
+        <View style={styles.buttonsRow}>
           <TouchableOpacity
+            style={[styles.button, {marginLeft:3, marginRight: 10 }]}
             onPress={() => addTrip(duty.id)}
             disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
           >
             <Text>Add Trip</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            style={[styles.button, { marginRight: 10 }]}
             onPress={() => handleEndDuty(duty)}
             disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
           >
             <Text>End Duty</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => deleteDuty(duty.id)}>
+          <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)}>
             <Text>Delete Duty</Text>
           </TouchableOpacity>
-          <DutyInfo duty={duty} />
         </View>
+        <DutyInfo duty={duty} />
+        {duty.trips.length > 0 && (
+          <View style={styles.separator}>
+            <View style={{ height: 1, backgroundColor: 'gray' }} />
+          </View>
+        )}
       </View>
-      {duty.trips.length > 0 && (
-        <View style={styles.separator}>
-          <View style={{ height: 1, backgroundColor: 'gray' }} />
-        </View>
-      )}
-    </View>
     </ScrollView>
   );
 };
@@ -288,6 +291,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     paddingVertical: 10,
     textAlign: 'center',
+  },
+  buttonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  separator:{
+    margin:5,
+  },
+  button: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#ccc',
+    borderRadius: 5,
   },
   row: {
     flexDirection: 'row',
@@ -333,17 +350,20 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 5,
     textAlign: 'center',
+    marginHorizontal:10,
   },
   allowanceCell: {
     width: '15%',
     paddingVertical: 10,
     paddingHorizontal: 5,
+    marginHorizontal:20,
     textAlign: 'center',
   },
   remarksCell: {
     width: '20%',
     paddingVertical: 10,
     paddingHorizontal: 5,
+    marginHorizontal:10,
   },
   actionsCell: {
     width: '10%',
