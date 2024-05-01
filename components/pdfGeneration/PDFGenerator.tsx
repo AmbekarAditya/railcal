@@ -1,8 +1,10 @@
+// PDFGenerator.tsx
 import React from 'react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import Duty from '../duty/Duty';
 import Trip from '../trip/Trip';
+import DutyInfo from '../duty/DutyInfo';
 
 interface PDFGeneratorProps {
   duties: Duty[];
@@ -80,6 +82,36 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
       body: dutyData,
       styles: { fontSize: 8 },
       margin: { top: 10 }
+    });
+
+    // Add DutyInfo data
+    duties.forEach((duty, index) => {
+      if (index !== 0) {
+        doc.addPage();
+      }
+
+      doc.setFontSize(12);
+      doc.text(`Duty ${index + 1}`, 20, 10);
+
+      const dutyInfoData = [
+        ['Sign In', duty.signIn ? duty.signIn.toLocaleString() : '-'],
+        ['Sign Off', duty.signOff ? duty.signOff.toLocaleString() : '-'],
+        ['Total Allowance', `₹ ${duty.calculateTotalAllowance().toFixed(2)}`],
+        ['Total Distance', `${duty.calculateTotalDistance().toFixed(2)} km`],
+        ['Duty Hours', `${duty.dutyHours.toFixed(2)} H`],
+        ['Night Duty Hours', `${duty.nightDutyHours.toFixed(2)} H`],
+        ['Progressive Duty Hours', `${duty.progressiveDutyHours.toFixed(2)} H`],
+        ['OSDA', duty.isOSDA ? 'Yes' : 'No'],
+        ['RRA', duty.isRRA ? 'Yes' : 'No'],
+      ];
+
+      doc.autoTable({
+        head: [['Key', 'Value']],
+        body: dutyInfoData,
+        theme: 'grid',
+        styles: { fontSize: 8 },
+        margin: { top: 20 },
+      });
     });
 
     doc.save('duty-report.pdf');
