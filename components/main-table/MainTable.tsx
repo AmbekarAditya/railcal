@@ -12,7 +12,7 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
-
+import PDFGenerator from '../pdfGeneration/PDFGenerator';
 interface MainTableProps {
   navigation: NavigationProp<any>;
   selectedMonth: string;
@@ -396,6 +396,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         />
       </View>
       <View>
+      <PDFGenerator duties={duties} />
         <Button title="Add Duty" onPress={this.addDuty} />
       </View>
       {duties.length > 0 && duties[0].trips.length > 0 && (
