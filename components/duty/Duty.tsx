@@ -45,7 +45,8 @@ class Duty {
   }
 
   calculateTotalDistance() {
-    return this.trips.reduce((total, trip) => total + trip.distance, 0);
+    const totalDistance = this.trips.reduce((acc, trip) => acc + (trip.distance || 0), 0);
+    return totalDistance;
   }
 
   calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {

@@ -128,215 +128,168 @@ const DutyRow: React.FC<DutyRowProps> = ({
   };
 
   return (
-    <ScrollView horizontal>
-      {/* <View style={styles.headerRow}>
-        <Text style={styles.headerCell}>Date</Text>
-        <Text style={styles.headerCell}>Duty Type</Text>
-        <Text style={styles.headerCell}>Train No.</Text>
-        <Text style={styles.headerCell}>Stations</Text>
-        <Text style={styles.headerCell}>Distance</Text>
-        <Text style={styles.headerCell}>Start & End Time</Text>
-        <Text style={styles.headerCell}>Duration</Text>
-        <Text style={styles.headerCell}>Allowance</Text>
-        <Text style={styles.headerCell}>Remarks</Text>
-        <Text style={styles.headerCell}>Actions</Text>
-      </View> */}
-      <View>
-        {duty.trips.map((trip, index) => (
-          <View key={trip.id} style={styles.row}>
-            <View style={styles.dateCell}>
-              {Platform.OS === "web" ? (
-                <WebDatePicker
-                  value={trip.date}
-                  onChange={(date) =>
-                    handleTripDataChange(trip.id, "date", date)
-                  }
-                />
-              ) : (
-                <DatePickerComponent
-                  onDateSelected={(date) =>
-                    handleTripDataChange(trip.id, "date", date)
-                  }
-                />
-              )}
-            </View>
-            <View style={styles.dutyTypeCell}>
-              <TypeofWorkPickerComponent
-                TypeofWork={(newValue) =>
-                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+    <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      {duty.trips.map((trip, index) => (
+        <View key={trip.id} style={styles.tripContainer}>
+          <View style={styles.dateContainer}>
+            {Platform.OS === "web" ? (
+              <WebDatePicker
+                value={trip.date}
+                onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+              />
+            ) : (
+              <DatePickerComponent
+                onDateSelected={(date) =>
+                  handleTripDataChange(trip.id, "date", date)
                 }
               />
-            </View>
-            <View style={styles.trainNoCell}>
-              <TrainNumberInput
-                onChange={(trainNumber) =>
-                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
-                }
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-                maxLength={7}
-              />
-            </View>
-            <View style={styles.stationsCell}>
-              <PickerComponentStation
-                onStationChange={handleStationChange}
-                dutyId={duty.id}
-                tripId={trip.id}
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-                maxLength={5}
-              />
-            </View>
-            <Text style={styles.distanceCell}>
-              {trip.distance.toFixed(2)}km
-            </Text>
-            <View style={styles.timePickerCell}>
-              <ArrivalDepartureTimePicker
-                onTimesChange={(arrivalTime, departureTime, dutyHours) => {
-                  handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
-                  handleTripDataChange(trip.id, "departureTime", departureTime);
-                  handleTripDataChange(trip.id, "dutyHours", dutyHours);
-                }}
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-              />
-            </View>
-            <Text style={styles.durationCell}>{trip.dutyHours}</Text>
-            <Text style={styles.allowanceCell}>{trip.allowance}₹</Text>
-            <Text style={styles.remarksCell}>{trip.remarks}</Text>
-            <View style={styles.actionsCell}>
-              <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}>
-                <Text>Delete</Text>
-              </TouchableOpacity>
-            </View>
+            )}
           </View>
-        ))}
-        <View style={styles.buttonsRow}>
-          <TouchableOpacity
-            style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
-            onPress={() => addTrip(duty.id)}
-            disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
-          >
-            <Text>Add Trip</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.button, { marginRight: 10 }]}
-            onPress={() => handleEndDuty(duty)}
-            disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
-          >
-            <Text>End Duty</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => deleteDuty(duty.id)}
-          >
-            <Text>Delete Duty</Text>
-          </TouchableOpacity>
+          <View style={styles.dutyTypeContainer}>
+            <TypeofWorkPickerComponent
+              TypeofWork={(newValue) =>
+                handleTripDataChange(trip.id, "typeOfWork", newValue)
+              }
+            />
+          </View>
+          <View style={styles.trainNoContainer}>
+            <TrainNumberInput
+              onChange={(trainNumber) =>
+                handleTrainNumberChange(trainNumber, duty.id, trip.id)
+              }
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+              maxLength={7}
+            />
+          </View>
+          <View style={styles.stationsContainer}>
+            <PickerComponentStation
+              onStationChange={handleStationChange}
+              dutyId={duty.id}
+              tripId={trip.id}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+              maxLength={5}
+            />
+          </View>
+          <Text style={styles.distanceText}>{typeof trip.distance === 'number' ? trip.distance.toFixed(2) : trip.distance}km</Text>
+          <View style={styles.timePickerContainer}>
+            <ArrivalDepartureTimePicker
+              onTimesChange={(arrivalTime, departureTime, dutyHours) => {
+                handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
+                handleTripDataChange(trip.id, "departureTime", departureTime);
+                handleTripDataChange(trip.id, "dutyHours", dutyHours);
+              }}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+            />
+          </View>
+          <Text style={styles.durationText}>{trip.dutyHours}</Text>
+          <Text style={styles.allowanceText}>{trip.allowance}₹</Text>
+          <Text style={styles.remarksText}>{trip.remarks}</Text>
+          <View style={styles.actionsContainer}>
+            <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}>
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <DutyInfo duty={duty} />
-        {duty.trips.length > 0 && (
-          <View style={styles.separator}>
-            <View style={{ height: 1, backgroundColor: "gray" }} />
-          </View>
-        )}
+      ))}
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
+          onPress={() => addTrip(duty.id)}
+          disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+        >
+          <Text>Add Trip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { marginRight: 10 }]}
+          onPress={() => handleEndDuty(duty)}
+          disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+        >
+          <Text>End Duty</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)}>
+          <Text>Delete Duty</Text>
+        </TouchableOpacity>
       </View>
+      <DutyInfo duty={duty} />
+      {duty.trips.length > 0 && (
+        <View style={styles.separator}>
+          <View style={{ height: 1, backgroundColor: "gray" }} />
+        </View>
+      )}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  headerRow: {
-    flexDirection: "row",
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
+  scrollViewContainer: {
+    flexGrow: 1,
+  },
+  tripContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
     paddingHorizontal: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
   },
-  headerCell: {
-    fontWeight: "bold",
-    paddingVertical: 10,
-    textAlign: "center",
+  dateContainer: {
+    flex: 1,
+    marginRight: 8,
   },
-  buttonsRow: {
-    flexDirection: "row",
-    alignItems: "center",
+  dutyTypeContainer: {
+    flex: 2,
+    marginRight: 8,
+  },
+  trainNoContainer: {
+    flex: 1.5,
+    marginRight: 8,
+  },
+  stationsContainer: {
+    flex: 2.5,
+    marginRight: 8,
+  },
+  distanceText: {
+    flex: 1,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginRight: 8,
+  },
+  timePickerContainer: {
+    flex: 2.5,
+    marginRight: 8,
+  },
+  durationText: {
+    flex: 1.5,
+    textAlign: 'center',
+    marginHorizontal: 8,
+  },
+  allowanceText: {
+    flex: 1.5,
+    textAlign: 'center',
+    marginHorizontal: 8,
+  },
+  remarksText: {
+    flex: 2,
+    marginHorizontal: 8,
+  },
+  actionsContainer: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  buttonsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginVertical: 10,
-  },
-  separator: {
-    margin: 5,
   },
   button: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#ccc",
+    backgroundColor: '#ccc',
     borderRadius: 5,
   },
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
-    paddingHorizontal: 10,
-  },
-  dateCell: {
-    width: "10%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  dutyTypeCell: {
-    width: "20%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  trainNoCell: {
-    width: "15%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  stationsCell: {
-    width: "25%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  distanceCell: {
-    width: "10%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  timePickerCell: {
-    width: "25%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  durationCell: {
-    width: "15%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    textAlign: "center",
-    marginHorizontal: 10,
-  },
-  allowanceCell: {
-    width: "15%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    marginHorizontal: 20,
-    textAlign: "center",
-  },
-  remarksCell: {
-    width: "20%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    marginHorizontal: 10,
-  },
-  actionsCell: {
-    width: "10%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    alignItems: "center",
-  },
-  tripCell: {
-    width: "10%",
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-    alignItems: "center",
+  separator: {
+    marginVertical: 10,
   },
 });
 export default DutyRow;

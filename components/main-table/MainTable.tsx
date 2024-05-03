@@ -329,7 +329,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     // Calculate total kilometers from duties
     const totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
-        (tripAcc, trip) => tripAcc + (trip.distance || 0),
+        (tripAcc, trip) => tripAcc + (typeof trip.distance === 'number' ? trip.distance : 0),
         0
       );
       return acc + dutyDistance;
