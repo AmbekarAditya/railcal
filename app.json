@@ -6,7 +6,9 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "jsEngine": "jsc",
-
+    "androidPermissions": {
+      "SYSTEM_ANDROID_WRITE_PERMISSION": "allow"
+    },
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",

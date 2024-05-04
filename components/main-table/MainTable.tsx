@@ -19,7 +19,7 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
-
+import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
@@ -434,6 +434,23 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 overtimeResult={overtimeResult}
               />
             )}
+              {Platform.OS !== 'web' && (
+    <PdfGeneratorMobile
+      duties={duties}
+      designation={designation}
+      payBand={payBand}
+      level={level}
+      rateOfPay={rateOfPay}
+      selectedMonth={selectedMonth}
+      totalKilometers={totalKilometers}
+      mileage={mileage}
+      nightDutyAllowance={nightDutyAllowance}
+      leaveMileageAllowance={lma}
+      dearnessAllowance={dearnessAllowance}
+      progressiveDutyHours={progressiveDutyHours}
+      overtimeResult={overtimeResult}
+    />
+  )}
           </View>
         </View>
         {duties.length > 0 && duties[0].trips.length > 0 && (
