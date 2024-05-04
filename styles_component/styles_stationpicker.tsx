@@ -5,7 +5,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    
     // paddingVertical: 5,
   },
   pickerContainer: {
@@ -14,8 +14,8 @@ const styles = StyleSheet.create({
   },
   picker: {
     width: 150,
-    height:25,
-    backgroundColor: "#fff",
+    height:35,
+
     borderWidth: 1,
     borderColor: "#ccc",
     

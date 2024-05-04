@@ -44,7 +44,8 @@ const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({ T
       style={{
         height: 30,
         width: 180,
-        margin: 10,
+        margin: Platform.OS === 'web' ? 10 : 0,
+        marginBottom: Platform.OS === 'android' ? 20 : 0
       }}
     >
       <Picker.Item label="Duty type" value="Select Duty Type" />
