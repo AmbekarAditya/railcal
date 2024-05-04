@@ -185,7 +185,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text style={styles.allowanceText}>{trip.allowance}₹</Text>
           <Text style={styles.remarksText}>{trip.remarks}</Text>
           <View style={styles.actionsContainer}>
-            <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}>
+            <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}    disabled={duty.trips.length === 1} >
               <Text>Delete</Text>
             </TouchableOpacity>
           </View>
@@ -206,7 +206,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         >
           <Text>End Duty</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)}>
+        <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)} >
           <Text>Delete Duty</Text>
         </TouchableOpacity>
       </View>
