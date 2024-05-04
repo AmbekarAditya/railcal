@@ -1,5 +1,12 @@
 import React from "react";
-import { ScrollView, StyleSheet, View, FlatList ,Button,Platform} from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  FlatList,
+  Button,
+  Platform,
+} from "react-native";
 import Duty from "../duty/Duty";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -12,7 +19,12 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
-// import PDFGenerator from '../pdfGeneration/PDFGenerator';
+
+let PDFGenerator: JSX.IntrinsicAttributes | null = null;
+if (Platform.OS === "web") {
+  PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
+}
+
 interface MainTableProps {
   navigation: NavigationProp<any>;
   selectedMonth: string;
@@ -25,7 +37,6 @@ interface MainTableState {
   selectedDuty: Duty | null;
   totalLeaves: number;
   overtimeResult: OverTimeCalculationResult | null;
-  
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -35,10 +46,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     selectedDuty: null,
     totalLeaves: 0,
     overtimeResult: null,
-    
   };
-
- 
 
   constructor(props: MainTableProps) {
     super(props);
@@ -329,14 +337,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     // Calculate total kilometers from duties
     const totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
-        (tripAcc, trip) => tripAcc + (typeof trip.distance === 'number' ? trip.distance : 0),
+        (tripAcc, trip) =>
+          tripAcc + (typeof trip.distance === "number" ? trip.distance : 0),
         0
       );
       return acc + dutyDistance;
     }, 0);
 
     const totalAllowance = this.calculateTotalAllowance();
-    const mileage = mileageCalculation(designation,totalAllowance); // Example mileage rate, replace as needed
+    const mileage = mileageCalculation(designation, totalAllowance); // Example mileage rate, replace as needed
 
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
@@ -373,59 +382,66 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     console.log("Progressive Duty Hours :", progressiveDutyHours);
     return (
       <ScrollView
-      horizontal
-      style={styles.container}
-      contentContainerStyle={styles.horizontalContent}
-    >
-      <View style={styles.tableContainer}>
-        <FlatList
-          data={duties}
-          renderItem={({ item: duty }) => (
-            <DutyRow
-              key={duty.id}
-              duty={duty}
-              addTrip={this.addTrip}
-              handleEndDuty={this.handleEndDuty}
-              updateTripData={this.updateTripData}
-              selectedMonth={selectedMonth}
-              deleteTrip={this.deleteTrip}
-              setTotalLeaves={this.setTotalLeaves}
-              deleteDuty={this.deleteDuty}
-            />
-          )}
-        />
-      </View>
-      <View>
-      {/* {Platform.OS === 'web' && <PDFGenerator duties={duties} />} */}
-        <Button title="Add Duty" onPress={this.addDuty} />
-      </View>
-      {duties.length > 0 && duties[0].trips.length > 0 && (
-        <SummaryBlock
-          totalAllowance={totalAllowance}
-          totalKilometers={totalKilometers}
-          mileage={mileage}
-          nightDutyAllowance={nightDutyAllowance}
-          nationalHolidayAllowance={nationalHolidayAllowance}
-          leaveMileageAllowance={lma}
-          overTimeAllowance={overTimeAllowance}
-          dearnessAllowance={dearnessAllowance}
-          startDate={startDate}
-          progressiveDutyHours={progressiveDutyHours}
-          endDate={""}
-          daysInMonth={daysInMonth}
-          overtimeResult={overtimeResult}
-        />
-      )}
-      <Modal isOpen={showModal} onClose={() => this.setState({ showModal: false })}>
-        {selectedDuty && (
-          <EndDutyModal
-            duty={selectedDuty}
-            updateDutyDetails={this.updateDutyDetails}
-            closeModal={() => this.setState({ showModal: false })}
+        horizontal
+        style={styles.container}
+        contentContainerStyle={styles.horizontalContent}
+      >
+        <View style={styles.tableContainer}>
+          <FlatList
+            data={duties}
+            renderItem={({ item: duty }) => (
+              <DutyRow
+                key={duty.id}
+                duty={duty}
+                addTrip={this.addTrip}
+                handleEndDuty={this.handleEndDuty}
+                updateTripData={this.updateTripData}
+                selectedMonth={selectedMonth}
+                deleteTrip={this.deleteTrip}
+                setTotalLeaves={this.setTotalLeaves}
+                deleteDuty={this.deleteDuty}
+              />
+            )}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <View style={styles.addDuty}>
+            <Button title="Add Duty" onPress={this.addDuty} />
+          </View>
+          <View style={styles.addDuty}>
+            {Platform.OS === "web" && <PDFGenerator duties={duties} />}
+          </View>
+        </View>
+        {duties.length > 0 && duties[0].trips.length > 0 && (
+          <SummaryBlock
+            totalAllowance={totalAllowance}
+            totalKilometers={totalKilometers}
+            mileage={mileage}
+            nightDutyAllowance={nightDutyAllowance}
+            nationalHolidayAllowance={nationalHolidayAllowance}
+            leaveMileageAllowance={lma}
+            overTimeAllowance={overTimeAllowance}
+            dearnessAllowance={dearnessAllowance}
+            startDate={startDate}
+            progressiveDutyHours={progressiveDutyHours}
+            endDate={""}
+            daysInMonth={daysInMonth}
+            overtimeResult={overtimeResult}
           />
         )}
-      </Modal>
-    </ScrollView>
+        <Modal
+          isOpen={showModal}
+          onClose={() => this.setState({ showModal: false })}
+        >
+          {selectedDuty && (
+            <EndDutyModal
+              duty={selectedDuty}
+              updateDutyDetails={this.updateDutyDetails}
+              closeModal={() => this.setState({ showModal: false })}
+            />
+          )}
+        </Modal>
+      </ScrollView>
     );
   }
 }
@@ -439,6 +455,16 @@ const styles = StyleSheet.create({
   },
   tableContainer: {
     maxHeight: "80%", // Adjust as needed
+  },
+  buttonContainer: {
+    display: "flex",
+    flexDirection: "row",
+  },
+  addDuty: {
+    marginLeft: 10,
+  },
+  generateReport: {
+    backgroundColor: "blue",
   },
   summaryBlockContainer: {
     height: "15%", // Adjust as needed

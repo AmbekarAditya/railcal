@@ -1,7 +1,7 @@
 // CalculationPage.tsx
 import React from "react";
 import { View, Text } from "react-native";
-import MainTable from "./main-table/MainTable";
+import MainTable from "../main-table/MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
 import { RouteProp } from '@react-navigation/native';
 import { NavigationProp } from '@react-navigation/native';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Platform, TouchableOpacity } from "react-native";
-import TimePicker from "./time-picker/TimePicker";
+import TimePicker from "../time-picker/TimePicker";
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface ArrivalDepartureTimePickerProps {

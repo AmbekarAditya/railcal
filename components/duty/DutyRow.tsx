@@ -4,7 +4,7 @@ import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
 import PickerComponentStation from "../station-picker/stationpicker";
 import TrainNumberInput from "../trainNumber";
-import ArrivalDepartureTimePicker from "../ArrivalDepartureTimePicker";
+import ArrivalDepartureTimePicker from "../arrivalDepartureTImePIcker/ArrivalDepartureTimePicker";
 import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 import DatePickerComponent from "../DatePicker/DatePickerComponent";
@@ -233,19 +233,23 @@ const styles = StyleSheet.create({
     borderBottomColor: 'gray',
   },
   dateContainer: {
-    flex: 1,
+    flex: 2,
     marginRight: 8,
+    
   },
   dutyTypeContainer: {
     flex: 2,
+    ...(Platform.OS === "web" && { marginLeft: 30 }),
     marginRight: 8,
   },
   trainNoContainer: {
     flex: 1.5,
+    ...(Platform.OS === "web" && { marginLeft: 110 }),
     marginRight: 8,
   },
   stationsContainer: {
     flex: 2.5,
+    ...(Platform.OS === "web" && { marginLeft: 110 }),
     marginRight: 8,
   },
   distanceText: {
@@ -253,10 +257,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     marginRight: 8,
+    marginLeft: 20,
   },
   timePickerContainer: {
     flex: 2.5,
     marginRight: 8,
+    ...(Platform.OS === "web" && { marginLeft: 100 }),
   },
   durationText: {
     flex: 1.5,
@@ -274,12 +280,15 @@ const styles = StyleSheet.create({
   },
   actionsContainer: {
     flex: 1,
-    alignItems: 'center',
+    margin:5,
+    alignItems:'center',
+    borderWidth:1,
+    padding:5,
+    borderRadius :5,
   },
   buttonsContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginLeft:10,
     marginVertical: 10,
   },
   button: {

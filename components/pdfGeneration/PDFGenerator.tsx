@@ -1,10 +1,11 @@
 // PDFGenerator.tsx
-import React from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-import Duty from '../duty/Duty';
-import Trip from '../trip/Trip';
-import DutyInfo from '../duty/DutyInfo';
+import React from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import Duty from "../duty/Duty";
+import Trip from "../trip/Trip";
+import DutyInfo from "../duty/DutyInfo";
+import { Button, View } from "react-native";
 
 interface PDFGeneratorProps {
   duties: Duty[];
@@ -12,7 +13,7 @@ interface PDFGeneratorProps {
 
 const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
   const generatePDF = () => {
-    const doc = new jsPDF('l'); // Set landscape orientation
+    const doc = new jsPDF("l"); // Set landscape orientation
 
     duties.forEach((duty, dutyIndex) => {
       if (dutyIndex !== 0) {
@@ -25,20 +26,20 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
       // Trip header and data
       const tripTable = [
         [
-          'Date',
-          'Type of Work',
-          'Train No.',
-          'Dep. Time',
-          'Arr. Time',
-          
-          'Source',
-          'Dest.',
-          'Distance',
-          'Duty Hours',
-          'Allowance',
-          'Remarks'
+          "Date",
+          "Type of Work",
+          "Train No.",
+          "Dep. Time",
+          "Arr. Time",
+
+          "Source",
+          "Dest.",
+          "Distance",
+          "Duty Hours",
+          "Allowance",
+          "Remarks",
         ],
-        ...duty.trips.map(trip => [
+        ...duty.trips.map((trip) => [
           trip.date,
           trip.typeOfWork,
           trip.trainNumber,
@@ -49,14 +50,14 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
           trip.distance.toString(),
           trip.dutyHours,
           trip.allowance.toString(),
-          trip.remarks
-        ])
+          trip.remarks,
+        ]),
       ];
 
       doc.autoTable({
         head: [tripTable[0]], // Use the first row as the header
         body: tripTable.slice(1), // Use the remaining rows as the body
-        theme: 'grid',
+        theme: "grid",
         styles: { fontSize: 8 },
         margin: { top: 20 },
       });
@@ -65,23 +66,23 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
       const dutyInfoData = [
         [
           {
-            content: 'Sign In',
+            content: "Sign In",
             colSpan: 1,
           },
           {
-            content: duty.signIn ? duty.signIn.toLocaleString() : '-',
+            content: duty.signIn ? duty.signIn.toLocaleString() : "-",
             colSpan: 1,
           },
           {
-            content: 'Sign Off',
+            content: "Sign Off",
             colSpan: 1,
           },
           {
-            content: duty.signOff ? duty.signOff.toLocaleString() : '-',
+            content: duty.signOff ? duty.signOff.toLocaleString() : "-",
             colSpan: 1,
           },
           {
-            content: 'Total Allowance:',
+            content: "Total Allowance:",
             colSpan: 1,
           },
           {
@@ -89,7 +90,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
             colSpan: 1,
           },
           {
-            content: 'Total Distance:',
+            content: "Total Distance:",
             colSpan: 1,
           },
           {
@@ -97,7 +98,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
             colSpan: 1,
           },
           {
-            content: 'Duty Hours',
+            content: "Duty Hours",
             colSpan: 1,
           },
           {
@@ -105,7 +106,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
             colSpan: 1,
           },
           {
-            content: 'Night Duty Hours :',
+            content: "Night Duty Hours :",
             colSpan: 1,
           },
           {
@@ -115,7 +116,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
         ],
         [
           {
-            content: 'Progressive Duty Hours',
+            content: "Progressive Duty Hours",
             colSpan: 2,
           },
           {
@@ -123,19 +124,19 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
             colSpan: 2,
           },
           {
-            content: 'OSDA',
+            content: "OSDA",
             colSpan: 2,
           },
           {
-            content: duty.isOSDA ? 'Yes' : 'No',
+            content: duty.isOSDA ? "Yes" : "No",
             colSpan: 2,
           },
           {
-            content: 'RRA',
+            content: "RRA",
             colSpan: 2,
           },
           {
-            content: duty.isRRA ? 'Yes' : 'No',
+            content: duty.isRRA ? "Yes" : "No",
             colSpan: 2,
           },
         ],
@@ -144,17 +145,19 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
       doc.autoTable({
         head: [],
         body: dutyInfoData,
-        theme: 'grid',
+        theme: "grid",
         styles: { fontSize: 8 },
         margin: { top: 20 },
       });
     });
 
-    doc.save('duty-report.pdf');
+    doc.save("duty-report.pdf");
   };
 
   return (
-    <button onClick={generatePDF}>Generate PDF</button>
+    <View>
+      <Button title="Generate PDF" onPress={generatePDF} />
+    </View>
   );
 };
 

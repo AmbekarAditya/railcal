@@ -62,13 +62,17 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.heading}>Summary:</Text>
-        <Text style={styles.dates}>{startDate} to {endDate}</Text>
+        <Text style={styles.dates}>
+          {startDate} to {endDate}
+        </Text>
       </View>
       <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
         <View style={styles.infoContainerWrapper}>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Hours Worked</Text>
-            <Text style={styles.value}>{formatNumber(progressiveDutyHours)}H</Text>
+            <Text style={styles.value}>
+              {formatNumber(progressiveDutyHours)}H
+            </Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Total Allowance:</Text>
@@ -84,7 +88,9 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Night Duty:</Text>
-            <Text style={styles.value}>₹{formatNumber(nightDutyAllowance)}</Text>
+            <Text style={styles.value}>
+              ₹{formatNumber(nightDutyAllowance)}
+            </Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Dearness Allowance:</Text>
@@ -92,7 +98,9 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Leave Mileage:</Text>
-            <Text style={styles.value}>₹{formatNumber(leaveMileageAllowance)}</Text>
+            <Text style={styles.value}>
+              ₹{formatNumber(leaveMileageAllowance)}
+            </Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>RRA / OSDA:</Text>
@@ -104,57 +112,57 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           </View> */}
         </View>
         {overtimeResult && (
-         <View style={{flexDirection:'row'}}>
-          {overtimeResult.firstFortnight && (
-            <View style={styles.overtimeRow}>
-              <View style={styles.overtimeInfo}>
-                <Text style={styles.label}>First Fortnight</Text>
-                <Text style={styles.value}>
-                  {overtimeResult.firstFortnight.overtimeHours}H{" "}
-                  {overtimeResult.firstFortnight.overtimeMinutes}M
-                </Text>
-                <Text style={styles.overtimeUnit}>
-                  ({overtimeResult.firstFortnight.overtimeUnit})
-                </Text>
+          <View style={{ flexDirection: "row" }}>
+            {overtimeResult.firstFortnight && (
+              <View style={styles.overtimeRow}>
+                <View style={styles.overtimeInfo}>
+                  <Text style={styles.label}>First Fortnight</Text>
+                  <Text style={styles.value}>
+                    {overtimeResult.firstFortnight.overtimeHours}H{" "}
+                    {overtimeResult.firstFortnight.overtimeMinutes}M
+                  </Text>
+                  <Text style={styles.overtimeUnit}>
+                    ({overtimeResult.firstFortnight.overtimeUnit})
+                  </Text>
+                </View>
+                <View style={styles.overtimeDates}>
+                  <Text style={styles.label}>Start Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.firstFortnight.startDate)}
+                  </Text>
+                  <Text style={styles.label}>End Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.firstFortnight.endDate)}
+                  </Text>
+                </View>
               </View>
-              <View style={styles.overtimeDates}>
-                <Text style={styles.label}>Start Date:</Text>
-                <Text style={styles.value}>
-                {formatDate(overtimeResult.firstFortnight.startDate)}
-                </Text>
-                <Text style={styles.label}>End Date:</Text>
-                <Text style={styles.value}>
-                {formatDate(overtimeResult.firstFortnight.endDate)}
-                </Text>
+            )}
+            {overtimeResult.secondFortnight && (
+              <View style={styles.overtimeRow}>
+                <View style={styles.overtimeInfo}>
+                  <Text style={styles.label}>Second Fortnight</Text>
+                  <Text style={styles.value}>
+                    {overtimeResult.secondFortnight.overtimeHours}H{" "}
+                    {overtimeResult.secondFortnight.overtimeMinutes}M
+                  </Text>
+                  <Text style={styles.overtimeUnit}>
+                    ({overtimeResult.secondFortnight.overtimeUnit})
+                  </Text>
+                </View>
+                <View style={styles.overtimeDates}>
+                  <Text style={styles.label}>Start Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.secondFortnight.startDate)}
+                  </Text>
+                  <Text style={styles.label}>End Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.secondFortnight.endDate)}
+                  </Text>
+                </View>
               </View>
-            </View>
-          )}
-          {overtimeResult.secondFortnight && (
-            <View style={styles.overtimeRow}>
-              <View style={styles.overtimeInfo}>
-                <Text style={styles.label}>Second Fortnight</Text>
-                <Text style={styles.value}>
-                  {overtimeResult.secondFortnight.overtimeHours}H{" "}
-                  {overtimeResult.secondFortnight.overtimeMinutes}M
-                </Text>
-                <Text style={styles.overtimeUnit}>
-                  ({overtimeResult.secondFortnight.overtimeUnit})
-                </Text>
-              </View>
-              <View style={styles.overtimeDates}>
-                <Text style={styles.label}>Start Date:</Text>
-                <Text style={styles.value}>
-                {formatDate(overtimeResult.secondFortnight.startDate)}
-                </Text>
-                <Text style={styles.label}>End Date:</Text>
-                <Text style={styles.value}>
-                {formatDate(overtimeResult.secondFortnight.endDate)}
-                </Text>
-              </View>
-            </View>
-          )}
-            </View>
-      )}
+            )}
+          </View>
+        )}
       </ScrollView>
     </View>
   );
@@ -172,13 +180,13 @@ const styles = StyleSheet.create({
     // justifyContent: "space-between",
     // alignItems: "center",
     // paddingHorizontal: 2,
-    marginLeft : 2,
+    marginLeft: 2,
     paddingTop: 8,
   },
   heading: {
     fontSize: 14,
     fontWeight: "bold",
-    marginLeft:5,
+    marginLeft: 5,
   },
   dates: {
     fontSize: 12,
@@ -190,7 +198,6 @@ const styles = StyleSheet.create({
   infoContainerWrapper: {
     flexDirection: "row",
     flexWrap: "wrap",
-    
   },
   infoContainer: {
     marginRight: 24,
