@@ -9,6 +9,7 @@ import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import WebDatePicker from "../DatePicker/WebDatePicker";
+import { parseISO, format } from 'date-fns';
 import {
   Platform,
   View,
@@ -45,40 +46,42 @@ const DutyRow: React.FC<DutyRowProps> = ({
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
-    value: string | number
+    value: any  // Change from string | number to any to accommodate Date objects
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-
+  
+  
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
-      duty.updateDutyHoursForLeaveTypes(value as string);
+      duty.updateDutyHoursForLeaveTypes(value);
     }
-
-    // Update the trip data immediately for synchronous processing
+    // Update the trip data
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-
-    // Perform calculations only on specific field changes
-    if (
-      field === "distance" ||
-      field === "typeOfWork" ||
-      (field === "dutyHours" && value !== "")
-    ) {
+  
+    // Additional calculations for specific fields
+    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
       const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-
+  
       const { allowance, remarks } = calculateAllowanceAndRemarks(
         updatedTrip.distance,
         updatedTrip.typeOfWork,
         dutyHoursAsNumber * 60
       );
-
-      // shouldDisableInputFields(trip.typeOfWork);
+      
       updateTripData(duty.id, tripId, "allowance", allowance);
       updateTripData(duty.id, tripId, "remarks", remarks);
     }
   };
-
+  
+  const handleDateChange = (date) => {
+    // Assuming the date is a JavaScript Date object. If it's a string, it may need parsing first.
+    const formattedDate = format(date, 'YYYY-MM-DD');
+  
+    // Now use this formattedDate for further processing or state updating
+    handleTripDataChange(trip.id, "date", formattedDate);
+  };
   const handleStationChange = (
     dutyId: number,
     tripId: number,
@@ -135,7 +138,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
             {Platform.OS === "web" ? (
               <WebDatePicker
                 value={trip.date}
-                onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+                onChange={(date) => handleTripDataChange(trip.id, "date", date) }
               />
             ) : (
               <DatePickerComponent

@@ -11,11 +11,12 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({ onDateSelecte
   const [selectedDateString, setSelectedDateString] = useState('Select Date');
 
   const handleConfirm = (date: Date) => {
-    const formattedDate = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
     setSelectedDateString(formattedDate);
     onDateSelected(formattedDate);
     setDatePickerVisible(false);
   };
+  
 
   const showDatePicker = () => {
     setDatePickerVisible(true);
