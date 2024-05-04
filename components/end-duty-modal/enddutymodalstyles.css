@@ -15,11 +15,23 @@
 /* Modal Content */
 .modal-content {
   background: white;
-  width: 90%;
-  max-width: 500px;
+  width: 80%;
+  max-width: 400px;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative; /* Added for close button positioning */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Using a normal font */
+}
+
+/* Close Button */
+.modal-content .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  color: #666;
+  cursor: pointer;
 }
 
 /* Modal Title */
@@ -27,37 +39,45 @@
   color: #333;
   font-size: 24px;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 /* Input Labels */
 .modal-content label {
   display: block;
-  margin: 10px 0;
+  margin: 10px 0 5px;
   color: #333;
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: normal; /* Using normal font weight */
 }
 
 /* Input Fields */
-.modal-content input[type="datetime-local"],
-.modal-content input[type="checkbox"] {
+.modal-content input[type="datetime-local"] {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
   box-sizing: border-box; /* Includes padding and border in the element's total width */
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-size: 14px; /* Using normal font size */
 }
 
 /* Buttons */
+.modal-content .buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
 .modal-content button {
-  padding: 10px 20px;
-  margin-right: 10px;
+  padding: 8px 16px;
+  margin-left: 10px;
   border: none;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
   background-color: #0056b3;
   color: white;
-  font-size: 16px;
+  font-size: 14px; /* Using normal font size */
   transition: background-color 0.3s ease; /* Smooth color transition on hover */
 }
 
@@ -82,15 +102,22 @@
 
 .modal-content .checkbox-group label {
   margin-left: 8px;
-  font-size: 16px;
+  font-size: 14px; /* Using normal font size */
 }
 
 /* Checkbox */
 .modal-content input[type="checkbox"] {
   /* Adjusts size to make it more touch-friendly on mobile devices */
   width: auto;
-  margin: 0;
+  margin: 5;
   padding: 0;
+}
+
+/* Checkboxes in one row */
+.modal-content .checkbox-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
 }
 
 /* Responsive Styles */

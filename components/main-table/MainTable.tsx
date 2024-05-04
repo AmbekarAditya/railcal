@@ -309,7 +309,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       }
     }
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { rateOfPay, selectedMonth, designation } = this.props;
+    const { rateOfPay, selectedMonth, designation ,payBand ,level} = this.props;
     console.log("Received designation prop:", designation);
     if (designation === undefined) {
       console.error("Designation prop is undefined");
@@ -409,7 +409,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             <Button title="Add Duty" onPress={this.addDuty} />
           </View>
           <View style={styles.addDuty}>
-            {Platform.OS === "web" && <PDFGenerator duties={duties} />}
+            {Platform.OS === "web" && <PDFGenerator duties={duties} designation={designation}
+    payBand={payBand}
+    level={level}
+    rateOfPay={rateOfPay}
+    selectedMonth={selectedMonth} />}
           </View>
         </View>
         {duties.length > 0 && duties[0].trips.length > 0 && (
@@ -466,6 +470,7 @@ const styles = StyleSheet.create({
   generateReport: {
     backgroundColor: "blue",
   },
+ 
   summaryBlockContainer: {
     height: "15%", // Adjust as needed
     position: "absolute",

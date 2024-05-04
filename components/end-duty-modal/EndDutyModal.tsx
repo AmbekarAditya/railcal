@@ -49,6 +49,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
     updateDutyDetails(updatedDuty);
   };
 
+  
   render() {
     if (Platform.OS === 'web') {
       // Web-specific UI using standard HTML elements
@@ -72,26 +73,28 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
                 onChange={(e) => this.setState({ dutyEndDateTime: e.target.value })}
               />
             </div>
-            <div className="checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={this.state.isOSDAApplicable}
-                  onChange={(e) => this.setState({ isOSDAApplicable: e.target.checked })}
-                />
-                Is OSDA Applicable
-              </label>
-            </div>
-            <div className="checkbox-group">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={this.state.isRRAApplicable}
-                  onChange={(e) => this.setState({ isRRAApplicable: e.target.checked })}
-                />
-                Is RRA Applicable
-              </label>
-            </div>
+            <div className="checkbox-row">
+  <div className="checkbox-group">
+    <label>
+      <input
+        type="checkbox"
+        checked={this.state.isOSDAApplicable}
+        onChange={(e) => this.setState({ isOSDAApplicable: e.target.checked })}
+      />
+      Is OSDA Applicable
+    </label>
+  </div>
+  <div className="checkbox-group">
+    <label>
+      <input
+        type="checkbox"
+        checked={this.state.isRRAApplicable}
+        onChange={(e) => this.setState({ isRRAApplicable: e.target.checked })}
+      />
+      Is RRA Applicable
+    </label>
+  </div>
+</div>
             <button onClick={this.handleEndDuty}>End Duty</button>
             <button onClick={this.closeModal}>Cancel</button>
           </div>

@@ -9,19 +9,57 @@ import { Button, View } from "react-native";
 
 interface PDFGeneratorProps {
   duties: Duty[];
+  designation: string;
+  payBand: string;
+  level: string;
+  rateOfPay: number;
+  selectedMonth: string;
 }
 
-const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
+const PDFGenerator: React.FC<PDFGeneratorProps> = ({
+  duties,
+  designation,
+  payBand,
+  level,
+  rateOfPay,
+  selectedMonth,
+}) => {
   const generatePDF = () => {
     const doc = new jsPDF("l"); // Set landscape orientation
+
+    // Add header row
+    const headerData = [
+      { content: "Designation", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: designation, colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: " | ", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: "Pay Band", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: payBand, colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: " | ", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: "Level", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: level, colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: " | ", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: "Rate of Pay", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: rateOfPay, colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: " | ", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: "Selected Month", colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+      { content: selectedMonth, colSpan: 1, styles: { fontStyle: "bold", fillColor: [200, 230, 245], textColor: [0, 0, 0] } },
+    ];
 
     duties.forEach((duty, dutyIndex) => {
       if (dutyIndex !== 0) {
         doc.addPage();
       }
 
-      doc.setFontSize(12);
-      doc.text(`Duty ${dutyIndex + 1}`, 20, 10);
+      // Render header row on every page
+      doc.autoTable({
+        head: [headerData],
+        theme: "grid",
+        styles: { fontSize: 10, halign: "left" },
+        margin: { top: 10, bottom: 10 },
+      });
+
+      doc.setFontSize(9);
+      doc.text(`Duty ${dutyIndex + 1}`, 14, 23);
 
       // Trip header and data
       const tripTable = [
@@ -31,7 +69,6 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
           "Train No.",
           "Dep. Time",
           "Arr. Time",
-
           "Source",
           "Dest.",
           "Distance",
@@ -59,7 +96,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({ duties }) => {
         body: tripTable.slice(1), // Use the remaining rows as the body
         theme: "grid",
         styles: { fontSize: 8 },
-        margin: { top: 20 },
+        margin: { top: 30 },
       });
 
       // DutyInfo
