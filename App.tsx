@@ -4,6 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import HomeScreen from './components/HomeScreen';
 import CalculationPage from './components/calcualtionPage/CalculationPage';
 import SignInScreen from './signIN/signInScreen';
+import { configureGoogleSignIn } from './firebase/google-services';
 
 const Drawer = createDrawerNavigator();
 

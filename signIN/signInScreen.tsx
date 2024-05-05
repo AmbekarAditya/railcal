@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions,Image } from 'react-native';
-import backgroundImage from '../assets/bgimage5.png'; // Import your background image
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions,Image,Platform } from 'react-native';
+import backgroundImage from '../assets/bgimage6.png'; // Import your background image
 import googleIcon from '../assets/googleIcon.png'; 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native'
 import { auth } from '../firebase/firebaseConfig';
 
 const { width } = Dimensions.get('window');
 
-// type SignInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignIn'>;
+
 const SignInScreen = () =>  {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +22,19 @@ const SignInScreen = () =>  {
       setError(err.message); // Set the error message
     }
   };
+  
+  function signInWithGoogle() {
+    if (Platform.OS === 'web') {
+      // For web, dynamically require the web-specific module
+      const { signInWithGoogleWeb } = require('./webGoogleSignIn');
+      signInWithGoogleWeb(auth, navigation);
+    } else {
+      // For mobile (iOS and Android), dynamically require the mobile-specific module
+      const { signInWithGoogleWeb } = require('./handleGoogleSignIn');
+      signInWithGoogleWeb(auth, navigation);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
@@ -53,7 +66,7 @@ const SignInScreen = () =>  {
               <TouchableOpacity style={styles.signUpButton} onPress={handleSignIn}>
                 <Text style={styles.signUpButtonText}>Sign In</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.signUpButtonWithIcon} onPress={handleSignIn}>
+              <TouchableOpacity style={styles.signUpButtonWithIcon} onPress={signInWithGoogle}>
                 <Image source={googleIcon} style={styles.icon} />
                 <Text style={styles.signUpButtonText}>Continue With Google</Text>
               </TouchableOpacity>
