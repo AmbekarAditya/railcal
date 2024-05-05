@@ -6,13 +6,6 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "jsEngine": "jsc",
-    
-    "androidPermissions": {
-      "SYSTEM_ANDROID_WRITE_PERMISSION": "allow"
-    },
-    "extras": {
-      "env": "PROD"
-    },
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -26,13 +19,23 @@
       "supportsTablet": true
     },
     "android": {
+      
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+        
+      },
+      "package": "com.feyntech.allowancecalculator_v2",
+      "googleServicesFile": "./google-services.json",
+
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "b3eeb99f-b76d-45f0-b2fd-3bfddbb176aa"
+      }
     }
   }
 }

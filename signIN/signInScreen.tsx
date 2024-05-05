@@ -4,6 +4,7 @@ import backgroundImage from '../assets/bgimage6.png'; // Import your background 
 import googleIcon from '../assets/googleIcon.png'; 
 import { useNavigation } from '@react-navigation/native'
 import { auth } from '../firebase/firebaseConfig';
+import { handleGoogleSignIn } from './handleGoogleSignIn';
 
 const { width } = Dimensions.get('window');
 
@@ -30,8 +31,8 @@ const SignInScreen = () =>  {
       signInWithGoogleWeb(auth, navigation);
     } else {
       // For mobile (iOS and Android), dynamically require the mobile-specific module
-      const { signInWithGoogleWeb } = require('./handleGoogleSignIn');
-      signInWithGoogleWeb(auth, navigation);
+      const { handleGoogleSignIn } = require('./handleGoogleSignIn');
+      handleGoogleSignIn(auth, navigation);
     }
   }
 

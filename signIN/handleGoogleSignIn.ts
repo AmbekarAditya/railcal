@@ -1,4 +1,4 @@
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GoogleSignin,statusCodes } from '@react-native-google-signin/google-signin';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { Platform, Alert } from 'react-native';
 
@@ -12,13 +12,25 @@ export const handleGoogleSignIn = async (auth, navigation) => {
     signInWithGoogleWeb(auth, navigation);
   } else {
     try {
-      await GoogleSignin.hasPlayServices();
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       const userInfo = await GoogleSignin.signIn();
-      const credential = GoogleAuthProvider.credential(userInfo.idToken);
+      const credential = GoogleAuthProvider.credential(userInfo.idToken, userInfo.accessToken);
       await signInWithCredential(auth, credential);
       navigation.navigate('Home');
     } catch (error) {
-      Alert.alert('Login Failed', error.message);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // User cancelled the sign-in flow
+        console.log('Sign-in cancelled');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // Operation is in progress already
+        console.log('In progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        // Play services are not available or outdated
+        Alert.alert('Google Sign-In Eror', 'Play services are not available or outdated.');
+      } else {
+        // Some other error happened
+        Alert.alert('Google Sign-In Error', error.message);
+      }
     }
   }
 };
