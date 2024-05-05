@@ -6,8 +6,12 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "jsEngine": "jsc",
+    
     "androidPermissions": {
       "SYSTEM_ANDROID_WRITE_PERMISSION": "allow"
+    },
+    "extras": {
+      "env": "PROD"
     },
     "userInterfaceStyle": "light",
     "splash": {

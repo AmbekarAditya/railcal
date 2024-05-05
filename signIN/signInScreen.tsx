@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions,Image } from 'react-native';
-import backgroundImage from './assets/bgimage5.png'; // Import your background image
-import googleIcon from './assets/googleIcon.png'; 
+import backgroundImage from '../assets/bgimage5.png'; // Import your background image
+import googleIcon from '../assets/googleIcon.png'; 
+import { useNavigation } from '@react-navigation/native';
+import { auth } from '../firebase/firebaseConfig';
 
 const { width } = Dimensions.get('window');
 
-const App = () => {
+// type SignInScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'SignIn'>;
+const SignInScreen = () =>  {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); 
+  const navigation = useNavigation();
 
-  const handleSignUp = () => {
-    console.log('Email:', email);
-    console.log('Password:', password);
+  const handleSignIn = async () => {
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      navigation.navigate('Home');
+    } catch (err) {
+      setError(err.message); // Set the error message
+    }
   };
-
   return (
     <View style={styles.container}>
       <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
@@ -42,14 +50,14 @@ const App = () => {
                 onChangeText={setPassword}
                 secureTextEntry
               />
-              <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+              <TouchableOpacity style={styles.signUpButton} onPress={handleSignIn}>
                 <Text style={styles.signUpButtonText}>Sign In</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.signUpButtonWithIcon} onPress={handleSignUp}>
+              <TouchableOpacity style={styles.signUpButtonWithIcon} onPress={handleSignIn}>
                 <Image source={googleIcon} style={styles.icon} />
                 <Text style={styles.signUpButtonText}>Continue With Google</Text>
               </TouchableOpacity>
-              <Text style={styles.loginLink}>Error message here</Text>
+              <Text style={styles.errorText}>{error}</Text>
             </View>
           </View>
         </View>
@@ -145,6 +153,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 15,
   },
+  errorText:
+  {
+    color: '#999',
+    textAlign: 'center',
+    marginTop: 15,
+  }
 });
 
-export default App;
+export default SignInScreen;
