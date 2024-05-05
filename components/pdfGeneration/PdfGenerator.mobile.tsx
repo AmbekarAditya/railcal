@@ -39,120 +39,206 @@ const PdfGeneratorMobile: React.FC<PdfGeneratorMobileProps> = ({
 }) => {
   const generatePDF = async () => {
     const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <title>Duty Report</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-            }
-            h1 {
-              text-align: center;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            th, td {
-              border: 1px solid black;
-              padding: 8px;
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Duty Report</h1>
-          <p>Designation: ${designation}</p>
-          <p>Pay Band: ${payBand}</p>
-          <p>Level: ${level}</p>
-          <p>Rate of Pay: ${rateOfPay}</p>
-          <p>Selected Month: ${selectedMonth}</p>
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Duty Report</title>
+        <style>
+        
+          body {
+            font-family: Arial, sans-serif;
+          }
+          h1 {
+            text-align: center;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #f2f2f2;
+          }
+          
+        </style>
+      </head>
+      <body>
+        <h1>Duty Report</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Designation</th>
+              <th>Pay Band</th>
+              <th>Level</th>
+              <th>Rate of Pay</th>
+              <th>Selected Month</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${designation}</td>
+              <td>${payBand}</td>
+              <td>${level}</td>
+              <td>${rateOfPay}</td>
+              <td>${selectedMonth}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
+        ${duties.map((duty, dutyIndex) => `
+        <h2>Duty ${dutyIndex + 1}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type of Work</th>
+              <th>Train No.</th>
+              <th>Dep. Time</th>
+              <th>Arr. Time</th>
+              <th>Source</th>
+              <th>Dest.</th>
+              <th>Distance</th>
+              <th>Duty Hours</th>
+              <th>Allowance</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${duty.trips.map((trip) => `
+              <tr>
+                <td>${trip.date}</td>
+                <td>${trip.typeOfWork}</td>
+                <td>${trip.trainNumber}</td>
+                <td>${trip.departureTime}</td>
+                <td>${trip.arrivalTime}</td>
+                <td>${trip.sourceStation}</td>
+                <td>${trip.destinationStation}</td>
+                <td>${trip.distance}</td>
+                <td>${trip.dutyHours}</td>
+                <td>${trip.allowance}</td>
+                <td>${trip.remarks}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">Duty Info</th>
+            </tr>
+            <tr>
+              <th>Sign In</th>
+              <th>Sign Off</th>
+              <th>Total Allowance</th>
+              <th>Total Distance</th>
+              <th>Duty Hours</th>
+              <th>Night Duty Hours</th>
+              <th>Progressive Duty Hours</th>
+              <th>OSDA</th>
+              <th>RRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${duty.signIn ? duty.signIn.toLocaleString() : '-'}</td>
+              <td>${duty.signOff ? duty.signOff.toLocaleString() : '-'}</td>
+              <td>₹${duty.calculateTotalAllowance().toFixed(2)}</td>
+              <td>${duty.calculateTotalDistance().toFixed(2)} km</td>
+              <td>${duty.dutyHours.toFixed(2)} H</td>
+              <td>${duty.nightDutyHours.toFixed(2)} H</td>
+              <td>${duty.progressiveDutyHours.toFixed(2)} H</td>
+              <td>${duty.isOSDA ? 'Yes' : 'No'}</td>
+              <td>${duty.isRRA ? 'Yes' : 'No'}</td>
+            </tr>
+          </tbody>
+        </table>
+      `).join('')}
 
-          ${duties.map((duty, index) => `
-            <h2>Duty ${index + 1}</h2>
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Type of Work</th>
-                  <th>Train No.</th>
-                  <th>Dep. Time</th>
-                  <th>Arr. Time</th>
-                  <th>Source</th>
-                  <th>Dest.</th>
-                  <th>Distance</th>
-                  <th>Duty Hours</th>
-                  <th>Allowance</th>
-                  <th>Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${duty.trips.map((trip) => `
-                  <tr>
-                    <td>${trip.date}</td>
-                    <td>${trip.typeOfWork}</td>
-                    <td>${trip.trainNumber}</td>
-                    <td>${trip.departureTime}</td>
-                    <td>${trip.arrivalTime}</td>
-                    <td>${trip.sourceStation}</td>
-                    <td>${trip.destinationStation}</td>
-                    <td>${trip.distance}</td>
-                    <td>${trip.dutyHours}</td>
-                    <td>${trip.allowance}</td>
-                    <td>${trip.remarks}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-            <p>Sign In: ${duty.signIn ? duty.signIn.toLocaleString() : '-'}</p>
-            <p>Sign Off: ${duty.signOff ? duty.signOff.toLocaleString() : '-'}</p>
-            <p>Total Allowance: ₹${duty.calculateTotalAllowance().toFixed(2)}</p>
-            <p>Total Distance: ${duty.calculateTotalDistance().toFixed(2)} km</p>
-            <p>Duty Hours: ${duty.dutyHours.toFixed(2)} H</p>
-            <p>Night Duty Hours: ${duty.nightDutyHours.toFixed(2)} H</p>
-            <p>Progressive Duty Hours: ${duty.progressiveDutyHours.toFixed(2)} H</p>
-            <p>OSDA: ${duty.isOSDA ? 'Yes' : 'No'}</p>
-            <p>RRA: ${duty.isRRA ? 'Yes' : 'No'}</p>
-          `).join('')}
+      <h2>Summary Block</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Total Kilometers</th>
+            <th>Mileage</th>
+            <th>Night Duty Allowance</th>
+            <th>Leave Mileage Allowance</th>
+            <th>Dearness Allowance</th>
+            <th>Progressive Duty Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${totalKilometers.toFixed(2)}</td>
+            <td>₹${mileage.toFixed(2)}</td>
+            <td>₹${nightDutyAllowance.toFixed(2)}</td>
+            <td>₹${leaveMileageAllowance.toFixed(2)}</td>
+            <td>₹${dearnessAllowance.toFixed(2)}</td>
+            <td>${progressiveDutyHours.toFixed(2)} H</td>
+          </tr>
+        </tbody>
+      </table>
 
-          <h2>Summary Block</h2>
-          <p>Total Kilometers: ${totalKilometers.toFixed(2)}</p>
-          <p>Mileage: ₹${mileage.toFixed(2)}</p>
-          <p>Night Duty Allowance: ₹${nightDutyAllowance.toFixed(2)}</p>
-          <p>Leave Mileage Allowance: ₹${leaveMileageAllowance.toFixed(2)}</p>
-          <p>Dearness Allowance: ₹${dearnessAllowance.toFixed(2)}</p>
-          <p>Progressive Duty Hours: ${progressiveDutyHours.toFixed(2)} H</p>
-
-          ${overtimeResult ? `
-            <h2>Overtime Calculation Result</h2>
-            ${overtimeResult.firstFortnight ? `
-              <h3>First Fortnight</h3>
-              <p>Start Date: ${overtimeResult.firstFortnight.startDate.toDateString()}</p>
-              <p>End Date: ${overtimeResult.firstFortnight.endDate.toDateString()}</p>
-              <p>Overtime Hours: ${overtimeResult.firstFortnight.overtimeHours}</p>
-              <p>Overtime Minutes: ${overtimeResult.firstFortnight.overtimeMinutes}</p>
-              <p>Overtime Unit: ${overtimeResult.firstFortnight.overtimeUnit}</p>
-            ` : ''}
-            ${overtimeResult.secondFortnight ? `
-              <h3>Second Fortnight</h3>
-              <p>Start Date: ${overtimeResult.secondFortnight.startDate.toDateString()}</p>
-              <p>End Date: ${overtimeResult.secondFortnight.endDate.toDateString()}</p>
-              <p>Overtime Hours: ${overtimeResult.secondFortnight.overtimeHours}</p>
-              <p>Overtime Minutes: ${overtimeResult.secondFortnight.overtimeMinutes}</p>
-              <p>Overtime Unit: ${overtimeResult.secondFortnight.overtimeUnit}</p>
-            ` : ''}
-          ` : ''}
-        </body>
-      </html>
-    `;
-
+        ${overtimeResult ? `
+          <h2>Overtime Calculation Result</h2>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">First Fortnight</th>
+              </tr>
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Overtime Hours</th>
+                <th>Overtime Minutes</th>
+                <th>Overtime Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.startDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.endDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeHours : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeMinutes : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeUnit : '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Second Fortnight</th>
+              </tr>
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Overtime Hours</th>
+                <th>Overtime Minutes</th>
+                <th>Overtime Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.startDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.endDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeHours : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeMinutes : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeUnit : '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+        ` : ''}
+      </body>
+    </html>
+  `;
     const { uri } = await Print.printToFileAsync({
       html,
       orientation: 'landscape'
+
     });
 
     console.log('PDF generated:', uri);
