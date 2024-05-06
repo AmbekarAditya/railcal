@@ -30,7 +30,10 @@
 
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "enabled": false,
+
+
     },
     "extra": {
       "eas": {
