@@ -9,7 +9,7 @@ import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import WebDatePicker from "../DatePicker/WebDatePicker";
-import { parseISO, format } from 'date-fns';
+import { parseISO, format } from "date-fns";
 import {
   Platform,
   View,
@@ -19,6 +19,7 @@ import {
   ScrollView,
   FlatList,
 } from "react-native";
+import styles from "../../styles_component/styles_dutyRow";
 
 interface DutyRowProps {
   duty: Duty;
@@ -50,43 +51,50 @@ const DutyRow: React.FC<DutyRowProps> = ({
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-  
+
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value);
     }
-  
+
     // Update the trip data
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-  
+
     // Recalculate allowance and remarks whenever any field that affects the calculation is changed
     const { allowance, remarks } = calculateAllowanceAndRemarks(
       updatedTrip.distance,
       updatedTrip.typeOfWork,
-      calculateDutyHoursFromTimes(updatedTrip.arrivalTime, updatedTrip.departureTime)
+      calculateDutyHoursFromTimes(
+        updatedTrip.arrivalTime,
+        updatedTrip.departureTime
+      )
     );
-  
+
     updateTripData(duty.id, tripId, "allowance", allowance);
     updateTripData(duty.id, tripId, "remarks", remarks);
   };
-  
-  const calculateDutyHoursFromTimes = (arrivalTime: string, departureTime: string): number => {
+
+  const calculateDutyHoursFromTimes = (
+    arrivalTime: string,
+    departureTime: string
+  ): number => {
     if (!arrivalTime || !departureTime) {
       return 0;
     }
-  
+
     const arrival = new Date(`1970-01-01T${arrivalTime}`);
     const departure = new Date(`1970-01-01T${departureTime}`);
-    const dutyHoursInMinutes = (departure.getTime() - arrival.getTime()) / (1000 * 60);
-  
+    const dutyHoursInMinutes =
+      (departure.getTime() - arrival.getTime()) / (1000 * 60);
+
     return dutyHoursInMinutes;
   };
-  
+
   const handleDateChange = (date) => {
     // Assuming the date is a JavaScript Date object. If it's a string, it may need parsing first.
-    const formattedDate = format(date, 'YYYY-MM-DD');
-  
+    const formattedDate = format(date, "YYYY-MM-DD");
+
     // Now use this formattedDate for further processing or state updating
     handleTripDataChange(trip.id, "date", formattedDate);
   };
@@ -100,18 +108,18 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
-  
+
     // Recalculate the allowance based on the new distance
     duty.trips.forEach((trip) => {
       if (trip.id === tripId) {
         const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
-  
+
         const { allowance, remarks } = calculateAllowanceAndRemarks(
           distance,
           trip.typeOfWork,
           dutyHoursAsNumber * 60
         );
-  
+
         updateTripData(dutyId, tripId, "allowance", allowance);
         updateTripData(dutyId, tripId, "remarks", remarks);
       }
@@ -141,7 +149,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         updateTripData(duty.id, trip.id, "remarks", remarks);
       }
     });
-  }, [duty.trips, updateTripData,duty.id]);
+  }, [duty.trips, updateTripData, duty.id]);
 
   const shouldDisableInputFields = (typeOfWork: string) => {
     const disabledTypes = [
@@ -156,13 +164,27 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+{/*       
+      <View style={styles.headerRow}>
+        <Text style={styles.headerDate}>Date</Text>
+        <Text style={styles.headertTypeofWork}>Duty Type</Text>
+        <Text style={styles.headerTrainNumber}>Train No.</Text>
+        <Text style={styles.headerStation}>Stations</Text>
+        <Text style={styles.headerDistance}>Distance</Text>
+        <Text style={styles.headerTimes}>Times</Text>
+        <Text style={styles.headerDuration}>Duration</Text>
+        <Text style={styles.headerAllowance}>Allowance</Text>
+        <Text style={styles.headerRemarks}>Remarks</Text>
+        <Text style={styles.headerActions}>Actions</Text>
+      </View>
+       */}
       {duty.trips.map((trip, index) => (
         <View key={trip.id} style={styles.tripContainer}>
           <View style={styles.dateContainer}>
             {Platform.OS === "web" ? (
               <WebDatePicker
                 value={trip.date}
-                onChange={(date) => handleTripDataChange(trip.id, "date", date) }
+                onChange={(date) => handleTripDataChange(trip.id, "date", date)}
               />
             ) : (
               <DatePickerComponent
@@ -197,7 +219,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
               maxLength={5}
             />
           </View>
-          <Text style={styles.distanceText}>{typeof trip.distance === 'number' ? trip.distance.toFixed(2) : trip.distance}km</Text>
+          <Text style={styles.distanceText}>
+            {typeof trip.distance === "number"
+              ? trip.distance.toFixed(2)
+              : trip.distance}
+            km
+          </Text>
           <View style={styles.timePickerContainer}>
             <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) => {
@@ -209,10 +236,16 @@ const DutyRow: React.FC<DutyRowProps> = ({
             />
           </View>
           <Text style={styles.durationText}>{trip.dutyHours}</Text>
-          <Text style={styles.allowanceText}>{trip.allowance}₹</Text>
+          {trip.allowance > 1 && (
+            <Text style={styles.allowanceText}>{trip.allowance}₹</Text>
+          )}
+
           <Text style={styles.remarksText}>{trip.remarks}</Text>
           <View style={styles.actionsContainer}>
-            <TouchableOpacity onPress={() => deleteTrip(duty.id, trip.id)}    disabled={duty.trips.length === 1} >
+            <TouchableOpacity
+              onPress={() => deleteTrip(duty.id, trip.id)}
+              disabled={duty.trips.length === 1}
+            >
               <Text>Delete</Text>
             </TouchableOpacity>
           </View>
@@ -233,7 +266,10 @@ const DutyRow: React.FC<DutyRowProps> = ({
         >
           <Text>End Duty</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => deleteDuty(duty.id)} >
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => deleteDuty(duty.id)}
+        >
           <Text>Delete Duty</Text>
         </TouchableOpacity>
       </View>
@@ -247,85 +283,5 @@ const DutyRow: React.FC<DutyRowProps> = ({
   );
 };
 
-const styles = StyleSheet.create({
-  scrollViewContainer: {
-    flexGrow: 1,
-  },
-  tripContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-  },
-  dateContainer: {
-    flex: 2,
-    marginRight: 8,
-    
-  },
-  dutyTypeContainer: {
-    flex: 2,
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
-    marginRight: 8,
-  },
-  trainNoContainer: {
-    flex: 1.5,
-    ...(Platform.OS === "web" && { marginLeft: 110 }),
-    marginRight: 8,
-  },
-  stationsContainer: {
-    flex: 2.5,
-    ...(Platform.OS === "web" && { marginLeft: 110 }),
-    marginRight: 8,
-  },
-  distanceText: {
-    flex: 1,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginRight: 8,
-    marginLeft: 20,
-  },
-  timePickerContainer: {
-    flex: 2.5,
-    marginRight: 8,
-    ...(Platform.OS === "web" && { marginLeft: 100 }),
-  },
-  durationText: {
-    flex: 1.5,
-    textAlign: 'center',
-    marginHorizontal: 8,
-  },
-  allowanceText: {
-    flex: 1.5,
-    textAlign: 'center',
-    marginHorizontal: 8,
-  },
-  remarksText: {
-    flex: 2,
-    marginHorizontal: 8,
-  },
-  actionsContainer: {
-    flex: 1,
-    margin:5,
-    alignItems:'center',
-    borderWidth:1,
-    padding:5,
-    borderRadius :5,
-  },
-  buttonsContainer: {
-    flexDirection: 'row',
-    marginLeft:10,
-    marginVertical: 10,
-  },
-  button: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
-  },
-  separator: {
-    marginVertical: 10,
-  },
-});
+
 export default DutyRow;

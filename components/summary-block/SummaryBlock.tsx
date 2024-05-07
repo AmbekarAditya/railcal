@@ -119,7 +119,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
                   <Text style={styles.label}>First Fortnight</Text>
                   <Text style={styles.value}>
                     {overtimeResult.firstFortnight.overtimeHours}H{" "}
-                    {overtimeResult.firstFortnight.overtimeMinutes}M
+                    {formatNumber(overtimeResult.firstFortnight.overtimeMinutes)}M
                   </Text>
                   <Text style={styles.overtimeUnit}>
                     ({overtimeResult.firstFortnight.overtimeUnit})
@@ -143,7 +143,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
                   <Text style={styles.label}>Second Fortnight</Text>
                   <Text style={styles.value}>
                     {overtimeResult.secondFortnight.overtimeHours}H{" "}
-                    {overtimeResult.secondFortnight.overtimeMinutes}M
+                    {formatNumber(overtimeResult.secondFortnight.overtimeMinutes)}M
                   </Text>
                   <Text style={styles.overtimeUnit}>
                     ({overtimeResult.secondFortnight.overtimeUnit})
