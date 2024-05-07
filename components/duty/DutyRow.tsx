@@ -46,33 +46,41 @@ const DutyRow: React.FC<DutyRowProps> = ({
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
-    value: any  // Change from string | number to any to accommodate Date objects
+    value: any
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-  
   
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value);
     }
+  
     // Update the trip data
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
   
-    // Additional calculations for specific fields
-    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
-      const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
+    // Recalculate allowance and remarks whenever any field that affects the calculation is changed
+    const { allowance, remarks } = calculateAllowanceAndRemarks(
+      updatedTrip.distance,
+      updatedTrip.typeOfWork,
+      calculateDutyHoursFromTimes(updatedTrip.arrivalTime, updatedTrip.departureTime)
+    );
   
-      const { allowance, remarks } = calculateAllowanceAndRemarks(
-        updatedTrip.distance,
-        updatedTrip.typeOfWork,
-        dutyHoursAsNumber * 60
-      );
-      
-      updateTripData(duty.id, tripId, "allowance", allowance);
-      updateTripData(duty.id, tripId, "remarks", remarks);
+    updateTripData(duty.id, tripId, "allowance", allowance);
+    updateTripData(duty.id, tripId, "remarks", remarks);
+  };
+  
+  const calculateDutyHoursFromTimes = (arrivalTime: string, departureTime: string): number => {
+    if (!arrivalTime || !departureTime) {
+      return 0;
     }
+  
+    const arrival = new Date(`1970-01-01T${arrivalTime}`);
+    const departure = new Date(`1970-01-01T${departureTime}`);
+    const dutyHoursInMinutes = (departure.getTime() - arrival.getTime()) / (1000 * 60);
+  
+    return dutyHoursInMinutes;
   };
   
   const handleDateChange = (date) => {
@@ -92,6 +100,22 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
+  
+    // Recalculate the allowance based on the new distance
+    duty.trips.forEach((trip) => {
+      if (trip.id === tripId) {
+        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
+  
+        const { allowance, remarks } = calculateAllowanceAndRemarks(
+          distance,
+          trip.typeOfWork,
+          dutyHoursAsNumber * 60
+        );
+  
+        updateTripData(dutyId, tripId, "allowance", allowance);
+        updateTripData(dutyId, tripId, "remarks", remarks);
+      }
+    });
   };
 
   const handleTrainNumberChange = (
@@ -117,7 +141,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
         updateTripData(duty.id, trip.id, "remarks", remarks);
       }
     });
-  }, [duty.trips, updateTripData]);
+  }, [duty.trips, updateTripData,duty.id]);
 
   const shouldDisableInputFields = (typeOfWork: string) => {
     const disabledTypes = [

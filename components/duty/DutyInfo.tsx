@@ -7,7 +7,7 @@ interface DutyInfoProps {
 }
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
-  const totalDistance = 1||duty.calculateTotalDistance();
+  const totalDistance = 0||duty.calculateTotalDistance();
   return (
     <View style={styles.main}>
       <View style={styles.dutyInfoContainer}>
@@ -34,7 +34,6 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
 
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Total Distance:</Text>
-          
 <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
             </View>
             <View style={styles.infoBlock}>

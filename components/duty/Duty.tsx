@@ -41,7 +41,12 @@ class Duty {
   }
 
   calculateTotalAllowance() {
-    return this.trips.reduce((total, trip) => total + trip.allowance, 0);
+    let totalAllowanceforDuty = this.trips.reduce((total, trip) => total + trip.allowance, 0);
+    if (totalAllowanceforDuty<=120)
+    {
+      totalAllowanceforDuty=120;
+    }
+    return totalAllowanceforDuty;
   }
 
   calculateTotalDistance() {
