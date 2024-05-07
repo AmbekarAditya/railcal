@@ -186,6 +186,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return totalAllowance;
   };
 
+  isPreviousDutyEnded = () => {
+    const { duties } = this.state;
+    const lastDuty = duties[duties.length - 1];
+    return lastDuty && lastDuty.dutyHours > 0.00;
+  };
+
   deleteTrip = (dutyId: number, tripId: number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
@@ -401,7 +407,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </View>
         <View style={styles.buttonContainer}>
           <View style={styles.addDuty}>
-            <Button title="Add Duty" onPress={this.addDuty} />
+            <Button title="Add Duty" onPress={this.addDuty} 
+             disabled={!this.isPreviousDutyEnded()}
+             />
           </View>
           <View style={styles.addDuty}>
             {Platform.OS === "web" && (
