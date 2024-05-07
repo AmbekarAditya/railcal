@@ -164,7 +164,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
-{/*       
+      {/*       
       <View style={styles.headerRow}>
         <Text style={styles.headerDate}>Date</Text>
         <Text style={styles.headertTypeofWork}>Duty Type</Text>
@@ -236,9 +236,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
             />
           </View>
           <Text style={styles.durationText}>{trip.dutyHours}</Text>
-          {trip.allowance > 1 && (
-            <Text style={styles.allowanceText}>{trip.allowance}₹</Text>
-          )}
+          <Text style={styles.allowanceText}>
+            {trip.allowance === 1 ? 0 : trip.allowance}₹
+          </Text>
 
           <Text style={styles.remarksText}>{trip.remarks}</Text>
           <View style={styles.actionsContainer}>
@@ -282,6 +282,5 @@ const DutyRow: React.FC<DutyRowProps> = ({
     </ScrollView>
   );
 };
-
 
 export default DutyRow;
