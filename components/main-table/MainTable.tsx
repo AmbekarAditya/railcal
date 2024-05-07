@@ -182,16 +182,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   calculateTotalAllowance = () => {
     const { duties } = this.state;
-    const totalAllowance = duties.reduce((acc, duty) => {
-      const totalAllowance = duty.trips.reduce(
-        (tripAcc, trip) => tripAcc + (trip.allowance || 0),
-        0
-      );
-      return acc + totalAllowance;
-    }, 0);
-
+    const totalAllowance = duties.reduce((acc, duty) => acc + duty.dutyAllowance, 0);
     return totalAllowance;
   };
+
   deleteTrip = (dutyId: number, tripId: number) => {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
@@ -455,7 +449,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </View>
         {duties.length > 0 && duties[0].trips.length > 0 && (
           <SummaryBlock
-            totalAllowance={totalAllowance}
+            totalAllowance={this.calculateTotalAllowance()}
             totalKilometers={totalKilometers}
             mileage={mileage}
             nightDutyAllowance={nightDutyAllowance}

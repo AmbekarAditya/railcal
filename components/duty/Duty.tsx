@@ -46,6 +46,7 @@ class Duty {
     {
       totalAllowanceforDuty=120;
     }
+    this.dutyAllowance = totalAllowanceforDuty;
     return totalAllowanceforDuty;
   }
 
