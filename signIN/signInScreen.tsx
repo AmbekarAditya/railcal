@@ -1,36 +1,45 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions,Image,Platform } from 'react-native';
-import backgroundImage from '../assets/bgimage6.png'; // Import your background image
-import googleIcon from '../assets/googleIcon.png'; 
-import { useNavigation } from '@react-navigation/native'
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions, Image, Platform, ActivityIndicator } from 'react-native';
+import backgroundImage from '../assets/bgimage6.png';
+import googleIcon from '../assets/googleIcon.png';
+import { useNavigation } from '@react-navigation/native';
 import { auth } from '../firebase/firebaseConfig';
 import { handleGoogleSignIn } from './handleGoogleSignIn';
 
 const { width } = Dimensions.get('window');
 
-
-const SignInScreen = () =>  {
+const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); 
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
 
   const handleSignIn = async () => {
+    if (!email || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+
+    setLoading(true);
     try {
       await auth.signInWithEmailAndPassword(email, password);
       navigation.navigate('Home');
     } catch (err) {
-      setError(err.message); // Set the error message
+      setError(err.message);
     }
+    setLoading(false);
   };
-  
+
+  const handleForgotPassword = () => {
+    // Handle forgot password logic
+  };
+
   function signInWithGoogle() {
     if (Platform.OS === 'web') {
-      // For web, dynamically require the web-specific module
       const { signInWithGoogleWeb } = require('./webGoogleSignIn');
       signInWithGoogleWeb(auth, navigation);
     } else {
-      // For mobile (iOS and Android), dynamically require the mobile-specific module
       const { handleGoogleSignIn } = require('./handleGoogleSignIn');
       handleGoogleSignIn(auth, navigation);
     }
@@ -40,13 +49,11 @@ const SignInScreen = () =>  {
     <View style={styles.container}>
       <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
         <View style={styles.imageOverlay}>
-          {/* Title Section */}
           <View style={styles.titleContainer}>
-            <View style={{backgroundColor: 'rgba(255, 255, 255, 0.1)'}}>
-            <Text style={styles.title}>Allowance Calculator</Text>
+            <View style={styles.titleBackground}>
+              <Text style={styles.title}>Allowance Calculator</Text>
             </View>
           </View>
-          {/* Content Container */}
           <View style={styles.contentContainer}>
             <View style={styles.formContainer}>
               <TextInput
@@ -64,14 +71,21 @@ const SignInScreen = () =>  {
                 onChangeText={setPassword}
                 secureTextEntry
               />
-              <TouchableOpacity style={styles.signUpButton} onPress={handleSignIn}>
-                <Text style={styles.signUpButtonText}>Sign In</Text>
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+                <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.signUpButtonWithIcon} onPress={signInWithGoogle}>
+              <TouchableOpacity style={styles.signInButton} onPress={handleSignIn} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.signInButtonText}>Sign In</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.signInButtonWithIcon} onPress={signInWithGoogle}>
                 <Image source={googleIcon} style={styles.icon} />
-                <Text style={styles.signUpButtonText}>Continue With Google</Text>
+                <Text style={styles.signInButtonText}>Continue With Google</Text>
               </TouchableOpacity>
-              <Text style={styles.errorText}>{error}</Text>
             </View>
           </View>
         </View>
@@ -87,15 +101,21 @@ const styles = StyleSheet.create({
   titleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop:80,
-    height: 60, // Adjust height as needed
+    marginTop: 80,
+    height: 60,
+  },
+  titleBackground: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#000000',
-    fontFamily:'sans-serif',
-    textDecorationLine:'underline',
+    fontFamily: 'sans-serif',
+    textDecorationLine: 'underline',
   },
   backgroundImage: {
     flex: 1,
@@ -132,15 +152,17 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     fontSize: 14,
   },
-  signUpButton: {
+  signInButton: {
     backgroundColor: '#000000',
     paddingVertical: 12,
     borderRadius: 10,
     marginVertical: 5,
     height: 40,
     width: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  signUpButtonWithIcon: {
+  signInButtonWithIcon: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#000000',
@@ -151,7 +173,7 @@ const styles = StyleSheet.create({
     width: 280,
     justifyContent: 'center',
   },
-  signUpButtonText: {
+  signInButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -160,19 +182,27 @@ const styles = StyleSheet.create({
   icon: {
     width: 15,
     height: 15,
-    marginRight: 10, // Adjust spacing between icon and text
+    marginRight: 10,
   },
-  loginLink: {
+  forgotPasswordButton: {
+    marginBottom: 15,
+  },
+  forgotPasswordButtonText: {
     color: '#999',
     textAlign: 'center',
-    marginTop: 15,
+    fontSize: 14,
   },
-  errorText:
-  {
-    color: '#999',
+  errorContainer: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  errorText: {
+    color: 'red',
     textAlign: 'center',
-    marginTop: 15,
-  }
+    fontSize: 14,
+  },
 });
 
 export default SignInScreen;
