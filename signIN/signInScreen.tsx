@@ -51,11 +51,14 @@ const SignInScreen = () => {
         <View style={styles.imageOverlay}>
           <View style={styles.titleContainer}>
             <View style={styles.titleBackground}>
-              <Text style={styles.title}>Allowance Calculator</Text>
+              <Text style={styles.title}>Railway Allowance Calculator</Text>
             </View>
           </View>
           <View style={styles.contentContainer}>
             <View style={styles.formContainer}>
+              <Text style={styles.description}>
+                The Railway Allowance Calculator is designed for Indian Railways Employees, specifically operational employees, to calculate their allowance. The application can calculate the allowance for a month for multiple employee types, grades, and pay bands. It also generates a PDF report for easy record-keeping. The application is available on Android and iOS platforms.
+              </Text>
               <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -115,7 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#000000',
     fontFamily: 'sans-serif',
-    textDecorationLine: 'underline',
   },
   backgroundImage: {
     flex: 1,
@@ -142,6 +144,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+  },
+  description: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
   },
   input: {
     height: 40,
