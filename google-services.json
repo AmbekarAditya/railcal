@@ -1,0 +1,55 @@
+{
+    "project_info": {
+      "project_number": "142052743063",
+      "firebase_url": "https://feyntech-allowance-calculator-default-rtdb.asia-southeast1.firebasedatabase.app",
+      "project_id": "feyntech-allowance-calculator",
+      "storage_bucket": "feyntech-allowance-calculator.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:142052743063:android:775e568384aa6f90a196d2",
+          "android_client_info": {
+            "package_name": "com.feyntech.allowancecalculator_v2"
+          }
+        },
+        "oauth_client": [
+          {
+            "client_id": "142052743063-ul1ajh64ttl69qh5nasdp4hotfnfmarv.apps.googleusercontent.com",
+            "client_type": 1,
+            "android_info": {
+              "package_name": "com.feyntech.allowancecalculator_v2",
+              "certificate_hash": "518225529307d78fe7fc8bafb79320d1558ea198"
+            }
+          },
+          {
+            "client_id": "142052743063-he47ba59ocqbqphde7550n3bp14qafom.apps.googleusercontent.com",
+            "client_type": 3
+          }
+        ],
+        "api_key": [
+          {
+            "current_key": "AIzaSyAqnxmQiZIF3IWsG0n18g57EEwomE90kQ4"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": [
+              {
+                "client_id": "142052743063-he47ba59ocqbqphde7550n3bp14qafom.apps.googleusercontent.com",
+                "client_type": 3
+              },
+              {
+                "client_id": "142052743063-o6585p1j05hcm2jds9d1k0disrh2tfvl.apps.googleusercontent.com",
+                "client_type": 2,
+                "ios_info": {
+                  "bundle_id": "com.feyntech.allowancecalculatorv2"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
