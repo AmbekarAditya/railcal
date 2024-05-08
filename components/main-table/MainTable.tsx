@@ -31,6 +31,7 @@ interface MainTableProps {
   rateOfPay: Number;
   designation: string;
 }
+
 interface MainTableState {
   duties: Duty[];
   showModal: boolean;
@@ -76,6 +77,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       totalLeaves: 0,
     };
   }
+
   addDuty = () => {
     const newTrip: Trip = {
       id: 1,
@@ -182,14 +184,17 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   calculateTotalAllowance = () => {
     const { duties } = this.state;
-    const totalAllowance = duties.reduce((acc, duty) => acc + duty.dutyAllowance, 0);
+    const totalAllowance = duties.reduce(
+      (acc, duty) => acc + duty.dutyAllowance,
+      0
+    );
     return totalAllowance;
   };
 
   isPreviousDutyEnded = () => {
     const { duties } = this.state;
     const lastDuty = duties[duties.length - 1];
-    return lastDuty && lastDuty.dutyHours > 0.00;
+    return lastDuty && lastDuty.dutyHours > 0.0;
   };
 
   deleteTrip = (dutyId: number, tripId: number) => {
@@ -214,21 +219,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return totalNightDutyHours;
   };
 
-  // componentDidUpdate(prevProps: MainTableProps, prevState: MainTableState) {
-  //   if (prevState.duties !== this.state.duties) {
-  //     let startDate = null;
-  //     if (this.state.duties.length > 0 && this.state.duties[0].trips.length > 0) {
-  //       const firstTripDate = this.state.duties[0].trips[0].date;
-  //       if (firstTripDate) {
-  //         startDate = new Date(firstTripDate);
-  //       }
-  //     }
-
-  //     const overtimeResult = overtimeCalculation(this.state.duties, startDate);
-  //     this.setState({ overtimeResult });
-  //   }
-  // }
-
   calculateOvertimeResult = (duties: Duty[], startDate: Date) => {
     return overtimeCalculation(duties, startDate);
   };
@@ -238,6 +228,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       duties: prevState.duties.filter((duty) => duty.id !== dutyId),
     }));
   };
+
   setTotalLeaves = (newTotalLeaves: number) => {
     this.setState({ totalLeaves: newTotalLeaves });
   };
@@ -269,52 +260,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       );
     });
 
-    if (overtimeResult) {
-      console.log("Overtime Calculation Result:", overtimeResult);
-
-      if (overtimeResult.firstFortnight) {
-        console.log("First Fortnight:");
-        console.log("Start Date:", overtimeResult.firstFortnight.startDate);
-        console.log("End Date:", overtimeResult.firstFortnight.endDate);
-        console.log(
-          "Overtime Hours:",
-          overtimeResult.firstFortnight.overtimeHours
-        );
-        console.log(
-          "Overtime Minutes:",
-          overtimeResult.firstFortnight.overtimeMinutes
-        );
-        console.log(
-          "Overtime Unit:",
-          overtimeResult.firstFortnight.overtimeUnit
-        );
-      }
-
-      if (overtimeResult.secondFortnight) {
-        console.log("Second Fortnight:");
-        console.log("Start Date:", overtimeResult.secondFortnight.startDate);
-        console.log("End Date:", overtimeResult.secondFortnight.endDate);
-        console.log(
-          "Overtime Hours:",
-          overtimeResult.secondFortnight.overtimeHours
-        );
-        console.log(
-          "Overtime Minutes:",
-          overtimeResult.secondFortnight.overtimeMinutes
-        );
-        console.log(
-          "Overtime Unit:",
-          overtimeResult.secondFortnight.overtimeUnit
-        );
-      }
-    }
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
     const { rateOfPay, selectedMonth, designation, payBand, level } =
       this.props;
-    console.log("Received designation prop:", designation);
-    if (designation === undefined) {
-      console.error("Designation prop is undefined");
-    }
+
     // Calculate the number of days in the month from the first trip date if available
     let daysInMonth = 1;
     let startDate = ""; // Default to 1 to prevent division by zero errors
@@ -370,17 +319,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const lastDuty = duties[duties.length - 1];
     const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
 
-    console.log("OSDA Count:", osdaCount);
-    console.log("RRA Count:", rraCount);
-    console.log("Leaves: ", totalLeaves);
-    console.log("Rate Of Pay: ", rateOfPay);
-    console.log("Start Date: ", startDate);
-    console.log("Days In Month: ", daysInMonth);
-    console.log("Dearness Allowance: ", dearnessAllowance);
-    console.log("OSDA Allowance: ", osdaAllowance);
-    console.log("Total night duty hours ", totalNightDutyHours);
-    console.log("Night Duty Allowance ", nightDutyAllowance);
-    console.log("Progressive Duty Hours :", progressiveDutyHours);
     return (
       <ScrollView
         horizontal
@@ -407,9 +345,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </View>
         <View style={styles.buttonContainer}>
           <View style={styles.addDuty}>
-            <Button title="Add Duty" onPress={this.addDuty} 
-             disabled={!this.isPreviousDutyEnded()}
-             />
+            <Button
+              title="Add Duty"
+              onPress={this.addDuty}
+              disabled={!this.isPreviousDutyEnded()}
+              color={colors.primary}
+            />
           </View>
           <View style={styles.addDuty}>
             {Platform.OS === "web" && (
@@ -424,35 +365,30 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
-                // nationalHolidayAllowance={nationalHolidayAllowance}
                 leaveMileageAllowance={lma}
-                // overTimeAllowance={overTimeAllowance}
                 dearnessAllowance={dearnessAllowance}
-                // startDate={startDate}
                 progressiveDutyHours={progressiveDutyHours}
-                // endDate={""}
                 rraOsda={osdaAllowance}
-                // daysInMonth={daysInMonth}
                 overtimeResult={overtimeResult}
               />
             )}
-              {Platform.OS !== 'web' && (
-    <PdfGeneratorMobile
-      duties={duties}
-      designation={designation}
-      payBand={payBand}
-      level={level}
-      rateOfPay={rateOfPay}
-      selectedMonth={selectedMonth}
-      totalKilometers={totalKilometers}
-      mileage={mileage}
-      nightDutyAllowance={nightDutyAllowance}
-      leaveMileageAllowance={lma}
-      dearnessAllowance={dearnessAllowance}
-      progressiveDutyHours={progressiveDutyHours}
-      overtimeResult={overtimeResult}
-    />
-  )}
+            {Platform.OS !== "web" && (
+              <PdfGeneratorMobile
+                duties={duties}
+                designation={designation}
+                payBand={payBand}
+                level={level}
+                rateOfPay={rateOfPay}
+                selectedMonth={selectedMonth}
+                totalKilometers={totalKilometers}
+                mileage={mileage}
+                nightDutyAllowance={nightDutyAllowance}
+                leaveMileageAllowance={lma}
+                dearnessAllowance={dearnessAllowance}
+                progressiveDutyHours={progressiveDutyHours}
+                overtimeResult={overtimeResult}
+              />
+            )}
           </View>
         </View>
         {duties.length > 0 && duties[0].trips.length > 0 && (
@@ -489,34 +425,47 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
   }
 }
+
+
+const colors = {
+  primary: "#007AFF",
+  border: "#CCCCCC",
+  // Add more colors as needed
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
   horizontalContent: {
     flexDirection: "column",
-    flexGrow: 1, // This makes sure it takes up as much space as it needs
+    flexGrow: 1,
+    padding: 16,
   },
   tableContainer: {
-    maxHeight: "80%", // Adjust as needed
+    maxHeight: "80%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
   },
   buttonContainer: {
-    display: "flex",
     flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
   },
   addDuty: {
-    marginLeft: 10,
+    flex: 1,
+    marginLeft: 8,
   },
-  generateReport: {
-    backgroundColor: "blue",
-  },
-
   summaryBlockContainer: {
-    height: "15%", // Adjust as needed
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
+    height: "15%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
   },
 });
+
 export default MainTable;

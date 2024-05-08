@@ -1,0 +1,227 @@
+diff --git a/components/duty/DutyRow.tsx b/components/duty/DutyRow.tsx
+index 03de0b9..1ca2f31 100644
+--- a/components/duty/DutyRow.tsx
++++ b/components/duty/DutyRow.tsx
+@@ -16,9 +16,15 @@ interface DutyRowProps {
+   duty: Duty;
+   addTrip: (dutyId: number) => void;
+   handleEndDuty: (duty: Duty) => void;
+-  updateTripData: (dutyId: number, tripId: number, field: keyof Trip, value: any) => void;
++  updateTripData: (
++    dutyId: number,
++    tripId: number,
++    field: keyof Trip,
++    value: any
++  ) => void;
+   deleteTrip: (dutyId: number, tripId: number) => void;
+   updateDutyDetails: (updatedDuty: Duty) => void;
++  deleteDuty: (dutyId: number) => void; // Add the deleteDuty prop
+ }
+ 
+ const DutyRow: React.FC<DutyRowProps> = ({
+@@ -28,6 +34,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
+   updateTripData,
+   deleteTrip,
+   updateDutyDetails,
++  deleteDuty,
+ }) => {
+   const handleTripDataChange = (
+     tripId: number,
+@@ -42,7 +49,11 @@ const DutyRow: React.FC<DutyRowProps> = ({
+     updateTripData(duty.id, tripId, field, value);
+ 
+     // Perform calculations only on specific field changes
+-    if (field === "distance" || field === "typeOfWork" || (field === "dutyHours" && value !== "")) {
++    if (
++      field === "distance" ||
++      field === "typeOfWork" ||
++      (field === "dutyHours" && value !== "")
++    ) {
+       const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
+ 
+       const { allowance, remarks } = calculateAllowanceAndRemarks(
+@@ -87,14 +98,14 @@ const DutyRow: React.FC<DutyRowProps> = ({
+           dutyHoursAsNumber * 60
+         );
+ 
+-        updateTripData(duty.id, trip.id, 'allowance', allowance);
+-        updateTripData(duty.id, trip.id, 'remarks', remarks);
++        updateTripData(duty.id, trip.id, "allowance", allowance);
++        updateTripData(duty.id, trip.id, "remarks", remarks);
+       }
+     });
+   }, [duty.trips, updateTripData]);
+ 
+   const isLeaveType = (typeOfWork: string): boolean => {
+-    return ['Sick leave', 'Casual leave', 'Paid leave'].includes(typeOfWork);
++    return ["Sick leave", "Casual leave", "Paid leave"].includes(typeOfWork);
+   };
+ 
+   const hasLeaveTypeTrip = duty.trips.some((trip) =>
+@@ -102,25 +113,38 @@ const DutyRow: React.FC<DutyRowProps> = ({
+   );
+ 
+   useEffect(() => {
+-    console.log('duty before useEffect:', duty);
+-  
++    console.log("duty before useEffect:", duty);
++
+     // Filter trips that have a leave type of work
+-    const tripsWithLeaveType = duty.trips.filter(trip => isLeaveType(trip.typeOfWork));
+-  
++    const tripsWithLeaveType = duty.trips.filter((trip) =>
++      isLeaveType(trip.typeOfWork)
++    );
++
+     if (tripsWithLeaveType.length > 0) {
+       // Set duty hours for the entire duty when there is at least one leave type trip
+       const dutyHoursForLeave = "7h 25m"; // Representing 7 hours and 25 minutes as a string
+-  
++
+       // Create a new Duty object with the updated dutyHours property
+-      const updatedDuty = new Duty(duty.id, duty.trips, null, null, dutyHoursForLeave, duty.nightDutyHours, duty.isOSDA, duty.isRRA, duty.dutyAllowance, duty.dutyDistance);
+-  
+-      console.log('updatedDuty:', updatedDuty);
+-  
++      const updatedDuty = new Duty(
++        duty.id,
++        duty.trips,
++        null,
++        null,
++        dutyHoursForLeave,
++        duty.nightDutyHours,
++        duty.isOSDA,
++        duty.isRRA,
++        duty.dutyAllowance,
++        duty.dutyDistance
++      );
++
++      console.log("updatedDuty:", updatedDuty);
++
+       // Call the updateDutyDetails function with the updated Duty object
+       updateDutyDetails(updatedDuty);
+     }
+-  
+-    console.log('duty after useEffect:', duty);
++
++    console.log("duty after useEffect:", duty);
+   }, [duty.trips]);
+ 
+   console.log(duty);
+@@ -128,17 +152,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
+   return (
+     <React.Fragment>
+       <tr>
+-                  <th>Date</th>
+-                  <th>Type of Duty</th>
+-                  <th>Train Number</th>
+-                  <th>Start & End Station</th>
+-                  <th>Trip Distance</th>
+-                  <th>Start & End Time</th>
+-                  <th>Trip Duration</th>
+-                  <th>Allowance</th>
+-                  <th>Remarks</th>
+-                </tr>
+-                {duty.trips.map((trip, index) => (
++        <th>Date</th>
++        <th>Type of Duty</th>
++        <th>Train Number</th>
++        <th>Start & End Station</th>
++        <th>Trip Distance</th>
++        <th>Start & End Time</th>
++        <th>Trip Duration</th>
++        <th>Allowance</th>
++        <th>Remarks</th>
++      </tr>
++      {duty.trips.map((trip, index) => (
+         <tr key={trip.id}>
+           <td>
+             {Platform.OS === "web" ? (
+@@ -162,10 +186,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
+             />
+           </td>
+           <td>
+-          <TrainNumberInput
+-  onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
+-  disabled={isLeaveType(trip.typeOfWork)} // Disable if it's a leave type
+-/>
++            <TrainNumberInput
++              onChange={(trainNumber) =>
++                handleTrainNumberChange(trainNumber, duty.id, trip.id)
++              }
++              disabled={isLeaveType(trip.typeOfWork)} // Disable if it's a leave type
++            />
+           </td>
+           <td>
+             <PickerComponentStation
+@@ -179,14 +205,14 @@ const DutyRow: React.FC<DutyRowProps> = ({
+             {trip.distance.toFixed(2)}
+           </td>
+           <td>
+-          <ArrivalDepartureTimePicker
+-  onTimesChange={(arrivalTime, departureTime, dutyHours) => {
+-    handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
+-    handleTripDataChange(trip.id, "departureTime", departureTime);
+-    handleTripDataChange(trip.id, "dutyHours", dutyHours);
+-  }}
+-  disabled={isLeaveType(trip.typeOfWork)} // Disable if it's a leave type
+-/>
++            <ArrivalDepartureTimePicker
++              onTimesChange={(arrivalTime, departureTime, dutyHours) => {
++                handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
++                handleTripDataChange(trip.id, "departureTime", departureTime);
++                handleTripDataChange(trip.id, "dutyHours", dutyHours);
++              }}
++              disabled={isLeaveType(trip.typeOfWork)} // Disable if it's a leave type
++            />
+           </td>
+           <td>{trip.dutyHours}</td>
+           <td>{trip.allowance}</td>
+@@ -200,11 +226,15 @@ const DutyRow: React.FC<DutyRowProps> = ({
+       ))}
+       <tr>
+         <td colSpan={6}>
+-        <button onClick={() => addTrip(duty.id)} disabled={duty.trips.some(trip => isLeaveType(trip.typeOfWork))}>
+-  Add Trip
+-</button>
+-       
++          <button
++            onClick={() => addTrip(duty.id)}
++            disabled={duty.trips.some((trip) => isLeaveType(trip.typeOfWork))}
++          >
++            Add Trip
++          </button>
++
+           <button onClick={() => handleEndDuty(duty)}> End Duty</button>
++          <button onClick={() => deleteDuty(duty.id)}>Delete Duty</button>
+           <DutyInfo duty={duty} />
+         </td>
+       </tr>
+@@ -217,4 +247,4 @@ const DutyRow: React.FC<DutyRowProps> = ({
+   );
+ };
+ 
+-export default DutyRow;
+\ No newline at end of file
++export default DutyRow;
+diff --git a/components/main-table/MainTable.tsx b/components/main-table/MainTable.tsx
+index 8b04a43..24049aa 100644
+--- a/components/main-table/MainTable.tsx
++++ b/components/main-table/MainTable.tsx
+@@ -229,6 +229,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
+                 selectedMonth={selectedMonth}
+                 deleteTrip={this.deleteTrip}
+                 updateDutyDetails={this.updateDutyDetails}
++                deleteDuty={this.deleteDuty}
+               >
+                
+               </DutyRow>
+@@ -239,8 +240,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
+         </ScrollView>
+         <div>
+           <button onClick={this.addDuty}>Add Duty</button>
+-          <button onClick={() => this.deleteDuty(duties.length > 0 ? duties[duties.length - 1].id : null)}>Delete Duty</button>
+-
+         </div>
+ 
+         <SummaryBlock

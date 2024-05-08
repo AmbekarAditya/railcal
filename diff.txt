@@ -1,0 +1,21 @@
+refactor: Optimize DutyRow table layout and remove unnecessary code
+
+- Adjust column widths in the DutyRow component to create a more compact table layout:
+  - Set 'Date' column width to 80px
+  - Set 'Duty Type' column width to 150px
+  - Set 'Train No.' column width to 80px
+  - Set 'Stations' column width to 100px
+  - Set 'Distance' column width to 60px
+  - Set 'Start & End Time' column width to 120px
+  - Set 'Duration' column width to 80px
+  - Set 'Allowance' column width to 80px
+  - Set 'Remarks' column width to 120px
+  - Set 'Actions' column width to 80px
+- Add maxLength prop to TrainNumberInput and PickerComponentStation to limit input lengths
+- Set width to 100% for TrainNumberInput, PickerComponentStation, and ArrivalDepartureTimePicker
+- Shorten 'Delete Trip' button text to 'Delete' to save space
+- Update colSpan attribute of the table row containing 'Add Trip', 'End Duty', and 'Delete Duty' buttons to span all columns
+- Update colSpan attribute of the duty-separator row to span all columns
+- Remove commented-out code for the 'Delete Duty' button in the MainTable component
+
+This commit focuses on optimizing the layout of the DutyRow component to create a more compact and visually appealing table. The column widths have been adjusted to accommodate the necessary information while reducing the overall width of the table. Additional props and styles have been added to limit input lengths and ensure proper sizing of input components. The 'Delete Trip' button text has been shortened to save space, and the colSpan attributes have been updated to maintain consistency. Finally, unnecessary commented-out code has been removed from the MainTable component.

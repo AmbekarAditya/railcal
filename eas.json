@@ -1,15 +1,15 @@
 {
-    "build": {
-      "development": {
-        "developmentClient": true,
-        "distribution": "internal",
-        "android": {
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
         "buildType": "apk"
       },
       "env": {
-        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON" // Replace "secretName" with the name you gave your secret
-        }
+        "GOOGLE_SERVICES_JSON": "google-services.json"
       }
-    }
+    },
+    "production": {}
   }
-  
+}

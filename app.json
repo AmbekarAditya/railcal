@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "allowance_calc",
-    "slug": "allowance_calc",
+    "slug": "railway-allowance-calculator",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,26 +19,22 @@
       "supportsTablet": true
     },
     "android": {
-      
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        
+        "backgroundColor": "#ffffff"
       },
       "package": "com.feyntech.allowancecalculator_v2",
-      "googleServicesFile": "./google-services.json",
-
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png",
-      "enabled": false,
-
-
+      "enabled": false
     },
     "extra": {
       "eas": {
-        "projectId": "b3eeb99f-b76d-45f0-b2fd-3bfddbb176aa"
+        "projectId": "a9fc110b-b97a-4b8c-91a4-4a17f3c30141"
       }
-    }
+    },
+    "owner": "atulc"
   }
 }
