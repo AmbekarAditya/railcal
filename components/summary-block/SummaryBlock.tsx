@@ -75,8 +75,8 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
             </Text>
           </View>
           <View style={styles.infoContainer}>
-            <Text style={styles.label}>Total Allowance:</Text>
-            <Text style={styles.value}>₹{formatNumber(totalAllowance)}</Text>
+            <Text style={styles.label}>Kilometers Earned:</Text>
+            <Text style={styles.value}>{formatNumber(totalAllowance)}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Total Kilometers:</Text>
