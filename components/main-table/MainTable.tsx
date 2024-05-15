@@ -285,7 +285,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     });
 
     // Calculate total kilometers from duties
-    const totalKilometers = duties.reduce((acc, duty) => {
+    let totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
         (tripAcc, trip) =>
           tripAcc + (typeof trip.distance === "number" ? trip.distance : 0),
@@ -293,6 +293,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       );
       return acc + dutyDistance;
     }, 0);
+
+    // Set totalKilometers to 120 if it's less than 120
+    totalKilometers = Math.max(totalKilometers, 120);
 
     const totalAllowance = this.calculateTotalAllowance();
     const mileage = mileageCalculation(designation, totalAllowance); // Example mileage rate, replace as needed
