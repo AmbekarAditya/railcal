@@ -20,6 +20,7 @@ import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowanc
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
+import Trip from "../trip/Trip";
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
@@ -224,9 +225,34 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   deleteDuty = (dutyId: number) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.filter((duty) => duty.id !== dutyId),
-    }));
+    this.setState((prevState) => {
+      const updatedDuties = prevState.duties.filter((duty) => duty.id !== dutyId);
+
+      // If all the duties are deleted, there should be a default duty present.
+  
+      if (updatedDuties.length === 0) {
+        const newTrip: Trip = {
+          id: 1,
+          date: "",
+          typeOfWork: "",
+          arrivalTime: "",
+          departureTime: "",
+          timeDifference: 0,
+          sourceStation: "",
+          destinationStation: "",
+          distance: 0,
+          allowance: 0,
+          remarks: "",
+          trainNumber: "",
+          dutyHours: "",
+        };
+  
+        const newDuty = new Duty(1, [newTrip]);
+        return { duties: [newDuty] };
+      }
+  
+      return { duties: updatedDuties };
+    });
   };
 
   setTotalLeaves = (newTotalLeaves: number) => {
