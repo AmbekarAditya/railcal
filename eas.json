@@ -7,9 +7,16 @@
         "buildType": "apk"
       },
       "env": {
-        "GOOGLE_SERVICES_JSON": "google-services.json"
+        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON"
       }
     },
-    "production": {}
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "GOOGLE_SERVICES_JSON": "@GOOGLE_SERVICES_JSON"
+      }
+    }
   }
 }
