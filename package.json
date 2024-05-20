@@ -9,7 +9,13 @@
     "ts:check": "tsc",
     "postinstall": "patch-package",
     "predeploy": "expo export:web",
-    "deploy-hosting": "npm run predeploy && firebase deploy --only hosting"
+    "deploy-hosting": "npm run predeploy && firebase deploy --only hosting",
+    "eas:build:dev": "eas build --platform all --profile development",
+    "eas:build:prod": "eas build --platform all --profile production",
+    "eas:build:android:dev": "eas build --platform android --profile development",
+    "eas:build:android:prod": "eas build --platform android --profile production",
+    "eas:build:ios:dev": "eas build --platform ios --profile development",
+    "eas:build:ios:prod": "eas build --platform ios --profile production"
   },
   "dependencies": {
     "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
