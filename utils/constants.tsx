@@ -10,6 +10,7 @@ export const designations = [
     label: "Locopilot Shunting ( Grade I )",
     value: "Locopilot Shunting ( Grade I )",
   },
+ 
   {
     label: "Locopilot Shunting ( Grade II )",
     value: "Locopilot Shunting ( Grade II )",
@@ -442,6 +443,10 @@ export const pickerItems = [
   {
     label: "Periodic rest",
     value: "Periodic rest",
+  },
+  {
+    label:"Light Engine/Multi",
+    value:"Light Engine/Multi"
   },
   {
     label: "Paid leave",

@@ -41,15 +41,23 @@ class Duty {
   }
 
   calculateTotalAllowance() {
-    let totalAllowanceforDuty = this.trips.reduce((total, trip) => total + trip.allowance, 0);
-    if (totalAllowanceforDuty<=120)
-    {
-      totalAllowanceforDuty=120;
+    let totalAllowanceforDuty = 0;
+  
+    // Calculate the total allowance for non-leave trips
+    const nonLeaveTripAllowances = this.trips
+      .filter(trip => !["Paid leave", "Sick leave", "Casual leave"].includes(trip.typeOfWork))
+      .map(trip => trip.allowance);
+  
+    totalAllowanceforDuty = nonLeaveTripAllowances.reduce((total, allowance) => total + allowance, 0);
+  
+    // Apply the minimum allowance of 120 only for non-leave trips
+    if (totalAllowanceforDuty > 0 && totalAllowanceforDuty <= 120) {
+      totalAllowanceforDuty = 120;
     }
+  
     this.dutyAllowance = totalAllowanceforDuty;
     return totalAllowanceforDuty;
   }
-
   calculateTotalDistance() {
     const totalDistance = this.trips.reduce((acc, trip) => acc + (trip.distance || 0), 0);
     return totalDistance;

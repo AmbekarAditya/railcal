@@ -14,6 +14,7 @@ interface CaseParameter {
       { max: 200, factor: 1.3, remark: "+30%" },
       { max: Infinity, factor: 1.4, remark: "+40%" }
     ],
+    "Light Engine/Multi": { factor: 1, remark: "cosidered actual value" },
     "Sick leave": { factor: 1, remark: "+7H 25M" },
     "Casual leave": { factor: 1, remark: "+7H 25M" },
     "Paid leave": { factor: 1, remark: "+7H 25M" },
@@ -31,7 +32,7 @@ interface CaseParameter {
   // TypeScript function to calculate allowance and remarks
   function calculateAllowanceAndRemarks(distance: number, typeOfWork: string, timeInMinutes: number): { allowance: number, remarks: string } {
     const params = caseParameters[typeOfWork] || caseParameters["default"];
-    
+  
     if (Array.isArray(params)) {
       for (const param of params) {
         if (distance <= param.max!) {
@@ -43,14 +44,17 @@ interface CaseParameter {
       }
     } else {
       let allowance: number;
-      if (typeOfWork === "Material Train") {
-        allowance = distance * 0.33; // Adjusted calculation for "Material Train"
+      if (params.isTimeBased) {
+        // Calculate distance based on time for time-based cases
+        const timeBasedConstant = getTimeBasedConstant(typeOfWork);
+        const distance = timeInMinutes / 60 * timeBasedConstant;
+        allowance = Math.round(distance);
       } else {
-        allowance = params.factor 
-                    ? (params.isTimeBased ? timeInMinutes * params.factor : distance * params.factor)
-                    : 0;
+        allowance = params.factor
+          ? distance * params.factor
+          : 0;
       }
-    
+  
       return {
         allowance: Math.round(allowance),
         remarks: params.remark
@@ -59,5 +63,24 @@ interface CaseParameter {
     return { allowance: 0, remarks: "Invalid typeOfWork or distance" }; // Fallback in case no conditions are met
   }
   
+  // Helper function to get the time-based constant for the given typeOfWork
+  function getTimeBasedConstant(typeOfWork: string): number {
+    switch (typeOfWork) {
+      case "Shunting":
+        return 15;
+      case "Light Engine on Mechanical Account":
+        return 20;
+      case "Breakdown Specials":
+        return 25;
+      case "Crane Specials":
+        return 20;
+      case "Material Train":
+        return 0; // Special case for Material Train
+      case "Medical Relief Trains":
+        return 25;
+      default:
+        return 0;
+    }
+  }
   export default calculateAllowanceAndRemarks;
   
