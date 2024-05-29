@@ -7,16 +7,16 @@ interface DutyInfoProps {
 }
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
-  const totalDistance = 0||duty.calculateTotalDistance();
+  const totalDistance = 0 || duty.calculateTotalDistance();
   const formatHoursToHHMM = (hours: number) => {
     const wholeHours = Math.floor(hours);
     const decimalHours = hours - wholeHours;
     const minutes = Math.round(decimalHours * 60);
-    return `${wholeHours.toString().padStart(2, '0')}:${minutes
+    return `${wholeHours.toString().padStart(2, "0")}:${minutes
       .toString()
-      .padStart(2, '0')}`;
+      .padStart(2, "0")}`;
   };
-  
+
   return (
     <View style={styles.main}>
       <View style={styles.dutyInfoContainer}>
@@ -25,46 +25,63 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign In</Text>
               <Text style={styles.value}>
-                {duty.signIn ? duty.signIn.toLocaleString() : "-"}
+                {duty.signIn
+                  ? duty.signIn.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
               </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign Off</Text>
+
               <Text style={styles.value}>
-                {duty.signOff ? duty.signOff.toLocaleString() : "-"}
+                {duty.signOff
+                  ? duty.signOff.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "-"}
               </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Total Km Earned:</Text>
               <Text style={styles.value}>
-                 {duty.calculateTotalAllowance().toFixed(2)}km
+                {duty.calculateTotalAllowance().toFixed(2)}km
               </Text>
             </View>
 
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Total Distance:</Text>
-<Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
+              <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Duty Hours</Text>
               <Text style={styles.value}>
-              {formatHoursToHHMM(duty.dutyHours)}
-            </Text>
+                {formatHoursToHHMM(duty.dutyHours)}
+              </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Night Duty Hours :</Text>
               <Text style={styles.value}>
-              {formatHoursToHHMM(duty.nightDutyHours)}
-            </Text>
+                {formatHoursToHHMM(duty.nightDutyHours)}
+              </Text>
             </View>
           </View>
           <View style={styles.infoRow}>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Progressive Duty Hours</Text>
               <Text style={styles.value}>
-              {formatHoursToHHMM(duty.progressiveDutyHours)}
-            </Text>
+                {formatHoursToHHMM(duty.progressiveDutyHours)}
+              </Text>
             </View>
+            <View style={styles.infoRow}>
+            <View style={styles.infoBlock}>
+        <Text style={styles.label}>Progressive Night Duty Hours:</Text>
+        <Text style={styles.value}>  {formatHoursToHHMM(duty.progressiveNightDutyHours)}</Text>
+      </View>
+      </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>OSDA</Text>
               <Text style={styles.value}>{duty.isOSDA ? "Yes" : "No"}</Text>

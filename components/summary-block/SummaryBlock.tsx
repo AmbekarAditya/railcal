@@ -67,10 +67,16 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
       .toString()
       .padStart(2, '0')}`;
   };
-
   const formatOvertimeDuration = (hours: number, minutes: number) => {
-    const formattedHours = hours.toString().padStart(2, '0');
-    const formattedMinutes = minutes.toString().padStart(2, '0');
+    const totalMinutes = hours * 60 + minutes;
+    const formattedHours = Math.floor(totalMinutes / 60)
+      .toString()
+      .padStart(2, '0');
+    const remainingMinutes = totalMinutes % 60;
+    const formattedMinutes = remainingMinutes
+      .toFixed(2)
+      .padStart(4, '0')
+      .slice(0, 2);
     return `${formattedHours}:${formattedMinutes}`;
   };
   return (

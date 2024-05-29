@@ -267,11 +267,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         startDate = new Date(firstTripDate);
       }
     }
-
-    const overtimeResult = this.calculateOvertimeResult(
-      updatedDuties,
-      startDate
-    );
+  
+    const overtimeResult = this.calculateOvertimeResult(updatedDuties, startDate);
+  
+    // Calculate progressive night duty hours
+    updatedDuties.forEach((duty, index) => {
+      const progressiveNightDutyHours = duty.calculateProgressiveNightDutyHours(index, updatedDuties);
+    });
+  
     this.setState({ duties: updatedDuties, overtimeResult });
   };
 

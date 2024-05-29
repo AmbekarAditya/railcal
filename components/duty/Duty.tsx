@@ -12,6 +12,7 @@ class Duty {
   dutyAllowance: number;
   dutyDistance: number;
   progressiveDutyHours:number;
+  progressiveNightDutyHours: number;
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -25,6 +26,7 @@ class Duty {
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
     this.progressiveDutyHours=0;
+    this.progressiveNightDutyHours=0;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {
@@ -75,7 +77,18 @@ class Duty {
   
     return this.progressiveDutyHours;
   }
-  
+  calculateProgressiveNightDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
+    if (dutyIndex === 0) {
+      // For the first duty, the progressiveNightDutyHours is the same as nightDutyHours
+      this.progressiveNightDutyHours = this.nightDutyHours;
+    } else {
+      // Calculate the progressive night duty hours based on the previous duty's progressiveNightDutyHours
+      const previousDuty = totalDuties[dutyIndex - 1];
+      this.progressiveNightDutyHours = previousDuty.progressiveNightDutyHours + this.nightDutyHours;
+    }
+
+    return this.progressiveNightDutyHours;
+  }
   updateDutyHoursForLeaveTypes(typeOfWork: string) {
     const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
 
