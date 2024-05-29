@@ -23,6 +23,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     textAlign: 'center',
   },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  serialNumber: {
+    color: 'grey',
+  },
   headerDate:
   { 
     fontWeight: 'bold',

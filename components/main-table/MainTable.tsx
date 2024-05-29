@@ -368,6 +368,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 deleteTrip={this.deleteTrip}
                 setTotalLeaves={this.setTotalLeaves}
                 deleteDuty={this.deleteDuty}
+                
               />
             )}
           />

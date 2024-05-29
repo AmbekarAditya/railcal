@@ -112,7 +112,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.timePickerContainer}>
-        <Text style={styles.label}>Arrival Time:</Text>
+        <Text style={styles.label}>Departure Time:</Text>
         <View style={styles.timePickerWrapper}>
           {Platform.OS === "web" ? (
             <TimePicker disabled={disabled} onTimeChange={handleArrivalTimeChange} />
@@ -137,7 +137,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
         </View>
       </View>
       <View style={styles.timePickerContainer}>
-        <Text style={styles.label}>Departure Time:</Text>
+        <Text style={styles.label}>Arrival Time:</Text>
         <View style={styles.timePickerWrapper}>
           {Platform.OS === "web" ? (
             <TimePicker disabled={disabled} onTimeChange={handleDepartureTimeChange} />

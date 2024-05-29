@@ -8,6 +8,15 @@ interface DutyInfoProps {
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
   const totalDistance = 0||duty.calculateTotalDistance();
+  const formatHoursToHHMM = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const decimalHours = hours - wholeHours;
+    const minutes = Math.round(decimalHours * 60);
+    return `${wholeHours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
+  };
+  
   return (
     <View style={styles.main}>
       <View style={styles.dutyInfoContainer}>
@@ -26,9 +35,9 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
               </Text>
             </View>
             <View style={styles.infoBlock}>
-              <Text style={styles.label}>Total Allowance:</Text>
+              <Text style={styles.label}>Total Km Earned:</Text>
               <Text style={styles.value}>
-                ₹ {duty.calculateTotalAllowance().toFixed(2)}
+                 {duty.calculateTotalAllowance().toFixed(2)}km
               </Text>
             </View>
 
@@ -38,21 +47,23 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Duty Hours</Text>
-              <Text style={styles.value}>{duty.dutyHours.toFixed(2)} H</Text>
+              <Text style={styles.value}>
+              {formatHoursToHHMM(duty.dutyHours)}
+            </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Night Duty Hours :</Text>
               <Text style={styles.value}>
-                {duty.nightDutyHours.toFixed(2)} H
-              </Text>
+              {formatHoursToHHMM(duty.nightDutyHours)}
+            </Text>
             </View>
           </View>
           <View style={styles.infoRow}>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Progressive Duty Hours</Text>
               <Text style={styles.value}>
-                {duty.progressiveDutyHours.toFixed(2)} H
-              </Text>
+              {formatHoursToHHMM(duty.progressiveDutyHours)}
+            </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>OSDA</Text>

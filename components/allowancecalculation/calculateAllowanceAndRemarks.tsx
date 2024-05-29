@@ -14,9 +14,9 @@ interface CaseParameter {
       { max: 200, factor: 1.3, remark: "+30%" },
       { max: Infinity, factor: 1.4, remark: "+40%" }
     ],
-    "Sick leave": { factor: 1, remark: "+7 hours 25 minutes" },
-    "Casual leave": { factor: 1, remark: "+7 hours 25 minutes" },
-    "Paid leave": { factor: 1, remark: "+7 hours 25 minutes" },
+    "Sick leave": { factor: 1, remark: "+7H 25M" },
+    "Casual leave": { factor: 1, remark: "+7H 25M" },
+    "Paid leave": { factor: 1, remark: "+7H 25M" },
     "Spare": { factor: 0.5, remark: "1/2" },
     "Ghat": { factor: 5, remark: "*5" },
     "Shunting": { factor: 0.25, remark: "+1 Hour : 15km", isTimeBased: true },

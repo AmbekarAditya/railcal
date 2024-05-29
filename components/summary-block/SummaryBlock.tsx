@@ -58,6 +58,21 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     return date.toLocaleDateString();
   };
 
+  // Helper function to convert decimal hours to HH:MM format
+  const formatHoursToHHMM = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const decimalHours = hours - wholeHours;
+    const minutes = Math.round(decimalHours * 60);
+    return `${wholeHours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}`;
+  };
+
+  const formatOvertimeDuration = (hours: number, minutes: number) => {
+    const formattedHours = hours.toString().padStart(2, '0');
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+    return `${formattedHours}:${formattedMinutes}`;
+  };
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -71,7 +86,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Hours Worked</Text>
             <Text style={styles.value}>
-              {formatNumber(progressiveDutyHours)}H
+              {formatHoursToHHMM(progressiveDutyHours)}
             </Text>
           </View>
           <View style={styles.infoContainer}>
@@ -85,6 +100,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Mileage:</Text>
             <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
+            <Text style={styles.label}>multiplier*km </Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Night Duty:</Text>
@@ -118,8 +134,10 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
                 <View style={styles.overtimeInfo}>
                   <Text style={styles.label}>First Fortnight</Text>
                   <Text style={styles.value}>
-                    {overtimeResult.firstFortnight.overtimeHours}H{" "}
-                    {formatNumber(overtimeResult.firstFortnight.overtimeMinutes)}M
+                  {formatOvertimeDuration(
+                      overtimeResult.firstFortnight.overtimeHours,
+                      overtimeResult.firstFortnight.overtimeMinutes
+                    )}
                   </Text>
                   <Text style={styles.overtimeUnit}>
                     ({overtimeResult.firstFortnight.overtimeUnit})
@@ -142,8 +160,11 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
                 <View style={styles.overtimeInfo}>
                   <Text style={styles.label}>Second Fortnight</Text>
                   <Text style={styles.value}>
-                    {overtimeResult.secondFortnight.overtimeHours}H{" "}
-                    {formatNumber(overtimeResult.secondFortnight.overtimeMinutes)}M
+                  {formatOvertimeDuration(
+                      overtimeResult.secondFortnight.overtimeHours,
+                      overtimeResult.secondFortnight.overtimeMinutes
+                    )}
+
                   </Text>
                   <Text style={styles.overtimeUnit}>
                     ({overtimeResult.secondFortnight.overtimeUnit})

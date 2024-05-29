@@ -164,6 +164,10 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.serialNumber}>{duty.id}</Text> {/* Display serial number */}
+      
+      </View>
       {/*       
       <View style={styles.headerRow}>
         <Text style={styles.headerDate}>Date</Text>
@@ -235,12 +239,20 @@ const DutyRow: React.FC<DutyRowProps> = ({
               disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </View>
+          <View style={{margin:20}}>
           <Text style={styles.durationText}>{trip.dutyHours}</Text>
+          <Text style={styles.durationText}>duration</Text>
+          </View>
+          <View style={{margin:20}}>
           <Text style={styles.allowanceText}>
-            {trip.allowance === 1 ? 0 : trip.allowance}₹
+            {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
           </Text>
-
+          <Text>km earned</Text>
+          </View>
+          <View style={{margin:20}}>
           <Text style={styles.remarksText}>{trip.remarks}</Text>
+          <Text style={styles.remarksText}>remarks</Text>
+          </View>
           <View style={styles.actionsContainer}>
             <TouchableOpacity
               onPress={() => deleteTrip(duty.id, trip.id)}
