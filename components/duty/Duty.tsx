@@ -39,6 +39,7 @@ class Duty {
     if (this.signIn && this.signOff) {
       this.dutyHours = this.calculateDutyHours();
       this.nightDutyHours = this.calculateNightDutyHours();
+      this.progressiveNightDutyHours += this.nightDutyHours;
     }
   }
 

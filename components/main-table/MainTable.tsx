@@ -171,7 +171,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   }));
                 }
               }
+              
               duty.updateTrip(tripId, updatedTrip);
+              
             }
           }
           return duty;
@@ -273,7 +275,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   
     // Calculate progressive night duty hours
     updatedDuties.forEach((duty, index) => {
-      const progressiveNightDutyHours = duty.calculateProgressiveNightDutyHours(index, updatedDuties);
+
+       duty.calculateProgressiveNightDutyHours(index, updatedDuties);
     });
   
     this.setState({ duties: updatedDuties, overtimeResult });
