@@ -160,11 +160,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               if (field === "typeOfWork") {
                 const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
                 const isLeave = leaveTypes.includes(value as string);
-                if (isLeave) {
+                const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
+                if (isLeave && !wasLeave) {
                   this.setState((prevState) => ({
                     totalLeaves: prevState.totalLeaves + 1,
                   }));
-                } else {
+                } else if (!isLeave && wasLeave) {
                   this.setState((prevState) => ({
                     totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
                   }));

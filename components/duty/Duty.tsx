@@ -77,6 +77,7 @@ class Duty {
   
     return this.progressiveDutyHours;
   }
+
   calculateProgressiveNightDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
     if (dutyIndex === 0) {
       // For the first duty, the progressiveNightDutyHours is the same as nightDutyHours
@@ -88,7 +89,8 @@ class Duty {
     }
 
     return this.progressiveNightDutyHours;
-  }
+}
+
   updateDutyHoursForLeaveTypes(typeOfWork: string) {
     const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
 

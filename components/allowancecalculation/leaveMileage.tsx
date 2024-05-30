@@ -28,7 +28,8 @@ interface CalculateLeaveMileageParams {
     if (daysInMonth === 0) {
       throw new Error("daysInMonth cannot be zero");
     }
-  
+    
+    console.log(totalLeaves);
     const lmc = (0.3 * rateOfPay) / daysInMonth;
     const lma = lmc * totalLeaves;
   
