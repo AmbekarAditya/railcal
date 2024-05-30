@@ -33,9 +33,9 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
 
   onContinuePress = () => {
     const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
-    // if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
-    //   this.setState({ showWarning: true });
-    // } else {
+    if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
+      this.setState({ showWarning: true });
+    } else {
       const selectedDesignation = designations.find((item) => item.label === designation);
   const designationValue = selectedDesignation ? selectedDesignation.value : '';
 
@@ -48,7 +48,7 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
         rateOfPay: rateOfPay,
         selectedMonth: selectedMonth,
       });
-    // }
+    }
     
   };
 
@@ -109,7 +109,7 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
           </View>
           {showWarning && (
             <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>
-              Select all values to proceed!
+             Enter Employee Information
             </Text>
           )}
           <TouchableOpacity

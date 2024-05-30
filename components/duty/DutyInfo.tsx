@@ -25,24 +25,30 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign In</Text>
               <Text style={styles.value}>
-                {duty.signIn
-                  ? duty.signIn.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
+              {duty.signIn
+                  ? duty.signIn.toLocaleString('en-NZ', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })
-                  : "-"}
+                  : '-'}
               </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign Off</Text>
 
               <Text style={styles.value}>
-                {duty.signOff
-                  ? duty.signOff.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
+              {duty.signOff
+                  ? duty.signOff.toLocaleString('en-NZ', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
                     })
-                  : "-"}
+                  : '-'}
               </Text>
             </View>
             <View style={styles.infoBlock}>
