@@ -33,11 +33,12 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     return `${hours}h ${minutes}m`;
   };
 
+
   const getTimeDifference = (arrivalTime: Date, departureTime: Date): number => {
     if (!arrivalTime || !departureTime) {
       return 0;
     }
-
+  
     // Check if arrival and departure times are equal
     if (arrivalTime.getTime() === departureTime.getTime()) {
       // Special case: both times are at midnight
@@ -46,7 +47,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       }
       return 0;
     }
-
+  
     if (
       arrivalTime.getHours() === 0 &&
       arrivalTime.getMinutes() === 0 &&
@@ -55,22 +56,15 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     ) {
       return 24 * 60;
     }
-
-    let adjustedDepartureTime = departureTime;
-    if (
-      departureTime <= arrivalTime &&
-      !(arrivalTime.getHours() === 0 && arrivalTime.getMinutes() === 0)
-    ) {
-      adjustedDepartureTime = new Date(
-        departureTime.getTime() + 24 * 60 * 60 * 1000
-      );
-    }
-
-    return Math.round(
-      (adjustedDepartureTime.getTime() - arrivalTime.getTime()) / 60000
+  
+    const timeDiff = Math.round(
+      (departureTime.getTime() - arrivalTime.getTime()) / 60000
     );
+  
+    // Return 0 if the time difference is negative
+    return timeDiff >= 0 ? timeDiff : 0;
   };
-
+  
   const handleArrivalTimeChange = (hour: string, minute: string) => {
     setArrivalTime(`${hour}:${minute}`);
   };

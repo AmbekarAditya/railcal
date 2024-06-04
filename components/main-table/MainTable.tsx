@@ -429,6 +429,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           </View>
         </View>
         {duties.length > 0 && duties[0].trips.length > 0 && (
+          <ScrollView>
           <SummaryBlock
             totalAllowance={this.calculateTotalAllowance()}
             totalKilometers={totalKilometers}
@@ -445,6 +446,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             daysInMonth={daysInMonth}
             overtimeResult={overtimeResult}
           />
+          </ScrollView>
         )}
         <Modal
           isOpen={showModal}
@@ -479,8 +481,15 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 16,
   },
+  summaryBlockContainer: {
+    height: "15%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
+  },
   tableContainer: {
-    maxHeight: "80%",
+    maxHeight: "70%",
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: 8,

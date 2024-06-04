@@ -134,15 +134,19 @@ const styles = StyleSheet.create({
   },
   durationText: {
     flex: 1.5,
+    fontWeight: "bold",
     textAlign: "center",
     marginHorizontal: 8,
+
   },
   allowanceText: {
     flex: 1.5,
+    fontWeight: "bold",
     textAlign: "center",
     marginHorizontal: 8,
   },
   remarksText: {
+    fontWeight: "bold",
     flex: 2,
     marginHorizontal: 8,
   },

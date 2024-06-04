@@ -48,10 +48,14 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
     const signInDateTime = new Date(dutyStartDate.getFullYear(), dutyStartDate.getMonth(), dutyStartDate.getDate(), dutyStartTime.getHours(), dutyStartTime.getMinutes());
     const signOffDateTime = new Date(dutyEndDate.getFullYear(), dutyEndDate.getMonth(), dutyEndDate.getDate(), dutyEndTime.getHours(), dutyEndTime.getMinutes());
 
+    const timeDiff = Math.round((signOffDateTime.getTime() - signInDateTime.getTime()) / 60000);
+    const dutyHours = Math.max(timeDiff, 0); // Ensure duty hours is not negative
+
     const updatedDuty = new Duty(duty.id, duty.trips);
     updatedDuty.setSignInAndSignOff(signInDateTime, signOffDateTime);
     updatedDuty.isOSDA = isOSDAApplicable;
     updatedDuty.isRRA = isRRAApplicable;
+    updatedDuty.dutyHours = dutyHours;
 
     updateDutyDetails(updatedDuty);
   };
