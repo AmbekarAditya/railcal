@@ -317,6 +317,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       totalLeaves,
     });
 
+    
     // Calculate total kilometers from duties
     let totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
@@ -354,6 +355,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
     const lastDuty = duties[duties.length - 1];
     const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
+    const grandTotalAllowance =
+    (nightDutyAllowance || 0) +
+    (lma || 0) +
+    (osdaAllowance || 0);
 
     return (
       <ScrollView
@@ -407,6 +412,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 progressiveDutyHours={progressiveDutyHours}
                 rraOsda={osdaAllowance}
                 overtimeResult={overtimeResult}
+                grandTotalAllowance={grandTotalAllowance}
               />
             )}
             {Platform.OS !== "web" && (
@@ -444,6 +450,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             endDate={""}
             rraOsda={osdaAllowance}
             daysInMonth={daysInMonth}
+            grandTotalAllowance = {grandTotalAllowance}
             overtimeResult={overtimeResult}
           />
           </ScrollView>

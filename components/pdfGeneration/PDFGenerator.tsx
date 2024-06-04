@@ -25,6 +25,7 @@ interface PDFGeneratorProps {
   startDate: string;
   progressiveDutyHours: number;
   endDate: string;
+  grandTotalAllowance:number;
   daysInMonth: number;
   overtimeResult: OverTimeCalculationResult | null;
 }
@@ -42,6 +43,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   nationalHolidayAllowance,
   leaveMileageAllowance,
   overTimeAllowance,
+  grandTotalAllowance,
   dearnessAllowance,
   startDate,
   progressiveDutyHours,
@@ -215,23 +217,23 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           "Date",
           "Type of Work",
           "Train No.",
-          "Dep. Time",
-          "Arr. Time",
           "Source",
           "Dest.",
+          "Dep. Time",
+          "Arr. Time",
           "Distance",
           "Duty Hours",
-          "Allowance",
+          "km earned",
           "Remarks",
         ],
         ...duty.trips.map((trip) => [
           trip.date,
           trip.typeOfWork,
           trip.trainNumber,
-          trip.departureTime,
-          trip.arrivalTime,
           trip.sourceStation,
           trip.destinationStation,
+          trip.arrivalTime,
+          trip.departureTime,
           trip.distance.toString(),
           trip.dutyHours,
           trip.allowance.toString(),
@@ -257,23 +259,39 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
             colSpan: 1,
           },
           {
-            content: duty.signIn ? duty.signIn.toLocaleString() : "-",
-            colSpan: 1,
+            content: duty.signIn
+            ? new Date(duty.signIn).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "-",
+          colSpan: 1,
           },
           {
             content: "Sign Off",
             colSpan: 1,
           },
           {
-            content: duty.signOff ? duty.signOff.toLocaleString() : "-",
+            content: duty.signOff
+            ? new Date(duty.signOff).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "-",
+          colSpan: 1,
+          },
+          {
+            content: "KM earned:",
             colSpan: 1,
           },
           {
-            content: "Total Allowance:",
-            colSpan: 1,
-          },
-          {
-            content: `₹ ${duty.calculateTotalAllowance().toFixed(2)}`,
+            content: `Rs. ${duty.calculateTotalAllowance().toFixed(2)}`,
             colSpan: 1,
           },
           {
@@ -341,96 +359,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
     });
 
     // Add summary block data and overtime result
-    const summaryBlockData = [
-      [
-        {
-          content: "Total Kilometers:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: totalKilometers ? `${totalKilometers.toFixed(2)}` : "-",
-          colSpan: 1,
-        },
-      ],
-      [
-        { content: "Mileage:", colSpan: 1, styles: { fontStyle: "bold" } },
-        { content: mileage ? `₹ ${mileage.toFixed(2)}` : "-", colSpan: 1 },
-      ],
-      [
-        {
-          content: "Night Duty Allowance:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: nightDutyAllowance
-            ? `₹ ${nightDutyAllowance.toFixed(2)}`
-            : "-",
-          colSpan: 1,
-        },
-      ],
 
-      [
-        {
-          content: "Leave Mileage Allowance:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: leaveMileageAllowance
-            ? `₹ ${leaveMileageAllowance.toFixed(2)}`
-            : "-",
-          colSpan: 1,
-        },
-      ],
-      [
-        {
-          content: "Dearness Allowance:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: dearnessAllowance
-            ? `₹ ${dearnessAllowance.toFixed(2)}`
-            : "-",
-          colSpan: 1,
-        },
-      ],
-      [
-        {
-          content: "Progressive Duty Hours:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: progressiveDutyHours
-            ? `${progressiveDutyHours.toFixed(2)} H`
-            : "-",
-          colSpan: 1,
-        },
-      ],
-    ];
-
-    doc.autoTable({
-      head: [
-        [
-          {
-            content: "Summary Block",
-            colSpan: 2,
-            styles: {
-              fontStyle: "bold",
-              fillColor: [200, 230, 245],
-              textColor: [0, 0, 0],
-            },
-          },
-        ],
-      ],
-      body: summaryBlockData,
-      theme: "grid",
-      styles: { fontSize: 8 },
-      startY: currentYPosition, // Start the table at the current y position
-    });
 
     currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
 
@@ -533,7 +462,114 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
         styles: { fontSize: 8 },
         startY: currentYPosition, // Start the table at the current y position
       });
+    
+      currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
     }
+
+    const summaryBlockData = [
+      [
+        {
+          content: "Total Kilometers:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: totalKilometers ? `${totalKilometers.toFixed(2)}` : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        { content: "Mileage:", colSpan: 1, styles: { fontStyle: "bold" } },
+        { content: mileage ? `Rs. ${mileage.toFixed(2)}` : "-", colSpan: 1 },
+      ],
+      [
+        {
+          content: "Night Duty Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: nightDutyAllowance
+            ? `Rs. ${nightDutyAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+
+      [
+        {
+          content: "Leave Mileage Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: leaveMileageAllowance
+            ? `Rs. ${leaveMileageAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "Dearness Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: dearnessAllowance
+            ? `Rs. ${dearnessAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "Progressive Duty Hours:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: progressiveDutyHours
+            ? `${progressiveDutyHours.toFixed(2)} H`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "Grand Total Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: grandTotalAllowance
+            ? `Rs. ${grandTotalAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+    ];
+
+    doc.autoTable({
+      head: [
+        [
+          {
+            content: "Summary Block",
+            colSpan: 2,
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 230, 245],
+              textColor: [0, 0, 0],
+            },
+          },
+        ],
+      ],
+      body: summaryBlockData,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      startY: currentYPosition, // Start the table at the current y position
+    });
+
     doc.save("duty-report.pdf");
   };
   return (

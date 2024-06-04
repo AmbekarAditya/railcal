@@ -31,6 +31,7 @@ interface SummaryBlockProps {
   endDate: string;
   dearnessAllowance: number;
   progressiveDutyHours: number;
+  grandTotalAllowance : number | undefined;
   overtimeResult: OvertimeCalculationResult | null;
 }
 
@@ -47,6 +48,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   endDate,
   progressiveDutyHours,
   dearnessAllowance,
+  grandTotalAllowance,
   overtimeResult,
 }) => {
   const formatNumber = (value: number | undefined) => {
@@ -58,10 +60,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     return date.toLocaleDateString();
   };
 
-  const grandTotalAllowance =
-    (nightDutyAllowance || 0) +
-    (leaveMileageAllowance || 0) +
-    (rraOsda || 0);
+
 
   // Helper function to convert decimal hours to HH:MM format
   const formatHoursToHHMM = (hours: number) => {
