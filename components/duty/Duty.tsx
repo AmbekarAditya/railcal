@@ -121,10 +121,15 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     if (this.signIn && this.signOff) {
       const timeDiff = Math.abs(this.signOff.getTime() - this.signIn.getTime());
       const totalMinutes = Math.floor(timeDiff / (1000 * 60));
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      const fractionalHours = minutes / 60;
-      return parseFloat((hours + fractionalHours).toFixed(2));
+  
+      if (totalMinutes < 60) {
+        return totalMinutes / 60;
+      } else {
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const fractionalHours = minutes / 60;
+        return hours + fractionalHours;
+      }
     }
     return 0;
   }
