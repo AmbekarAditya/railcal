@@ -8,13 +8,12 @@ interface DutyInfoProps {
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
   const totalDistance = 0 || duty.calculateTotalDistance();
+ 
   const formatHoursToHHMM = (hours: number) => {
     const wholeHours = Math.floor(hours);
     const decimalHours = hours - wholeHours;
     const minutes = Math.round(decimalHours * 60);
-    return `${wholeHours.toString().padStart(2, "0")}:${minutes
-      .toString()
-      .padStart(2, "0")}`;
+    return `${wholeHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
   return (
