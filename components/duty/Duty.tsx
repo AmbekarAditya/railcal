@@ -92,20 +92,24 @@ class Duty {
     return this.progressiveNightDutyHours;
 }
 
-  updateDutyHoursForLeaveTypes(typeOfWork: string) {
-    const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+updateDutyHoursForLeaveTypes(typeOfWork: string) {
+  const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+  const endedTypes = ["Periodic rest", "Waiting for duty"];
 
-    if (leaveTypes.includes(typeOfWork)) {
-      this.dutyHours = 7.41;
-      this.dutyAllowance = 0;
-      this.dutyDistance = 0;
-    } else {
-      this.dutyHours = this.calculateDutyHours();
-      this.dutyAllowance = this.calculateTotalAllowance();
-      this.dutyDistance = this.calculateTotalDistance();
-    }
+  if (leaveTypes.includes(typeOfWork)) {
+    this.dutyHours = 7.41; // 7 hours and 25 minutes
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
+  } else if (endedTypes.includes(typeOfWork)) {
+    this.dutyHours = 0; // Set dutyHours to 0 for "Periodic Rest" and "Waiting for duty"
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
+  } else {
+    this.dutyHours = this.calculateDutyHours();
+    this.dutyAllowance = this.calculateTotalAllowance();
+    this.dutyDistance = this.calculateTotalDistance();
   }
-
+}
   updateTrip(tripId: number, updatedTrip: Trip) {
     const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
     if (tripIndex !== -1) {
@@ -115,14 +119,16 @@ class Duty {
 
   private calculateDutyHours(): number {
     if (this.signIn && this.signOff) {
-      const timeDiff = this.signOff.getTime() - this.signIn.getTime();
-      const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-      return hours + minutes / 60;
+      const timeDiff = Math.abs(this.signOff.getTime() - this.signIn.getTime());
+      const totalMinutes = Math.floor(timeDiff / (1000 * 60));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const fractionalHours = minutes / 60;
+      return parseFloat((hours + fractionalHours).toFixed(2));
     }
     return 0;
   }
-
+  
   private calculateNightDutyHours(): number {
     if (this.signIn && this.signOff) {
       const NIGHT_START_HOUR = 22; // 10 PM
