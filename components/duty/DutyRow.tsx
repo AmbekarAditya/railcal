@@ -66,6 +66,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
       updatedTrip.arrivalTime,
       updatedTrip.departureTime
     );
+    
     const { allowance, remarks } = calculateAllowanceAndRemarks(
       updatedTrip.distance,
       updatedTrip.typeOfWork,
@@ -86,6 +87,13 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
     const arrival = new Date(`1970-01-01T${arrivalTime}`);
     const departure = new Date(`1970-01-01T${departureTime}`);
+
+      // Check if arrival time is less than departure time
+    if (arrival.getTime() > departure.getTime()) {
+      // Increment the arrival date by one day
+      departure.setDate(departure.getDate() + 1);
+    }
+
     const dutyHoursInMinutes =
       (departure.getTime() - arrival.getTime()) / (1000 * 60);
 

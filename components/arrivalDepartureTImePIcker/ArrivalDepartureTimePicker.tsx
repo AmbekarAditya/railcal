@@ -27,6 +27,13 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   const calculateTimeDifference = (arrival: string, departure: string) => {
     const arrivalDate = new Date(`2021/01/01 ${arrival}`);
     const departureDate = new Date(`2021/01/01 ${departure}`);
+
+    // Check if arrival time is less than departure time
+    if (arrivalDate.getTime() > departureDate.getTime()) {
+      // Increment the departure date by one day
+      departureDate.setDate(departureDate.getDate() + 1);
+    }
+
     const timeDiff = getTimeDifference(arrivalDate, departureDate);
     const hours = Math.floor(timeDiff / 60);
     const minutes = timeDiff % 60;
