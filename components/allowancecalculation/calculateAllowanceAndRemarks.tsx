@@ -24,7 +24,7 @@ const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
   "Light Engine on Mechanical Account": { factor: 0.33, remark: "+1hour : 20km", isTimeBased: true },
   "Breakdown Specials": { factor: 0.41, remark: "+1hour : 25km", isTimeBased: true },
   "Crane Specials": { factor: 0.33, remark: "+1hour : 20km", isTimeBased: true },
-  "Material Train": { factor: 0.33, remark: "+0.33", isTimeBased: true },
+  "Material Train": { factor: 1.0, remark: "+1hour : 20km", isTimeBased: true },
   "Medical Relief Trains": { factor: 0.41, remark: "+1hour : 25km", isTimeBased: true },
   "default": { factor: 1, remark: "default remarks" }
 };
@@ -76,7 +76,7 @@ function getTimeBasedConstant(typeOfWork: string, timeInMinutes: number): number
     case "Crane Specials":
       return 20;
     case "Material Train":
-      return 0; // Special case for Material Train
+      return 20; // Special case for Material Train
     case "Medical Relief Trains":
       return 25;
     default:
