@@ -21,7 +21,6 @@ import {
 } from "react-native";
 import styles from "../../styles_component/styles_dutyRow";
 
-
 const debounce = (func, delay) => {
   let timeoutId;
   return (...args) => {
@@ -53,8 +52,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteDuty,
   setTotalLeaves,
 }) => {
-
-
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
@@ -66,6 +63,35 @@ const DutyRow: React.FC<DutyRowProps> = ({
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value);
+  
+      // Check if the new type is a leave type and the previous type was not
+      if (shouldDisableInputFields(value) && !shouldDisableInputFields(trip.typeOfWork)) {
+        // Reset all values except date
+        const updatedTrip = {
+          ...trip,
+          [field]: value,
+          sourceStation: '',
+          destinationStation: '',
+          distance: 0,
+          trainNumber: '',
+          arrivalTime: '',
+          departureTime: '',
+          dutyHours: '',
+          allowance: 0,
+          remarks: '',
+        };
+        updateTripData(duty.id, tripId, field, value);
+        updateTripData(duty.id, tripId, 'sourceStation', '');
+        updateTripData(duty.id, tripId, 'destinationStation', '');
+        updateTripData(duty.id, tripId, 'distance', 0);
+        updateTripData(duty.id, tripId, 'trainNumber', '');
+        updateTripData(duty.id, tripId, 'arrivalTime', '');
+        updateTripData(duty.id, tripId, 'departureTime', '');
+        updateTripData(duty.id, tripId, 'dutyHours', '');
+        updateTripData(duty.id, tripId, 'allowance', 0);
+        updateTripData(duty.id, tripId, 'remarks', '');
+        return;
+      }
     }
   
     // Update the trip data
@@ -77,7 +103,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
       updatedTrip.arrivalTime,
       updatedTrip.departureTime
     );
-    
+  
     const { allowance, remarks } = calculateAllowanceAndRemarks(
       updatedTrip.distance,
       updatedTrip.typeOfWork,
@@ -87,7 +113,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(duty.id, tripId, "allowance", allowance);
     updateTripData(duty.id, tripId, "remarks", remarks);
   };
-
 
   const handleTimesChange = useCallback(
     debounce((tripId, arrivalTime, departureTime, dutyHours) => {
@@ -109,7 +134,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
     const arrival = new Date(`1970-01-01T${arrivalTime}`);
     const departure = new Date(`1970-01-01T${departureTime}`);
 
-      // Check if arrival time is less than departure time
+    // Check if arrival time is less than departure time
     if (arrival.getTime() > departure.getTime()) {
       // Increment the arrival date by one day
       departure.setDate(departure.getDate() + 1);
@@ -121,13 +146,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
     return dutyHoursInMinutes;
   };
 
-  const handleDateChange = (date) => {
-    // Assuming the date is a JavaScript Date object. If it's a string, it may need parsing first.
-    const formattedDate = format(date, "YYYY-MM-DD");
-
-    // Now use this formattedDate for further processing or state updating
-    handleTripDataChange(trip.id, "date", formattedDate);
-  };
   const handleStationChange = (
     dutyId: number,
     tripId: number,
@@ -166,24 +184,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
 
   useEffect(() => {
     duty.trips.forEach((trip) => {
-      if (trip.distance > 0 && trip.typeOfWork) {
-        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
-        const dutyHoursInMinutes = dutyHoursAsNumber * 60;
-  
-        const { allowance, remarks } = calculateAllowanceAndRemarks(
-          trip.distance,
-          trip.typeOfWork,
-          dutyHoursInMinutes
-        );
-  
-        updateTripData(duty.id, trip.id, "allowance", allowance);
-        updateTripData(duty.id, trip.id, "remarks", remarks);
-      }
-    });
-  }, [duty.trips, updateTripData, duty.id]);
-
-  useEffect(() => {
-    duty.trips.forEach((trip) => {
       const dutyHoursInMinutes = calculateDutyHoursFromTimes(
         trip.arrivalTime,
         trip.departureTime
@@ -214,23 +214,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.headerContainer}>
-        <Text style={styles.serialNumber}>{duty.id}</Text> {/* Display serial number */}
-      
+        <Text style={styles.serialNumber}>{duty.id}</Text>
       </View>
-      {/*       
-      <View style={styles.headerRow}>
-        <Text style={styles.headerDate}>Date</Text>
-        <Text style={styles.headertTypeofWork}>Duty Type</Text>
-        <Text style={styles.headerTrainNumber}>Train No.</Text>
-        <Text style={styles.headerStation}>Stations</Text>
-        <Text style={styles.headerDistance}>Distance</Text>
-        <Text style={styles.headerTimes}>Times</Text>
-        <Text style={styles.headerDuration}>Duration</Text>
-        <Text style={styles.headerAllowance}>Allowance</Text>
-        <Text style={styles.headerRemarks}>Remarks</Text>
-        <Text style={styles.headerActions}>Actions</Text>
-      </View>
-       */}
       {duty.trips.map((trip, index) => (
         <View key={trip.id} style={styles.tripContainer}>
           <View style={styles.dateContainer}>
@@ -287,18 +272,18 @@ const DutyRow: React.FC<DutyRowProps> = ({
             />
           </View>
           <View style={{margin:20}}>
-          <Text style={styles.durationText}>{trip.dutyHours}</Text>
-          <Text style={styles.durationText}>duration</Text>
+            <Text style={styles.durationText}>{trip.dutyHours}</Text>
+            <Text style={styles.durationText}>duration</Text>
           </View>
           <View style={{margin:20}}>
-          <Text style={styles.allowanceText}>
-            {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
-          </Text>
-          <Text>km earned</Text>
+            <Text style={styles.allowanceText}>
+              {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
+            </Text>
+            <Text>km earned</Text>
           </View>
           <View style={{margin:20}}>
-          <Text style={styles.remarksText}>{trip.remarks}</Text>
-          <Text style={styles.remarksText}>remarks</Text>
+            <Text style={styles.remarksText}>{trip.remarks}</Text>
+            <Text style={styles.remarksText}>remarks</Text>
           </View>
           <View style={styles.actionsContainer}>
             <TouchableOpacity
