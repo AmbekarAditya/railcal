@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Duty from "./Duty";
 import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
@@ -20,6 +20,15 @@ import {
   FlatList,
 } from "react-native";
 import styles from "../../styles_component/styles_dutyRow";
+
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
 interface DutyRowProps {
   duty: Duty;
@@ -44,6 +53,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteDuty,
   setTotalLeaves,
 }) => {
+
+
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
@@ -76,6 +87,16 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(duty.id, tripId, "allowance", allowance);
     updateTripData(duty.id, tripId, "remarks", remarks);
   };
+
+
+  const handleTimesChange = useCallback(
+    debounce((tripId, arrivalTime, departureTime, dutyHours) => {
+      handleTripDataChange(tripId, 'arrivalTime', arrivalTime);
+      handleTripDataChange(tripId, 'departureTime', departureTime);
+      handleTripDataChange(tripId, 'dutyHours', dutyHours);
+    }, 300),
+    [handleTripDataChange]
+  );
 
   const calculateDutyHoursFromTimes = (
     arrivalTime: string,
@@ -159,7 +180,25 @@ const DutyRow: React.FC<DutyRowProps> = ({
         updateTripData(duty.id, trip.id, "remarks", remarks);
       }
     });
-  }, [duty.trips, updateTripData, duty.id]);;
+  }, [duty.trips, updateTripData, duty.id]);
+
+  useEffect(() => {
+    duty.trips.forEach((trip) => {
+      const dutyHoursInMinutes = calculateDutyHoursFromTimes(
+        trip.arrivalTime,
+        trip.departureTime
+      );
+
+      const { allowance, remarks } = calculateAllowanceAndRemarks(
+        trip.distance,
+        trip.typeOfWork,
+        dutyHoursInMinutes
+      );
+
+      updateTripData(duty.id, trip.id, 'allowance', allowance);
+      updateTripData(duty.id, trip.id, 'remarks', remarks);
+    });
+  }, [duty.trips, updateTripData, duty.id, calculateDutyHoursFromTimes, calculateAllowanceAndRemarks]);
 
   const shouldDisableInputFields = (typeOfWork: string) => {
     const disabledTypes = [
@@ -241,11 +280,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
           </Text>
           <View style={styles.timePickerContainer}>
             <ArrivalDepartureTimePicker
-              onTimesChange={(arrivalTime, departureTime, dutyHours) => {
-                handleTripDataChange(trip.id, "arrivalTime", arrivalTime);
-                handleTripDataChange(trip.id, "departureTime", departureTime);
-                handleTripDataChange(trip.id, "dutyHours", dutyHours);
-              }}
+              onTimesChange={(arrivalTime, departureTime, dutyHours) =>
+                handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
+              }
               disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </View>
