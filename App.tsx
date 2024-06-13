@@ -13,7 +13,7 @@ const Drawer = createDrawerNavigator();
 const App = () => (
   <NavigationContainer>
   <Drawer.Navigator initialRouteName="SignIn">
-    <Drawer.Screen name="SignIn" component={SignInScreen} options={{ headerShown: false }}/>
+    <Drawer.Screen name="Log Out" component={SignInScreen} options={{ headerShown: false }}/>
     <Drawer.Screen name="Home" component={HomeScreen} />
     <Drawer.Screen name="CalculationPage" component={CalculationPage} />
   </Drawer.Navigator>
