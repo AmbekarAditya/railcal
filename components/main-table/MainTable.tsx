@@ -202,7 +202,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }
     return lastDuty.hasEnded;
   };
-  
 
   deleteTrip = (dutyId: number, tripId: number) => {
     this.setState((prevState) => ({
@@ -312,24 +311,41 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const { rateOfPay, selectedMonth, designation, payBand, level } =
       this.props;
 
-    // Calculate the number of days in the month from the first trip date if available
-    let daysInMonth = 1;
-    let startDate = ""; // Default to 1 to prevent division by zero errors
+    let startDate = ""; // Default to an empty string
+
     if (duties.length > 0 && duties[0].trips.length > 0) {
-      const firstTripDate = duties[0].trips[0].date;
-      if (firstTripDate) {
-        startDate = firstTripDate;
-        const year = new Date(firstTripDate).getFullYear();
-        const month = new Date(firstTripDate).getMonth();
-        daysInMonth = new Date(year, month + 1, 0).getDate(); // Correctly calculate days in month
-      }
+      startDate = duties[0].trips[0].date;
+    }
+
+    // Calculate the number of days in the month from the first trip date if available// Assuming selectedMonth is passed as a prop and is the full name of the month
+    const year = new Date().getFullYear(); // Use the current year or another relevant year
+
+    const monthNames = {
+      January: 1,
+      February: 2,
+      March: 3,
+      April: 4,
+      May: 5,
+      June: 6,
+      July: 7,
+      August: 8,
+      September: 9,
+      October: 10,
+      November: 11,
+      December: 12,
+    };
+
+    let daysInMonth = 1;
+    if (selectedMonth && monthNames[selectedMonth]) {
+      const month = monthNames[selectedMonth];
+      daysInMonth = new Date(year, month, 0).getDate(); // Get the total number of days in the selected month
     }
 
     // Calculate leave mileage allowance
-    const { lmc, lma } = calculateLeaveMileage({
+    const { leaveMileageAllowance } = calculateLeaveMileage({
       rateOfPay,
       daysInMonth,
-      totalLeaves,
+      duties,
     });
 
     // Calculate total kilometers from duties
@@ -370,7 +386,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const lastDuty = duties[duties.length - 1];
     const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
     const grandTotalAllowance =
-      (nightDutyAllowance || 0) + (lma || 0) + (osdaAllowance || 0);
+      (nightDutyAllowance || 0) +
+      (leaveMileageAllowance || 0) +
+      (osdaAllowance || 0);
 
     return (
       <ScrollView
@@ -418,7 +436,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
-                leaveMileageAllowance={lma}
+                leaveMileageAllowance={leaveMileageAllowance}
                 dearnessAllowance={dearnessAllowance}
                 progressiveDutyHours={progressiveDutyHours}
                 rraOsda={osdaAllowance}
@@ -437,7 +455,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
-                leaveMileageAllowance={lma}
+                leaveMileageAllowance={leaveMileageAllowance}
                 dearnessAllowance={dearnessAllowance}
                 progressiveDutyHours={progressiveDutyHours}
                 overtimeResult={overtimeResult}
@@ -453,7 +471,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               mileage={mileage}
               nightDutyAllowance={nightDutyAllowance}
               nationalHolidayAllowance={nationalHolidayAllowance}
-              leaveMileageAllowance={lma}
+              leaveMileageAllowance={leaveMileageAllowance}
               overTimeAllowance={overTimeAllowance}
               dearnessAllowance={dearnessAllowance}
               startDate={startDate}

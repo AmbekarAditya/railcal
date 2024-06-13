@@ -1,39 +1,48 @@
+import Duty from "../duty/Duty";
+
 interface CalculateLeaveMileageParams {
-    rateOfPay: number;
-    daysInMonth: number;
-    totalLeaves: number;
+  rateOfPay: number;
+  daysInMonth: number;
+  duties: Duty[];
+}
+
+interface CalculateLeaveMileageResult {
+  leaveMileageAllowance: number;
+}
+
+const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+
+function calculateLeaveMileage({
+  rateOfPay,
+  daysInMonth,
+  duties,
+}: CalculateLeaveMileageParams): CalculateLeaveMileageResult {
+  // Handle missing parameters
+  if (rateOfPay === undefined || daysInMonth === undefined || duties === undefined) {
+    throw new Error("Missing parameters");
   }
-  
-  interface CalculateLeaveMileageResult {
-    lmc: number;
-    lma: number;
+
+  // Handle negative values
+  if (rateOfPay < 0 || daysInMonth < 0) {
+    throw new Error("Negative values are not allowed");
   }
-  
-  function calculateLeaveMileage({
-    rateOfPay,
-    daysInMonth,
-    totalLeaves,
-  }: CalculateLeaveMileageParams): CalculateLeaveMileageResult {
-    // Handle missing parameters
-    if (rateOfPay === undefined || daysInMonth === undefined || totalLeaves === undefined) {
-      throw new Error("Missing parameters");
-    }
-  
-    // Handle negative values
-    if (rateOfPay < 0 || daysInMonth < 0 || totalLeaves < 0) {
-      throw new Error("Negative values are not allowed");
-    }
-  
-    // Handle edge case when daysInMonth is 0
-    if (daysInMonth === 0) {
-      throw new Error("daysInMonth cannot be zero");
-    }
-    
-    console.log(totalLeaves);
-    const lmc = (0.3 * rateOfPay) / daysInMonth;
-    const lma = lmc * totalLeaves;
-  
-    return { lmc, lma };
+
+  // Handle edge case when daysInMonth is 0
+  if (daysInMonth === 0) {
+    throw new Error("daysInMonth cannot be zero");
   }
-  
-  export default calculateLeaveMileage;
+
+  // Calculate total leaves
+  const totalLeaves = duties.reduce((count, duty) => {
+    return count + duty.trips.filter(trip => leaveTypes.includes(trip.typeOfWork)).length;
+  }, 0);
+
+  console.log(totalLeaves);
+
+  const lmc = (0.3 * rateOfPay) / daysInMonth;
+  const leaveMileageAllowance = lmc * totalLeaves;
+
+  return { leaveMileageAllowance };
+}
+
+export default calculateLeaveMileage;
