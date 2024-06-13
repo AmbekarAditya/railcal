@@ -358,9 +358,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       return acc + dutyDistance;
     }, 0);
 
-    // Set totalKilometers to 120 if it's less than 120
-    totalKilometers = Math.max(totalKilometers, 120);
-
     const totalAllowance = this.calculateTotalAllowance();
     const mileage = mileageCalculation(designation, totalAllowance); // Example mileage rate, replace as needed
 
