@@ -31,6 +31,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
                       year: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit',
+                      hour12: false,
                     })
                   : '-'}
               </Text>
@@ -46,6 +47,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
                       year: 'numeric',
                       hour: '2-digit',
                       minute: '2-digit',
+                      hour12: false,
                     })
                   : '-'}
               </Text>

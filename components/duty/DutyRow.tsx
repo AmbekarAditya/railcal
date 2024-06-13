@@ -62,6 +62,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
   
+    const shouldDisableInputFields = (typeOfWork: string) => {
+      const disabledTypes = [
+        "Waiting for duty",
+        "Periodic rest",
+        "Paid leave",
+        "Sick leave",
+        "Casual leave",
+      ];
+      return disabledTypes.includes(typeOfWork);
+    };
+  
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value);
@@ -92,7 +103,17 @@ const DutyRow: React.FC<DutyRowProps> = ({
         updateTripData(duty.id, tripId, 'dutyHours', '');
         updateTripData(duty.id, tripId, 'allowance', 0);
         updateTripData(duty.id, tripId, 'remarks', '');
+        
+        // Set duty.hasEnded to true if the new type is a leave type
+        duty.hasEnded = true;
+  
         return;
+      } else if (shouldDisableInputFields(value)) {
+        // Set duty.hasEnded to true if the new type is a leave type
+        duty.hasEnded = true;
+      } else {
+        // Reset duty.hasEnded to false if the new type is not a leave type
+        duty.hasEnded = false;
       }
     }
   
@@ -115,6 +136,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(duty.id, tripId, "allowance", allowance);
     updateTripData(duty.id, tripId, "remarks", remarks);
   };
+  
 
   const handleTimesChange = useCallback(
     debounce((tripId, arrivalTime, departureTime, dutyHours) => {

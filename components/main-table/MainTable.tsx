@@ -200,17 +200,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     if (!lastDuty) {
       return false;
     }
-
-    const lastDutyTrips = lastDuty.trips;
-    const endedTypes = ["Periodic rest", "Waiting for duty"];
-
-    // Check if any trip in the last duty has the type "Periodic Rest" or "Waiting for duty"
-    const isAnyTripEnded = lastDutyTrips.some((trip) =>
-      endedTypes.includes(trip.typeOfWork)
-    );
-
-    return isAnyTripEnded || lastDuty.dutyHours > 0.0;
+    return lastDuty.hasEnded;
   };
+  
 
   deleteTrip = (dutyId: number, tripId: number) => {
     this.setState((prevState) => ({
