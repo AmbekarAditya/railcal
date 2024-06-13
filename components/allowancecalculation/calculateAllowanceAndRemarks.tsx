@@ -8,37 +8,57 @@ interface CaseParameter {
 
 // Define a map for the case parameters by typeOfWork
 const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
-  "Through": [
+  Through: [
     { max: 120, factor: 1, remark: "considered actual value" },
     { max: 175, factor: 1.2, remark: "+20%" },
     { max: 200, factor: 1.3, remark: "+30%" },
-    { max: Infinity, factor: 1.4, remark: "+40%" }
+    { max: Infinity, factor: 1.4, remark: "+40%" },
   ],
   "Light Engine/Multi": { factor: 1, remark: "cosidered actual value" },
   "Sick leave": { factor: 1, remark: "+7H 25M" },
   "Casual leave": { factor: 1, remark: "+7H 25M" },
   "Paid leave": { factor: 1, remark: "+7H 25M" },
-  "Spare": { factor: 0.5, remark: "1/2" },
-  "Ghat": { factor: 5, remark: "*5" },
-  "Shunting": { factor: 0.25, remark: "+1 Hour : 15km", isTimeBased: true },
-  "Light Engine on Mechanical Account": { factor: 0.33, remark: "+1hour : 20km", isTimeBased: true },
-  "Breakdown Specials": { factor: 0.41, remark: "+1hour : 25km", isTimeBased: true },
-  "Crane Specials": { factor: 0.33, remark: "+1hour : 20km", isTimeBased: true },
+  Spare: { factor: 0.5, remark: "1/2" },
+  Ghat: { factor: 5, remark: "*5" },
+  Shunting: { factor: 0.25, remark: "+1 Hour : 15km", isTimeBased: true },
+  "Light Engine on Mechanical Account": {
+    factor: 0.33,
+    remark: "+1hour : 20km",
+    isTimeBased: true,
+  },
+  "Breakdown Specials": {
+    factor: 0.41,
+    remark: "+1hour : 25km",
+    isTimeBased: true,
+  },
+  "Crane Specials": {
+    factor: 0.33,
+    remark: "+1hour : 20km",
+    isTimeBased: true,
+  },
   "Material Train": { factor: 1.0, remark: "+1hour : 20km", isTimeBased: true },
-  "Medical Relief Trains": { factor: 0.41, remark: "+1hour : 25km", isTimeBased: true },
-  "default": { factor: 1, remark: "default remarks" }
+  "Medical Relief Trains": {
+    factor: 0.41,
+    remark: "+1hour : 25km",
+    isTimeBased: true,
+  },
+  default: { factor: 1, remark: "default remarks" },
 };
 
 // TypeScript function to calculate allowance and remarks
-function calculateAllowanceAndRemarks(distance: number, typeOfWork: string, timeInMinutes: number): { allowance: number, remarks: string } {
+function calculateAllowanceAndRemarks(
+  distance: number,
+  typeOfWork: string,
+  timeInMinutes: number
+): { allowance: number; remarks: string } {
   const params = caseParameters[typeOfWork] || caseParameters["default"];
 
   if (Array.isArray(params)) {
     for (const param of params) {
       if (distance <= param.max!) {
         return {
-          allowance: Math.round(distance * param.factor),
-          remarks: param.remark
+          allowance: parseFloat((distance * param.factor).toFixed(2)),
+          remarks: param.remark,
         };
       }
     }
@@ -47,24 +67,27 @@ function calculateAllowanceAndRemarks(distance: number, typeOfWork: string, time
     if (params.isTimeBased) {
       // Calculate distance based on time for time-based cases
       const timeBasedConstant = getTimeBasedConstant(typeOfWork, timeInMinutes);
-      const distance = timeInMinutes / 60 * timeBasedConstant;
-      allowance = Math.round(distance);
+      const distance = (timeInMinutes / 60) * timeBasedConstant;
+      allowance = parseFloat(distance.toFixed(2));
     } else {
       allowance = params.factor
-        ? distance * params.factor
+        ? parseFloat((distance * params.factor).toFixed(2))
         : 0;
     }
 
     return {
-      allowance: Math.round(allowance),
-      remarks: params.remark
+      allowance: parseFloat(allowance.toFixed(2)),
+      remarks: params.remark,
     };
   }
   return { allowance: 0, remarks: "Invalid typeOfWork or distance" }; // Fallback in case no conditions are met
 }
 
 // Helper function to get the time-based constant for the given typeOfWork
-function getTimeBasedConstant(typeOfWork: string, timeInMinutes: number): number {
+function getTimeBasedConstant(
+  typeOfWork: string,
+  timeInMinutes: number
+): number {
   const roundedTimeInMinutes = Math.ceil(timeInMinutes / 5) * 5; // Round up to the nearest multiple of 5
   switch (typeOfWork) {
     case "Shunting":
