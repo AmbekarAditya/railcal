@@ -31,7 +31,7 @@ interface SummaryBlockProps {
   endDate: string;
   dearnessAllowance: number;
   progressiveDutyHours: number;
-  grandTotalAllowance : number | undefined;
+  grandTotalAllowance: number | undefined;
   overtimeResult: OvertimeCalculationResult | null;
 }
 
@@ -59,8 +59,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
-
-
 
   // Helper function to convert decimal hours to HH:MM format
   const formatHoursToHHMM = (hours: number) => {
@@ -94,6 +92,10 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
       <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
         <View style={styles.infoContainerWrapper}>
           <View style={styles.infoContainer}>
+            <Text style={styles.label}>Dearness Allowance:</Text>
+            <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
+          </View>
+          <View style={styles.infoContainer}>
             <Text style={styles.label}>Hours Worked</Text>
             <Text style={styles.value}>
               {formatHoursToHHMM(progressiveDutyHours)}
@@ -102,10 +104,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Kilometers Earned:</Text>
             <Text style={styles.value}>{formatNumber(totalAllowance)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Total Kilometers:</Text>
-            <Text style={styles.value}>{formatNumber(totalKilometers)}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Mileage:</Text>
@@ -117,10 +115,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
             <Text style={styles.value}>
               ₹{formatNumber(nightDutyAllowance)}
             </Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Dearness Allowance:</Text>
-            <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Leave Mileage:</Text>

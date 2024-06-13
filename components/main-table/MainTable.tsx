@@ -185,7 +185,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
   };
 
-  calculateTotalAllowance = () => {
+  calculateTotalDutyAllowance = () => {
     const { duties } = this.state;
     const totalAllowance = duties.reduce(
       (acc, duty) => acc + duty.dutyAllowance,
@@ -358,8 +358,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       return acc + dutyDistance;
     }, 0);
 
-    const totalAllowance = this.calculateTotalAllowance();
-    const mileage = mileageCalculation(designation, totalAllowance); // Example mileage rate, replace as needed
+    const totalDutyAllowance = this.calculateTotalDutyAllowance();
+    const mileage = mileageCalculation(designation, totalDutyAllowance); // Example mileage rate, replace as needed
 
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
@@ -380,6 +380,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
 
     const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
+
+    const totalAllowance = mileage + nightDutyAllowance + osdaAllowance + leaveMileageAllowance; // OT to be added 
+
     const lastDuty = duties[duties.length - 1];
     const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
     const grandTotalAllowance =
@@ -429,7 +432,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 level={level}
                 rateOfPay={rateOfPay}
                 selectedMonth={selectedMonth}
-                totalAllowance={totalAllowance}
+                totalAllowance={totalDutyAllowance}
                 totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
@@ -438,7 +441,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 progressiveDutyHours={progressiveDutyHours}
                 rraOsda={osdaAllowance}
                 overtimeResult={overtimeResult}
-                grandTotalAllowance={grandTotalAllowance}
+                grandTotalAllowance={totalAllowance}
               />
             )}
             {Platform.OS !== "web" && (
@@ -463,7 +466,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         {duties.length > 0 && (
           <ScrollView>
             <SummaryBlock
-              totalAllowance={this.calculateTotalAllowance()}
+              totalAllowance={totalDutyAllowance}
               totalKilometers={totalKilometers}
               mileage={mileage}
               nightDutyAllowance={nightDutyAllowance}
@@ -476,7 +479,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               endDate={""}
               rraOsda={osdaAllowance}
               daysInMonth={daysInMonth}
-              grandTotalAllowance={grandTotalAllowance}
+              grandTotalAllowance={totalAllowance}
               overtimeResult={overtimeResult}
             />
           </ScrollView>

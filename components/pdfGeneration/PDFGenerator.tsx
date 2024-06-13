@@ -234,7 +234,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           trip.destinationStation,
           trip.arrivalTime,
           trip.departureTime,
-          trip.distance.toString(),
+          trip.distance.toFixed(2).toString(),
           trip.dutyHours,
           trip.allowance.toString(),
           trip.remarks,
