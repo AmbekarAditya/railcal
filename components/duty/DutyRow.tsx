@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Duty from "./Duty";
 import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
@@ -52,6 +52,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteDuty,
   setTotalLeaves,
 }) => {
+  const [hasEnded, setHasEnded] = useState(duty.hasEnded);
+
   const handleTripDataChange = (
     tripId: number,
     field: keyof Trip,
@@ -182,6 +184,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "trainNumber", trainNumber);
   };
 
+  const handleEditDuty = () => {
+    setHasEnded(false);
+    duty.hasEnded = false; // Directly modify the duty object
+  };
+
+
   useEffect(() => {
     duty.trips.forEach((trip) => {
       const dutyHoursInMinutes = calculateDutyHoursFromTimes(
@@ -299,14 +307,14 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <TouchableOpacity
           style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
           onPress={() => addTrip(duty.id)}
-          disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)} // Disable if duty has ended
         >
           <Text>Add Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, { marginRight: 10 }]}
           onPress={() => handleEndDuty(duty)}
-          disabled={shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)}
         >
           <Text>End Duty</Text>
         </TouchableOpacity>
@@ -316,8 +324,15 @@ const DutyRow: React.FC<DutyRowProps> = ({
         >
           <Text>Delete Duty</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, { marginLeft: 10 }]}
+          onPress={handleEditDuty}
+          // disabled={!hasEnded} // Enable only if duty has ended
+        >
+          <Text>Edit Duty</Text>
+        </TouchableOpacity>
       </View>
-      <DutyInfo duty={duty} />
+      {duty.hasEnded && <DutyInfo duty={duty} />} {/* Render DutyInfo only if duty has ended */}
       {duty.trips.length > 0 && (
         <View style={styles.separator}>
           <View style={{ height: 1, backgroundColor: "gray" }} />

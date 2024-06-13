@@ -171,9 +171,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   }));
                 }
               }
-              
+
               duty.updateTrip(tripId, updatedTrip);
-              
             }
           }
           return duty;
@@ -201,15 +200,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     if (!lastDuty) {
       return false;
     }
-  
+
     const lastDutyTrips = lastDuty.trips;
     const endedTypes = ["Periodic rest", "Waiting for duty"];
-  
+
     // Check if any trip in the last duty has the type "Periodic Rest" or "Waiting for duty"
-    const isAnyTripEnded = lastDutyTrips.some(trip =>
+    const isAnyTripEnded = lastDutyTrips.some((trip) =>
       endedTypes.includes(trip.typeOfWork)
     );
-  
+
     return isAnyTripEnded || lastDuty.dutyHours > 0.0;
   };
 
@@ -241,10 +240,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   deleteDuty = (dutyId: number) => {
     this.setState((prevState) => {
-      const updatedDuties = prevState.duties.filter((duty) => duty.id !== dutyId);
+      const updatedDuties = prevState.duties.filter(
+        (duty) => duty.id !== dutyId
+      );
 
       // If all the duties are deleted, there should be a default duty present.
-  
+
       if (updatedDuties.length === 0) {
         const newTrip: Trip = {
           id: 1,
@@ -261,11 +262,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           trainNumber: "",
           dutyHours: "",
         };
-  
+
         const newDuty = new Duty(1, [newTrip]);
         return { duties: [newDuty] };
       }
-  
+
       return { duties: updatedDuties };
     });
   };
@@ -282,15 +283,25 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         startDate = new Date(firstTripDate);
       }
     }
-  
-    const overtimeResult = this.calculateOvertimeResult(updatedDuties, startDate);
-  
+
+    let overtimeResult: OverTimeCalculationResult = {
+      firstFortnight: null,
+      secondFortnight: null,
+    }; // Initialize to null
+
+    // Check if the last duty has ended
+    if (
+      updatedDuties.length > 0 &&
+      updatedDuties[updatedDuties.length - 1].hasEnded
+    ) {
+      overtimeResult = this.calculateOvertimeResult(updatedDuties, startDate);
+    }
+
     // Calculate progressive night duty hours
     updatedDuties.forEach((duty, index) => {
-
-       duty.calculateProgressiveNightDutyHours(index, updatedDuties);
+      duty.calculateProgressiveNightDutyHours(index, updatedDuties);
     });
-  
+
     this.setState({ duties: updatedDuties, overtimeResult });
   };
 
@@ -329,7 +340,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       totalLeaves,
     });
 
-    
     // Calculate total kilometers from duties
     let totalKilometers = duties.reduce((acc, duty) => {
       const dutyDistance = duty.trips.reduce(
@@ -368,9 +378,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const lastDuty = duties[duties.length - 1];
     const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
     const grandTotalAllowance =
-    (nightDutyAllowance || 0) +
-    (lma || 0) +
-    (osdaAllowance || 0);
+      (nightDutyAllowance || 0) + (lma || 0) + (osdaAllowance || 0);
 
     return (
       <ScrollView
@@ -392,7 +400,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 deleteTrip={this.deleteTrip}
                 setTotalLeaves={this.setTotalLeaves}
                 deleteDuty={this.deleteDuty}
-                
               />
             )}
           />
@@ -446,25 +453,25 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             )}
           </View>
         </View>
-        {duties.length > 0 && duties[0].trips.length > 0 && (
+        {duties.length > 0 && (
           <ScrollView>
-          <SummaryBlock
-            totalAllowance={this.calculateTotalAllowance()}
-            totalKilometers={totalKilometers}
-            mileage={mileage}
-            nightDutyAllowance={nightDutyAllowance}
-            nationalHolidayAllowance={nationalHolidayAllowance}
-            leaveMileageAllowance={lma}
-            overTimeAllowance={overTimeAllowance}
-            dearnessAllowance={dearnessAllowance}
-            startDate={startDate}
-            progressiveDutyHours={progressiveDutyHours}
-            endDate={""}
-            rraOsda={osdaAllowance}
-            daysInMonth={daysInMonth}
-            grandTotalAllowance = {grandTotalAllowance}
-            overtimeResult={overtimeResult}
-          />
+            <SummaryBlock
+              totalAllowance={this.calculateTotalAllowance()}
+              totalKilometers={totalKilometers}
+              mileage={mileage}
+              nightDutyAllowance={nightDutyAllowance}
+              nationalHolidayAllowance={nationalHolidayAllowance}
+              leaveMileageAllowance={lma}
+              overTimeAllowance={overTimeAllowance}
+              dearnessAllowance={dearnessAllowance}
+              startDate={startDate}
+              progressiveDutyHours={progressiveDutyHours}
+              endDate={""}
+              rraOsda={osdaAllowance}
+              daysInMonth={daysInMonth}
+              grandTotalAllowance={grandTotalAllowance}
+              overtimeResult={overtimeResult}
+            />
           </ScrollView>
         )}
         <Modal
@@ -483,7 +490,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
   }
 }
-
 
 const colors = {
   primary: "#007AFF",

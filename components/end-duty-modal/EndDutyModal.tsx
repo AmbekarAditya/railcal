@@ -56,6 +56,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
     updatedDuty.isOSDA = isOSDAApplicable;
     updatedDuty.isRRA = isRRAApplicable;
     updatedDuty.dutyHours = dutyHours;
+    updatedDuty.hasEnded = true; // Set hasEnded to true
   
     updateDutyDetails(updatedDuty);
   };
