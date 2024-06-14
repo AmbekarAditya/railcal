@@ -23,6 +23,7 @@ import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
+import Fortnight from "../fortnight-block/Fortnight";
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
@@ -42,6 +43,7 @@ interface MainTableState {
   totalLeaves: number;
   overtimeResult: OverTimeCalculationResult | null;
   progressiveDutyHours: number;
+  fortnights: Fortnight[];
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -52,6 +54,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     totalLeaves: 0,
     overtimeResult: 0,
     progressiveDutyHours : 0,
+    fortnights: [],
   };
 
   constructor(props: MainTableProps) {
@@ -283,6 +286,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ overtimeResult: newAllowance });
   };
 
+
+  handleFortnightsChange = (fortnights: Fortnight[]) => {
+    this.setState({ fortnights });
+  };
+
   render() {
     const { overtimeResult } = this.state;
 
@@ -468,6 +476,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           transportationAllowance={transportationAllowance}
           totalOvertimeAllowance={overtimeResult}
           onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
+          onFortnightsChange={this.handleFortnightsChange}
+
         />
         {duties.length > 0 && (
           <ScrollView>

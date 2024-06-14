@@ -3,13 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { format } from 'date-fns';
 import Duty from '../duty/Duty';
+import Fortnight from './Fortnight';
 
-interface Fortnight {
-  startDate: Date;
-  endDate: Date;
-  totalForthnightDuration: number;
-  overtimeAllowance: number;
-}
 
 interface FortnightBlockProps {
   selectedMonth: string;
@@ -19,6 +14,7 @@ interface FortnightBlockProps {
   transportationAllowance: number;
   totalOvertimeAllowance: number;
   onOvertimeAllowanceChange: (newAllowance: number) => void;
+  onFortnightsChange: (fortnights: Fortnight[]) => void;
 }
 
 const FORTNIGHT_DATES = [
@@ -52,13 +48,15 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
     transportationAllowance,
     totalOvertimeAllowance,
     onOvertimeAllowanceChange,
+    onFortnightsChange,
   }) => {
     const [fortnights, setFortnights] = useState<Fortnight[]>([]);
     const [inputHours, setInputHours] = useState(0);
   
     useEffect(() => {
       recalculateFortnights(inputHours);
-    }, [selectedMonth, duties]);
+      onFortnightsChange(fortnights);
+    }, [selectedMonth, duties, inputHours]);
   
     const recalculateFortnights = (baseProgressiveHours: number) => {
       const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
@@ -200,3 +198,4 @@ const styles = StyleSheet.create({
 });
 
 export default FortnightBlock;
+

@@ -6,7 +6,7 @@ import Duty from "../duty/Duty";
 import Trip from "../trip/Trip";
 import DutyInfo from "../duty/DutyInfo";
 import { Button, View } from "react-native";
-import { OverTimeCalculationResult } from "../allowancecalculation/overtimeAllowance";
+import Fortnight from "../fortnight-block/Fortnight";
 
 // Helper function to convert hours to HH:MM format
 const formatHours = (hours) => {
@@ -21,7 +21,9 @@ const formatHours = (hours) => {
 const formatDutyHours = (dutyHours) => {
   const [hours, minutes] = dutyHours.split("h ");
   const formattedHours = hours.trim().padStart(2, "0");
-  const formattedMinutes = minutes ? minutes.trim().replace("m", "").padStart(2, "0") : "00";
+  const formattedMinutes = minutes
+    ? minutes.trim().replace("m", "").padStart(2, "0")
+    : "00";
   return `${formattedHours}:${formattedMinutes}`;
 };
 
@@ -39,8 +41,9 @@ interface PDFGeneratorProps {
   overTimeAllowance: number;
   dearnessAllowance: number;
   progressiveDutyHours: number;
-  grandTotalAllowance:number;
+  grandTotalAllowance: number;
   rraOsda: number;
+  fortnights: Fortnight[];
 }
 
 const PDFGenerator: React.FC<PDFGeneratorProps> = ({
@@ -59,6 +62,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   dearnessAllowance,
   progressiveDutyHours,
   rraOsda,
+  fortnights,
 }) => {
   const generatePDF = () => {
     const doc = new jsPDF(); // Set portrait orientation (default)
@@ -236,10 +240,10 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           "Remarks",
         ],
         ...duty.trips.map((trip) => [
-          new Date(trip.date).toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric',
+          new Date(trip.date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
           }),
           trip.typeOfWork,
           trip.trainNumber,
@@ -273,15 +277,15 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           },
           {
             content: duty.signIn
-            ? new Date(duty.signIn).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "-",
-          colSpan: 1,
+              ? new Date(duty.signIn).toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-",
+            colSpan: 1,
           },
           {
             content: "Sign Off",
@@ -289,15 +293,15 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           },
           {
             content: duty.signOff
-            ? new Date(duty.signOff).toLocaleString("en-GB", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : "-",
-          colSpan: 1,
+              ? new Date(duty.signOff).toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-",
+            colSpan: 1,
           },
           {
             content: "KM earned:",
@@ -372,7 +376,6 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
     });
 
     // Add summary block data and overtime result
-
 
     currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
 
@@ -477,7 +480,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
         styles: { fontSize: 8 },
         startY: currentYPosition, // Start the table at the current y position
       });
-    
+
       currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
     }
 
@@ -533,9 +536,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           styles: { fontStyle: "bold" },
         },
         {
-          content: rraOsda
-            ? `Rs. ${rraOsda.toFixed(2)}`
-            : "-",
+          content: rraOsda ? `Rs. ${rraOsda.toFixed(2)}` : "-",
           colSpan: 1,
         },
       ],
