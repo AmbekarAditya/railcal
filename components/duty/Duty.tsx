@@ -1,4 +1,5 @@
 import Trip from "../trip/Trip";
+import { leaveTypes } from "../../utils/constants";
 
 class Duty {
   id: number;
@@ -95,11 +96,10 @@ class Duty {
 }
 
 updateDutyHoursForLeaveTypes(typeOfWork: string) {
-  const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
   const endedTypes = ["Periodic rest", "Waiting for duty"];
 
   if (leaveTypes.includes(typeOfWork)) {
-    this.dutyHours = 7.41; // 7 hours and 25 minutes
+    this.dutyHours = 7.41667; // 7 hours and 25 minutes
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
   } else if (endedTypes.includes(typeOfWork)) {

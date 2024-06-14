@@ -1,4 +1,5 @@
 import Duty from "../duty/Duty";
+import { leaveTypes } from "../../utils/constants";
 
 interface CalculateLeaveMileageParams {
   rateOfPay: number;
@@ -10,7 +11,7 @@ interface CalculateLeaveMileageResult {
   leaveMileageAllowance: number;
 }
 
-const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
+
 
 function calculateLeaveMileage({
   rateOfPay,

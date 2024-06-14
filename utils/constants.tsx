@@ -10,7 +10,7 @@ export const designations = [
     label: "Locopilot Shunting ( Grade I )",
     value: "Locopilot Shunting ( Grade I )",
   },
- 
+
   {
     label: "Locopilot Shunting ( Grade II )",
     value: "Locopilot Shunting ( Grade II )",
@@ -445,8 +445,8 @@ export const pickerItems = [
     value: "Periodic rest",
   },
   {
-    label:"Light Engine/Multi",
-    value:"Light Engine/Multi"
+    label: "Light Engine/Multi",
+    value: "Light Engine/Multi",
   },
   {
     label: "Paid leave",
@@ -492,9 +492,22 @@ export const pickerItems = [
     label: "Material Train",
     value: "Material Train",
   },
+
+  {
+    label: "Spare by Goods",
+    value: "Spare by Goods",
+  },
   {
     label: "Casual leave",
     value: "Casual leave",
+  },
+  {
+    label: "Maternal leave",
+    value: "Maternal leave",
+  },
+  {
+    label: "Paternal leave",
+    value: "Paternal leave",
   },
 ];
 
@@ -511,3 +524,21 @@ export const DESIGNATION_MULTIPLIERS = {
   "Senior Goods Train Manager": 4.75,
   "Goods Train Manager": 4.7,
 };
+
+export const leaveTypes = [
+  "Paid leave",
+  "Sick leave",
+  "Casual leave",
+  "Paternal leave",
+  "Maternal leave",
+];
+
+export const disabledTypes = [
+  "Waiting for duty",
+  "Periodic rest",
+  "Paid leave",
+  "Sick leave",
+  "Casual leave",
+  "Paternal leave",
+  "Maternal leave",
+];

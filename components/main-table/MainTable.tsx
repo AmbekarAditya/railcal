@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import Duty from "../duty/Duty";
+import { leaveTypes } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
@@ -158,7 +159,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             if (tripToUpdate) {
               const updatedTrip = { ...tripToUpdate, [field]: value };
               if (field === "typeOfWork") {
-                const leaveTypes = ["Paid leave", "Sick leave", "Casual leave"];
                 const isLeave = leaveTypes.includes(value as string);
                 const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
                 if (isLeave && !wasLeave) {

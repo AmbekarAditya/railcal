@@ -20,6 +20,7 @@ import {
   FlatList,
 } from "react-native";
 import styles from "../../styles_component/styles_dutyRow";
+import { disabledTypes } from "../../utils/constants";
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -63,13 +64,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
     const trip = duty.trips[tripIndex];
   
     const shouldDisableInputFields = (typeOfWork: string) => {
-      const disabledTypes = [
-        "Waiting for duty",
-        "Periodic rest",
-        "Paid leave",
-        "Sick leave",
-        "Casual leave",
-      ];
+
       return disabledTypes.includes(typeOfWork);
     };
   
@@ -231,13 +226,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
   }, [duty.trips, updateTripData, duty.id, calculateDutyHoursFromTimes, calculateAllowanceAndRemarks]);
 
   const shouldDisableInputFields = (typeOfWork: string) => {
-    const disabledTypes = [
-      "Waiting for duty",
-      "Periodic rest",
-      "Paid leave",
-      "Sick leave",
-      "Casual leave",
-    ];
     return disabledTypes.includes(typeOfWork);
   };
 
