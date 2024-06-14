@@ -484,7 +484,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               dearnessAllowance={dearnessAllowance}
               transportationAllowance={transportationAllowance}
               startDate={startDate}
-              progressiveDutyHours={totalDutyHours}
               endDate={""}
               rraOsda={osdaAllowance}
               daysInMonth={daysInMonth}

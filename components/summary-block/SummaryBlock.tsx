@@ -31,7 +31,6 @@ interface SummaryBlockProps {
   endDate: string;
   dearnessAllowance: number;
   transportationAllowance: number;
-  totalDutyHours: number;
   grandTotalAllowance: number | undefined;
   overtimeResult: OvertimeCalculationResult | null;
 }
@@ -47,7 +46,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   overTimeAllowance,
   startDate,
   endDate,
-  totalDutyHours,
   dearnessAllowance,
   transportationAllowance,
   grandTotalAllowance,
@@ -100,12 +98,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Transportation Allowance:</Text>
             <Text style={styles.value}>₹{formatNumber(transportationAllowance)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Hours Worked</Text>
-            <Text style={styles.value}>
-              {formatHoursToHHMM(totalDutyHours)}
-            </Text>
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.label}>Kilometers Earned:</Text>
