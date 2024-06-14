@@ -1,6 +1,6 @@
 // FortnightBlock.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
 import { format } from 'date-fns';
 import Duty from '../duty/Duty';
 
@@ -16,6 +16,7 @@ interface FortnightBlockProps {
   duties: Duty[];
   progressiveDutyHours: number;
   onProgressiveDutyHoursChange: (hours: number) => void;
+  onApply: (hours: number) => void;
 }
 
 const FORTNIGHT_DATES = [
@@ -46,8 +47,10 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
   duties,
   progressiveDutyHours = 0,
   onProgressiveDutyHoursChange,
+  onApply,
 }) => {
   const [fortnights, setFortnights] = useState<Fortnight[]>([]);
+  const [inputHours, setInputHours] = useState(progressiveDutyHours.toString());
 
   useEffect(() => {
     const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
@@ -85,6 +88,14 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
+  const handleApply = () => {
+    const hours = parseFloat(inputHours);
+    if (!isNaN(hours)) {
+      onProgressiveDutyHoursChange(hours);
+      onApply(hours);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fortnights in {selectedMonth}</Text>
@@ -92,10 +103,11 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
         <Text style={styles.inputLabel}>Progressive Duty Hours</Text>
         <TextInput
           style={styles.input}
-          value={progressiveDutyHours.toString()}
+          value={inputHours}
           keyboardType="numeric"
-          onChangeText={(text) => onProgressiveDutyHoursChange(Number(text))}
+          onChangeText={(text) => setInputHours(text)}
         />
+        <Button title="Apply" onPress={handleApply} />
       </View>
       {fortnights.map((fortnight, index) => (
         <View key={index} style={styles.fortnight}>
@@ -135,6 +147,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 8,
     marginBottom: 16,
   },
@@ -148,6 +162,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     paddingHorizontal: 8,
+    flex: 1,
+    marginRight: 8,
+  },
+  button: {
+    marginLeft: 8,
   },
 });
 
