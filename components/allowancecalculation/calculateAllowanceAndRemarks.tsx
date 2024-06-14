@@ -45,7 +45,7 @@ const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
     remark: "+1hour : 25km",
     isTimeBased: true,
   },
-  default: { factor: 1, remark: "default remarks" },
+  default: { factor: 1, remark: "" },
 };
 
 // TypeScript function to calculate allowance and remarks

@@ -8,6 +8,23 @@ import DutyInfo from "../duty/DutyInfo";
 import { Button, View } from "react-native";
 import { OverTimeCalculationResult } from "../allowancecalculation/overtimeAllowance";
 
+// Helper function to convert hours to HH:MM format
+const formatHours = (hours) => {
+  const totalMinutes = Math.round(hours * 60);
+  const formattedHours = Math.floor(totalMinutes / 60)
+    .toString()
+    .padStart(2, "0");
+  const formattedMinutes = (totalMinutes % 60).toString().padStart(2, "0");
+  return `${formattedHours}:${formattedMinutes}`;
+};
+
+const formatDutyHours = (dutyHours) => {
+  const [hours, minutes] = dutyHours.split("h ");
+  const formattedHours = hours.trim().padStart(2, "0");
+  const formattedMinutes = minutes ? minutes.trim().replace("m", "").padStart(2, "0") : "00";
+  return `${formattedHours}:${formattedMinutes}`;
+};
+
 interface PDFGeneratorProps {
   duties: Duty[];
   designation: string;
@@ -15,7 +32,6 @@ interface PDFGeneratorProps {
   level: string;
   rateOfPay: number;
   selectedMonth: string;
-  totalKilometers: number;
   mileage: number;
   nightDutyAllowance: number;
   nationalHolidayAllowance: number;
@@ -37,7 +53,6 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   level,
   rateOfPay,
   selectedMonth,
-  totalKilometers,
   mileage,
   nightDutyAllowance,
   nationalHolidayAllowance,
@@ -227,7 +242,11 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           "Remarks",
         ],
         ...duty.trips.map((trip) => [
-          trip.date,
+          new Date(trip.date).toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          }),
           trip.typeOfWork,
           trip.trainNumber,
           trip.sourceStation,
@@ -235,7 +254,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           trip.arrivalTime,
           trip.departureTime,
           trip.distance.toFixed(2).toString(),
-          trip.dutyHours,
+          formatDutyHours(trip.dutyHours),
           trip.allowance.toString(),
           trip.remarks,
         ]),
@@ -255,7 +274,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
       const dutyInfoData = [
         [
           {
-            content: "Sign In",
+            content: "Sign On",
             colSpan: 1,
           },
           {
@@ -307,7 +326,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
             colSpan: 1,
           },
           {
-            content: `${duty.dutyHours.toFixed(2)} H`,
+            content: formatHours(duty.dutyHours.toFixed(2)),
             colSpan: 1,
           },
           {
@@ -315,7 +334,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
             colSpan: 1,
           },
           {
-            content: `${duty.nightDutyHours.toFixed(2)} H`,
+            content: formatHours(duty.nightDutyHours.toFixed(2)),
             colSpan: 1,
           },
         ],
@@ -325,7 +344,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
             colSpan: 2,
           },
           {
-            content: `${duty.progressiveDutyHours.toFixed(2)} H`,
+            content: formatHours(duty.progressiveDutyHours.toFixed(2)),
             colSpan: 2,
           },
           {
@@ -468,17 +487,6 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
 
     const summaryBlockData = [
       [
-        {
-          content: "Total Kilometers:",
-          colSpan: 1,
-          styles: { fontStyle: "bold" },
-        },
-        {
-          content: totalKilometers ? `${totalKilometers.toFixed(2)}` : "-",
-          colSpan: 1,
-        },
-      ],
-      [
         { content: "Mileage:", colSpan: 1, styles: { fontStyle: "bold" } },
         { content: mileage ? `Rs. ${mileage.toFixed(2)}` : "-", colSpan: 1 },
       ],
@@ -529,9 +537,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           styles: { fontStyle: "bold" },
         },
         {
-          content: progressiveDutyHours
-            ? `${progressiveDutyHours.toFixed(2)} H`
-            : "-",
+          content: progressiveDutyHours ? formatHours(progressiveDutyHours) : "-",
           colSpan: 1,
         },
       ],

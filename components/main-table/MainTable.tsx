@@ -432,7 +432,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 rateOfPay={rateOfPay}
                 selectedMonth={selectedMonth}
                 totalAllowance={totalDutyAllowance}
-                totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
                 leaveMileageAllowance={leaveMileageAllowance}
@@ -451,7 +450,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 level={level}
                 rateOfPay={rateOfPay}
                 selectedMonth={selectedMonth}
-                totalKilometers={totalKilometers}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
                 leaveMileageAllowance={leaveMileageAllowance}
