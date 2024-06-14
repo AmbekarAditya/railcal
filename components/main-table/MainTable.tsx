@@ -401,6 +401,21 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (leaveMileageAllowance || 0) +
       (osdaAllowance || 0);
 
+      const calculateTotalDutyHours = (duties: Duty[]): number => {
+        return duties.reduce((total, duty) => {
+          return (
+            total +
+            duty.trips.reduce((dutyTotal, trip) => {
+              const dutyHours = parseFloat(trip.dutyHours);
+              return dutyTotal + (isNaN(dutyHours) ? 0 : dutyHours);
+            }, 0)
+          );
+        }, 0);
+      };
+
+      
+      const totalDutyHours = calculateTotalDutyHours(duties)
+
     return (
       <ScrollView
         horizontal
@@ -449,7 +464,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 nightDutyAllowance={nightDutyAllowance}
                 leaveMileageAllowance={leaveMileageAllowance}
                 dearnessAllowance={dearnessAllowance}
-                progressiveDutyHours={progressiveDutyHours}
+                progressiveDutyHours={totalDutyHours}
                 rraOsda={osdaAllowance}
                 overtimeResult={overtimeResult}
                 grandTotalAllowance={totalAllowance}
@@ -468,7 +483,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 nightDutyAllowance={nightDutyAllowance}
                 leaveMileageAllowance={leaveMileageAllowance}
                 dearnessAllowance={dearnessAllowance}
-                progressiveDutyHours={progressiveDutyHours}
+                progressiveDutyHours={totalDutyHours}
                 overtimeResult={overtimeResult}
               />
             )}
@@ -492,7 +507,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               dearnessAllowance={dearnessAllowance}
               transportationAllowance={transportationAllowance}
               startDate={startDate}
-              progressiveDutyHours={progressiveDutyHours}
+              progressiveDutyHours={totalDutyHours}
               endDate={""}
               rraOsda={osdaAllowance}
               daysInMonth={daysInMonth}

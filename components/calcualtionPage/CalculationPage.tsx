@@ -1,6 +1,6 @@
 // CalculationPage.tsx
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import MainTable from "../main-table/MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
 import { RouteProp } from '@react-navigation/native';
@@ -27,22 +27,31 @@ const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) 
   const { designation, payBand, level, rateOfPay, selectedMonth } = route.params;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.background}>
-        <View style={styles.row}>
-          <Text style={styles.text}>Month: {selectedMonth}</Text>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <View style={styles.background}>
+          <View style={styles.row}>
+            <Text style={styles.text}>Month: {selectedMonth}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.text}>Designation: {designation}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.text}>Level: {level}</Text>
+            <Text style={styles.text}>Pay Band: {payBand}</Text>
+            <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
+          </View>
         </View>
-        <View style={styles.row}>
-          <Text style={styles.text}>Designation: {designation}</Text>
-        </View>
-        <View style={styles.row}>
-          <Text style={styles.text}>Level: {level}</Text>
-          <Text style={styles.text}>Pay Band: {payBand}</Text>
-          <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
-        </View>
+        <MainTable
+          navigation={navigation}
+          rateOfPay={rateOfPay}
+          designation={designation}
+          payBand={payBand}
+          level={level}
+          selectedMonth={selectedMonth}
+        />
       </View>
-      <MainTable navigation={navigation}  rateOfPay={rateOfPay} designation={designation} payBand={payBand} level={level} selectedMonth={selectedMonth}/>
-    </View>
+    </ScrollView>
   );
 };
 

@@ -7,16 +7,12 @@ import Duty from '../duty/Duty';
 interface Fortnight {
   startDate: Date;
   endDate: Date;
-  totalProgressiveDutyHours: string;
   overtimeAllowance: string;
 }
 
 interface FortnightBlockProps {
   selectedMonth: string;
   duties: Duty[];
-  progressiveDutyHours: number;
-  onProgressiveDutyHoursChange: (hours: number) => void;
-  onApply: (hours: number) => void;
 }
 
 const FORTNIGHT_DATES = [
@@ -45,32 +41,43 @@ const FORTNIGHT_DATES = [
 const FortnightBlock: React.FC<FortnightBlockProps> = ({
   selectedMonth,
   duties,
-  progressiveDutyHours = 0,
-  onProgressiveDutyHoursChange,
-  onApply,
 }) => {
   const [fortnights, setFortnights] = useState<Fortnight[]>([]);
-  const [inputHours, setInputHours] = useState(progressiveDutyHours.toString());
+  const [inputHours, setInputHours] = useState(Number);
 
   useEffect(() => {
+    recalculateFortnights(inputHours);
+  }, [selectedMonth, duties]);
+
+  const recalculateFortnights = (baseProgressiveHours: number) => {
     const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
     const startDate = new Date(2024, monthIndex, 1);
     const endDate = new Date(2024, monthIndex + 1, 0);
-
+  
     const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter((date) => {
       const fortnightEnd = new Date(date);
       fortnightEnd.setDate(fortnightEnd.getDate() + 13);
       return date <= endDate && fortnightEnd >= startDate;
-    }).map((startDate) => {
+    }).map((startDate, index) => {
       const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
-      const totalProgressiveDutyHoursInMinutes = duties
-        .filter((duty) => new Date(duty.signIn) <= endDate)
-        .reduce((acc, duty) => acc + duty.dutyHours * 60, progressiveDutyHours * 60); // Include progressiveDutyHours
-
-      const totalProgressiveDutyHours = formatMinutesToHHMM(totalProgressiveDutyHoursInMinutes);
+      let totalProgressiveDutyHoursInMinutes = duties
+        .filter((duty) => {
+          const dutyStart = new Date(duty.signIn);
+          return dutyStart >= startDate && dutyStart <= endDate;
+        })
+        .reduce((acc, duty) => {
+          const dutyHoursInMinutes = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) * 60 : 0;
+          return acc + dutyHoursInMinutes;
+        }, 0);
+  
+      if (index === 0) {
+        totalProgressiveDutyHoursInMinutes += baseProgressiveHours * 60; // Add progressive duty hours to the first fortnight
+      }
+  
+      const totalProgressiveDutyHours = isNaN(totalProgressiveDutyHoursInMinutes) ? '00:00' : formatMinutesToHHMM(totalProgressiveDutyHoursInMinutes);
       const overtimeAllowanceInMinutes = Math.max(0, totalProgressiveDutyHoursInMinutes - 104 * 60); // 104 hours = 13 days * 8 hours
-      const overtimeAllowance = formatMinutesToHHMM(overtimeAllowanceInMinutes);
-
+      const overtimeAllowance = isNaN(overtimeAllowanceInMinutes) ? '00:00' : formatMinutesToHHMM(overtimeAllowanceInMinutes);
+  
       return {
         startDate,
         endDate,
@@ -78,10 +85,9 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
         overtimeAllowance,
       };
     });
-
+  
     setFortnights(intersectingFortnights);
-  }, [selectedMonth, duties, progressiveDutyHours]);
-
+  };
   const formatMinutesToHHMM = (totalMinutes: number): string => {
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
@@ -89,11 +95,8 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
   };
 
   const handleApply = () => {
-    const hours = parseFloat(inputHours);
-    if (!isNaN(hours)) {
-      onProgressiveDutyHoursChange(hours);
-      onApply(hours);
-    }
+    const hours = Number(inputHours);
+    setInputHours(hours)
   };
 
   return (
@@ -105,7 +108,7 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
           style={styles.input}
           value={inputHours}
           keyboardType="numeric"
-          onChangeText={(text) => setInputHours(text)}
+          onChangeText={setInputHours}
         />
         <Button title="Apply" onPress={handleApply} />
       </View>
@@ -149,12 +152,11 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
     marginBottom: 16,
   },
   inputLabel: {
     fontSize: 14,
-    marginBottom: 4,
+    marginRight: 8,
   },
   input: {
     height: 40,
@@ -162,11 +164,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 4,
     paddingHorizontal: 8,
-    flex: 1,
     marginRight: 8,
-  },
-  button: {
-    marginLeft: 8,
   },
 });
 
