@@ -23,6 +23,7 @@ import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
+import FortnightBlock from "../fortnight-block/FortnightBlock";
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
@@ -41,6 +42,7 @@ interface MainTableState {
   selectedDuty: Duty | null;
   totalLeaves: number;
   overtimeResult: OverTimeCalculationResult | null;
+  progressiveDutyHours: number;
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -50,6 +52,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     selectedDuty: null,
     totalLeaves: 0,
     overtimeResult: null,
+    progressiveDutyHours : 0,
   };
 
   constructor(props: MainTableProps) {
@@ -267,6 +270,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ totalLeaves: newTotalLeaves });
   };
 
+  handleProgressiveDutyHoursChange = (hours: number) => {
+    this.setState({ progressiveDutyHours: hours });
+  };
+
   handleDutiesChange = (updatedDuties: Duty[] | any[]) => {
     let startDate = null;
     if (updatedDuties.length > 0 && updatedDuties[0].trips.length > 0) {
@@ -298,15 +305,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
-    const { overtimeResult } = this.state;
+    const { overtimeResult , progressiveDutyHours} = this.state;
     const totalDuties = this.state.duties;
 
-    totalDuties.forEach((duty, index) => {
-      const progressiveDutyHours = duty.calculateprogressiveDutyHours(
-        index,
-        totalDuties
-      );
-    });
+    // totalDuties.forEach((duty, index) => {
+    //   const progressiveDutyHours = duty.calculateprogressiveDutyHours(
+    //     index,
+    //     totalDuties
+    //   );
+    // });
 
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
     const { rateOfPay, selectedMonth, designation, payBand, level } =
@@ -365,7 +372,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
     const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
-    const transportationAllowance = calculateTransportationAllowance(designation)
+    const transportationAllowance =
+      calculateTransportationAllowance(designation);
     const totalNightDutyHours = this.calculateTotalNightDutyHours();
     const nightDutyAllowance = computeNightDutyAllowance(
       rateOfPay,
@@ -383,10 +391,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
 
-    const totalAllowance = mileage + nightDutyAllowance + osdaAllowance + leaveMileageAllowance; // OT to be added 
+    const totalAllowance =
+      mileage + nightDutyAllowance + osdaAllowance + leaveMileageAllowance; // OT to be added
 
     const lastDuty = duties[duties.length - 1];
-    const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
+    // const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
     const grandTotalAllowance =
       (nightDutyAllowance || 0) +
       (leaveMileageAllowance || 0) +
@@ -465,6 +474,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             )}
           </View>
         </View>
+        <FortnightBlock
+          selectedMonth={selectedMonth}
+          duties={duties}
+          onProgressiveDutyHoursChange={this.handleProgressiveDutyHoursChange}
+        />
         {duties.length > 0 && (
           <ScrollView>
             <SummaryBlock
