@@ -38,12 +38,8 @@ interface PDFGeneratorProps {
   leaveMileageAllowance: number;
   overTimeAllowance: number;
   dearnessAllowance: number;
-  startDate: string;
   progressiveDutyHours: number;
-  endDate: string;
   grandTotalAllowance:number;
-  daysInMonth: number;
-  overtimeResult: OverTimeCalculationResult | null;
 }
 
 const PDFGenerator: React.FC<PDFGeneratorProps> = ({
@@ -60,11 +56,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   overTimeAllowance,
   grandTotalAllowance,
   dearnessAllowance,
-  startDate,
   progressiveDutyHours,
-  endDate,
-  daysInMonth,
-  overtimeResult,
 }) => {
   const generatePDF = () => {
     const doc = new jsPDF(); // Set portrait orientation (default)
@@ -381,6 +373,8 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
 
 
     currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+
+    const overtimeResult = null;
 
     if (overtimeResult) {
       const overtimeResultData = [
