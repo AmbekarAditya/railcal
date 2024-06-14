@@ -240,9 +240,6 @@ const PdfGeneratorMobile: React.FC<PdfGeneratorMobileProps> = ({
       orientation: 'landscape'
 
     });
-
-    console.log('PDF generated:', uri);
-
     // Share the PDF file with the user
     await Sharing.shareAsync(uri, {
       mimeType: 'application/pdf',

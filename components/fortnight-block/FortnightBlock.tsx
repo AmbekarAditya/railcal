@@ -7,12 +7,17 @@ import Duty from '../duty/Duty';
 interface Fortnight {
   startDate: Date;
   endDate: Date;
-  overtimeAllowance: string;
+  totalForthnightDuration: number;
+  overtimeAllowance: number;
 }
 
 interface FortnightBlockProps {
   selectedMonth: string;
   duties: Duty[];
+  rateOfPay: number;
+  dearnessAllowance: number;
+  transportationAllowance: number;
+  totalOvertimeAllowance: number;
 }
 
 const FORTNIGHT_DATES = [
@@ -39,95 +44,108 @@ const FORTNIGHT_DATES = [
 ];
 
 const FortnightBlock: React.FC<FortnightBlockProps> = ({
-  selectedMonth,
-  duties,
-}) => {
-  const [fortnights, setFortnights] = useState<Fortnight[]>([]);
-  const [inputHours, setInputHours] = useState(Number);
-
-  useEffect(() => {
-    recalculateFortnights(inputHours);
-  }, [selectedMonth, duties]);
-
-  const recalculateFortnights = (baseProgressiveHours: number) => {
-    const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
-    const startDate = new Date(2024, monthIndex, 1);
-    const endDate = new Date(2024, monthIndex + 1, 0);
+    selectedMonth,
+    duties,
+    rateOfPay,
+    dearnessAllowance,
+    transportationAllowance,
+    totalOvertimeAllowance,
+  }) => {
+    const [fortnights, setFortnights] = useState<Fortnight[]>([]);
+    const [inputHours, setInputHours] = useState(0);
   
-    const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter((date) => {
-      const fortnightEnd = new Date(date);
-      fortnightEnd.setDate(fortnightEnd.getDate() + 13);
-      return date <= endDate && fortnightEnd >= startDate;
-    }).map((startDate, index) => {
-      const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
-      let totalProgressiveDutyHoursInMinutes = duties
-        .filter((duty) => {
-          const dutyStart = new Date(duty.signIn);
-          return dutyStart >= startDate && dutyStart <= endDate;
-        })
-        .reduce((acc, duty) => {
-          const dutyHoursInMinutes = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) * 60 : 0;
-          return acc + dutyHoursInMinutes;
-        }, 0);
+    useEffect(() => {
+      recalculateFortnights(inputHours);
+    }, [selectedMonth, duties]);
   
-      if (index === 0) {
-        totalProgressiveDutyHoursInMinutes += baseProgressiveHours * 60; // Add progressive duty hours to the first fortnight
-      }
+    const recalculateFortnights = (baseProgressiveHours: number) => {
+      const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
+      const startDate = new Date(2024, monthIndex, 1);
+      const endDate = new Date(2024, monthIndex + 1, 0);
   
-      const totalProgressiveDutyHours = isNaN(totalProgressiveDutyHoursInMinutes) ? '00:00' : formatMinutesToHHMM(totalProgressiveDutyHoursInMinutes);
-      const overtimeAllowanceInMinutes = Math.max(0, totalProgressiveDutyHoursInMinutes - 104 * 60); // 104 hours = 13 days * 8 hours
-      const overtimeAllowance = isNaN(overtimeAllowanceInMinutes) ? '00:00' : formatMinutesToHHMM(overtimeAllowanceInMinutes);
+      const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter((date) => {
+        const fortnightEnd = new Date(date);
+        fortnightEnd.setDate(fortnightEnd.getDate() + 13);
+        return date <= endDate && fortnightEnd >= startDate;
+      }).map((startDate, index) => {
+        const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
+        let totalForthnightDurationInMinutes = duties
+          .filter((duty) => {
+            const dutyStart = new Date(duty.signIn);
+            return dutyStart >= startDate && dutyStart <= endDate;
+          })
+          .reduce((acc, duty) => {
+            const dutyHoursInMinutes = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) * 60 : 0;
+            return acc + dutyHoursInMinutes;
+          }, 0);
   
-      return {
-        startDate,
-        endDate,
-        totalProgressiveDutyHours,
-        overtimeAllowance,
-      };
-    });
+        if (index === 0) {
+          totalForthnightDurationInMinutes += baseProgressiveHours * 60; // Add progressive duty hours to the first fortnight
+        }
   
-    setFortnights(intersectingFortnights);
-  };
-  const formatMinutesToHHMM = (totalMinutes: number): string => {
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-  };
-
-  const handleApply = () => {
-    const hours = Number(inputHours);
-    setInputHours(hours)
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Fortnights in {selectedMonth}</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Progressive Duty Hours</Text>
-        <TextInput
-          style={styles.input}
-          value={inputHours}
-          keyboardType="numeric"
-          onChangeText={setInputHours}
-        />
-        <Button title="Apply" onPress={handleApply} />
-      </View>
-      {fortnights.map((fortnight, index) => (
-        <View key={index} style={styles.fortnight}>
-          <Text style={styles.fortnightText}>
-            {format(fortnight.startDate, 'dd MMM yyyy')} - {format(fortnight.endDate, 'dd MMM yyyy')}
-          </Text>
-          <Text style={styles.fortnightText}>
-            Total Progressive Duty Hours: {fortnight.totalProgressiveDutyHours}
-          </Text>
-          <Text style={styles.fortnightText}>
-            Overtime Allowance: {fortnight.overtimeAllowance}
-          </Text>
+        const totalForthnightDuration = totalForthnightDurationInMinutes / 60; // Convert minutes to hours
+  
+        const basicPlusDAPlusTA = rateOfPay + dearnessAllowance + transportationAllowance + (rateOfPay * 0.30);
+        const lowerRate = (basicPlusDAPlusTA * 1.5)/223;
+        const higherRate = (basicPlusDAPlusTA * 2)/223;
+  
+        let overtimeAllowance = 0;
+        if (totalForthnightDuration > 104) {
+          if (totalForthnightDuration <= 108) {
+            overtimeAllowance = (totalForthnightDuration - 104) * lowerRate;
+          } else {
+            overtimeAllowance = (108 - 104) * lowerRate + (totalForthnightDuration - 108) * higherRate;
+          }
+        }
+  
+        return {
+          startDate,
+          endDate,
+          totalForthnightDuration,
+          overtimeAllowance,
+        };
+      });
+  
+      setFortnights(intersectingFortnights);
+    };
+  
+    const handleApply = () => {
+      const hours = Number(inputHours);
+      setInputHours(hours);
+    };
+  
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Fortnights in {selectedMonth}</Text>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Progressive Duty Hours</Text>
+          <TextInput
+            style={styles.input}
+            value={inputHours.toString()}
+            keyboardType="numeric"
+            onChangeText={(text) => setInputHours(Number(text))}
+          />
+          <Button title="Apply" onPress={handleApply} />
         </View>
-      ))}
-    </View>
-  );
-};
+        {fortnights.map((fortnight, index) => (
+          <View key={index} style={styles.fortnight}>
+            <Text style={styles.fortnightText}>
+              {format(fortnight.startDate, 'dd MMM yyyy')} - {format(fortnight.endDate, 'dd MMM yyyy')}
+            </Text>
+            <Text style={styles.fortnightText}>
+            Total Fortnight Duration: {fortnight.totalForthnightDuration ? fortnight.totalForthnightDuration.toFixed(2) : '0.00'} hours
+            </Text>
+            <Text style={styles.fortnightText}>
+            Overtime Allowance: {fortnight.overtimeAllowance ? fortnight.overtimeAllowance.toFixed(2) : '0.00'}
+            </Text>
+          </View>
+        ))}
+        <Text style={styles.totalText}>
+        Total Overtime Allowance: {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : '0.00'}
+        </Text>
+      </View>
+    );
+  };
 
 const styles = StyleSheet.create({
   container: {
@@ -165,6 +183,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     paddingHorizontal: 8,
     marginRight: 8,
+  },
+  totalText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginTop: 16,
   },
 });
 

@@ -8,7 +8,6 @@ const calculateOsdaAllowance = (
   designation: string,
   totalOsda: number
 ): number => {
-  console.log("Selected Designation:", designation);
 
   // Handle missing parameters
   if (designation === undefined || totalOsda === undefined) {

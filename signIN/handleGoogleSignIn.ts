@@ -20,10 +20,8 @@ export const handleGoogleSignIn = async (auth, navigation) => {
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // User cancelled the sign-in flow
-        console.log('Sign-in cancelled');
       } else if (error.code === statusCodes.IN_PROGRESS) {
         // Operation is in progress already
-        console.log('In progress');
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
         // Play services are not available or outdated
         Alert.alert('Google Sign-In Eror', 'Play services are not available or outdated.');

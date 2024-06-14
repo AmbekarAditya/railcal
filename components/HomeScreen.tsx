@@ -38,8 +38,6 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
     } else {
       const selectedDesignation = designations.find((item) => item.label === designation);
   const designationValue = selectedDesignation ? selectedDesignation.value : '';
-
-      console.log('Designation value:', designation);
       this.setState({ showWarning: false });
       this.props.navigation.navigate('CalculationPage', {
         designation: designationValue, 

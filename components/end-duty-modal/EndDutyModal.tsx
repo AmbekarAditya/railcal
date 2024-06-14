@@ -141,10 +141,7 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
 
   render() {
     const { closeModal } = this.props;
-    const { dutyStartDate, dutyStartTime, dutyEndDate, dutyEndTime, isOSDAApplicable, isRRAApplicable, isStartDatePickerVisible, isStartTimePickerVisible, isEndDatePickerVisible, isEndTimePickerVisible } = this.state;
-    
-      console.log('dutyStartDate:', this.state.dutyStartDate, typeof this.state.dutyStartDate);
-    
+    const { dutyStartDate, dutyStartTime, dutyEndDate, dutyEndTime, isOSDAApplicable, isRRAApplicable, isStartDatePickerVisible, isStartTimePickerVisible, isEndDatePickerVisible, isEndTimePickerVisible } = this.state;    
     
       return (
         <View style={styles.container}>

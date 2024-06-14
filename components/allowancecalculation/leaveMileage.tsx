@@ -38,7 +38,6 @@ function calculateLeaveMileage({
     return count + duty.trips.filter(trip => leaveTypes.includes(trip.typeOfWork)).length;
   }, 0);
 
-  console.log(totalLeaves);
 
   const lmc = (0.3 * rateOfPay) / daysInMonth;
   const leaveMileageAllowance = lmc * totalLeaves;
