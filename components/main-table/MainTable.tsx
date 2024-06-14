@@ -16,6 +16,7 @@ import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
+import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import { overtimeCalculation } from "../allowancecalculation/overtimeAllowance";
@@ -364,6 +365,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
     const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
+    const transportationAllowance = calculateTransportationAllowance(designation)
     const totalNightDutyHours = this.calculateTotalNightDutyHours();
     const nightDutyAllowance = computeNightDutyAllowance(
       rateOfPay,
@@ -474,6 +476,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               leaveMileageAllowance={leaveMileageAllowance}
               overTimeAllowance={overTimeAllowance}
               dearnessAllowance={dearnessAllowance}
+              transportationAllowance={transportationAllowance}
               startDate={startDate}
               progressiveDutyHours={progressiveDutyHours}
               endDate={""}

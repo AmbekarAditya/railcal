@@ -542,3 +542,20 @@ export const disabledTypes = [
   "Paternal leave",
   "Maternal leave",
 ];
+
+
+export const DESIGNATION_BASIC_TRANPORTATION: { [key: string]: number } = {
+  "Locopilot Mail Express": 1800,
+  "Locopilot Passenger/ Sr Motorman": 1800,
+  "Locopilot Goods": 1800,
+  "Locopilot Shunting ( Grade I )": 1800,
+  "Locopilot Shunting ( Grade II )": 1800,
+  "Senior Assistant Locopilot": 1800,
+  "Assistant Locopilot": 900,
+  "Mail Express Train Manager": 1800,
+  "Passenger Train Manager": 1800,
+  "Senior Goods Train Manager": 1800,
+  "Goods Train Manager": 1800,
+};
+
+export const DEARNESS_FACTOR = 50;
