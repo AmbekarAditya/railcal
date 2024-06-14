@@ -279,6 +279,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }
   };
 
+  handleOvertimeAllowanceChange = (newAllowance: number) => {
+    this.setState({ overtimeResult: newAllowance });
+  };
+
   render() {
     const { overtimeResult } = this.state;
 
@@ -383,6 +387,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       
       const totalDutyHours = calculateTotalDutyHours(duties)
 
+      
+
     return (
       <ScrollView
         horizontal
@@ -463,6 +469,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           dearnessAllowance={dearnessAllowance}
           transportationAllowance={transportationAllowance}
           totalOvertimeAllowance={overtimeResult}
+          onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
         />
         {duties.length > 0 && (
           <ScrollView>

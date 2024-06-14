@@ -18,6 +18,7 @@ interface FortnightBlockProps {
   dearnessAllowance: number;
   transportationAllowance: number;
   totalOvertimeAllowance: number;
+  onOvertimeAllowanceChange: (newAllowance: number) => void;
 }
 
 const FORTNIGHT_DATES = [
@@ -50,6 +51,7 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
     dearnessAllowance,
     transportationAllowance,
     totalOvertimeAllowance,
+    onOvertimeAllowanceChange,
   }) => {
     const [fortnights, setFortnights] = useState<Fortnight[]>([]);
     const [inputHours, setInputHours] = useState(0);
@@ -106,7 +108,13 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
         };
       });
   
+      const totalOvertimeAllowance = intersectingFortnights.reduce(
+        (total, fortnight) => total + fortnight.overtimeAllowance,
+        0
+      );
+  
       setFortnights(intersectingFortnights);
+      onOvertimeAllowanceChange(totalOvertimeAllowance);
     };
   
     const handleApply = () => {
