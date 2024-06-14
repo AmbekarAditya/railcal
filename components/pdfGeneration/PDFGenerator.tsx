@@ -40,6 +40,7 @@ interface PDFGeneratorProps {
   dearnessAllowance: number;
   progressiveDutyHours: number;
   grandTotalAllowance:number;
+  rraOsda: number;
 }
 
 const PDFGenerator: React.FC<PDFGeneratorProps> = ({
@@ -57,6 +58,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   grandTotalAllowance,
   dearnessAllowance,
   progressiveDutyHours,
+  rraOsda,
 }) => {
   const generatePDF = () => {
     const doc = new jsPDF(); // Set portrait orientation (default)
@@ -526,12 +528,14 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
       ],
       [
         {
-          content: "Progressive Duty Hours:",
+          content: "RRA / OSDA:",
           colSpan: 1,
           styles: { fontStyle: "bold" },
         },
         {
-          content: progressiveDutyHours ? formatHours(progressiveDutyHours) : "-",
+          content: rraOsda
+            ? `Rs. ${rraOsda.toFixed(2)}`
+            : "-",
           colSpan: 1,
         },
       ],
