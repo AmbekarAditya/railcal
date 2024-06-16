@@ -62,33 +62,35 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
       const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
       const startDate = new Date(2024, monthIndex, 1);
       const endDate = new Date(2024, monthIndex + 1, 0);
-  
+    
+      // Sort duties by start date in ascending order
+      const sortedDuties = [...duties].sort((a, b) => new Date(a.signIn).getTime() - new Date(b.signIn).getTime());
+    
       const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter((date) => {
         const fortnightEnd = new Date(date);
         fortnightEnd.setDate(fortnightEnd.getDate() + 13);
         return date <= endDate && fortnightEnd >= startDate;
       }).map((startDate, index) => {
         const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
-        let totalForthnightDurationInMinutes = duties
-          .filter((duty) => {
-            const dutyStart = new Date(duty.signIn);
-            return dutyStart >= startDate && dutyStart <= endDate;
-          })
-          .reduce((acc, duty) => {
-            const dutyHoursInMinutes = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) * 60 : 0;
-            return acc + dutyHoursInMinutes;
-          }, 0);
-  
-        if (index === 0) {
-          totalForthnightDurationInMinutes += baseProgressiveHours * 60; // Add progressive duty hours to the first fortnight
-        }
-  
-        const totalForthnightDuration = totalForthnightDurationInMinutes / 60; // Convert minutes to hours
-  
+        let totalForthnightDuration = 0;
+        let progressiveDutyHours = index === 0 ? baseProgressiveHours : 0;
+        let lastDutyProgressiveHours = progressiveDutyHours;
+    
+        sortedDuties.forEach((duty) => {
+          const dutyStart = new Date(duty.signIn);
+          if (dutyStart >= startDate && dutyStart <= endDate) {
+            const dutyHours = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) : 0;
+            totalForthnightDuration += dutyHours;
+            progressiveDutyHours += dutyHours;
+            duty.progressiveDutyHours = progressiveDutyHours;
+            lastDutyProgressiveHours = progressiveDutyHours;
+          }
+        });
+    
         const basicPlusDAPlusTA = rateOfPay + dearnessAllowance + transportationAllowance + (rateOfPay * 0.30);
-        const lowerRate = (basicPlusDAPlusTA * 1.5)/223;
-        const higherRate = (basicPlusDAPlusTA * 2)/223;
-  
+        const lowerRate = (basicPlusDAPlusTA * 1.5) / 223;
+        const higherRate = (basicPlusDAPlusTA * 2) / 223;
+    
         let overtimeAllowance = 0;
         if (totalForthnightDuration > 104) {
           if (totalForthnightDuration <= 108) {
@@ -97,27 +99,27 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
             overtimeAllowance = (108 - 104) * lowerRate + (totalForthnightDuration - 108) * higherRate;
           }
         }
-  
+    
         const totalOvertimeHours = Math.max(totalForthnightDuration - 104, 0);
-
+    
         return new Fortnight(
           startDate,
           endDate,
-          totalForthnightDuration,
+          lastDutyProgressiveHours,
           overtimeAllowance,
           totalOvertimeHours
         );
       });
-  
+    
       const totalOvertimeAllowance = intersectingFortnights.reduce(
         (total, fortnight) => total + fortnight.overtimeAllowance,
         0
       );
-  
+    
       setFortnights(intersectingFortnights);
       onOvertimeAllowanceChange(totalOvertimeAllowance);
     };
-  
+    
     const handleApply = () => {
       const hours = Number(inputHours);
       setInputHours(hours);
