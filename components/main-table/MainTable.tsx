@@ -292,7 +292,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
-    const { overtimeResult } = this.state;
+    const { overtimeResult, fortnights } = this.state;
 
     const { duties, showModal, selectedDuty, totalLeaves } = this.state;
     const { rateOfPay, selectedMonth, designation, payBand, level } =
@@ -448,6 +448,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 rraOsda={osdaAllowance}
                 overtimeResult={overtimeResult}
                 grandTotalAllowance={totalAllowance}
+                fortnights={fortnights}
               />
             )}
             {Platform.OS !== "web" && (

@@ -98,12 +98,15 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
           }
         }
   
-        return {
+        const totalOvertimeHours = Math.max(totalForthnightDuration - 104, 0);
+
+        return new Fortnight(
           startDate,
           endDate,
           totalForthnightDuration,
           overtimeAllowance,
-        };
+          totalOvertimeHours
+        );
       });
   
       const totalOvertimeAllowance = intersectingFortnights.reduce(
@@ -141,6 +144,9 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
             <Text style={styles.fortnightText}>
             Total Fortnight Duration: {fortnight.totalForthnightDuration ? fortnight.totalForthnightDuration.toFixed(2) : '0.00'} hours
             </Text>
+            <Text style={styles.fortnightText}>
+            Total Overtime Hours: {fortnight.totalOvertimeHours.toFixed(2)}
+          </Text>
             <Text style={styles.fortnightText}>
             Overtime Allowance: {fortnight.overtimeAllowance ? fortnight.overtimeAllowance.toFixed(2) : '0.00'}
             </Text>

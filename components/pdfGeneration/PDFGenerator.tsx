@@ -484,6 +484,73 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
       currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
     }
 
+
+// Generate the fortnights table
+const fortnightsData = [
+  [
+    { content: "Fortnight", colSpan: 1, styles: { fontStyle: "bold" } },
+    { content: "Start Date", colSpan: 1, styles: { fontStyle: "bold" } },
+    { content: "End Date", colSpan: 1, styles: { fontStyle: "bold" } },
+    {
+      content: "Total Fortnight Duration",
+      colSpan: 1,
+      styles: { fontStyle: "bold" },
+    },
+    {
+      content: "Total Overtime Hours",
+      colSpan: 1,
+      styles: { fontStyle: "bold" },
+    },
+    {
+      content: "Overtime Allowance",
+      colSpan: 1,
+      styles: { fontStyle: "bold" },
+    },
+  ],
+  ...fortnights.map((fortnight, index) => [
+    { content: `Fortnight ${index + 1}`, colSpan: 1 },
+    {
+      content: fortnight.startDate instanceof Date
+        ? fortnight.startDate.toDateString()
+        : fortnight.startDate,
+      colSpan: 1,
+    },
+    {
+      content: fortnight.endDate instanceof Date
+        ? fortnight.endDate.toDateString()
+        : fortnight.endDate,
+      colSpan: 1,
+    },
+    { content: fortnight.totalForthnightDuration.toFixed(2), colSpan: 1 },
+    { content: fortnight.totalOvertimeHours.toFixed(2), colSpan: 1 },
+    { content: `Rs. ${fortnight.overtimeAllowance.toFixed(2)}`, colSpan: 1 },
+  ]),
+];
+
+doc.autoTable({
+  head: [
+    [
+      {
+        content: "Overtime Table",
+        colSpan: 6,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+    ],
+  ],
+  body: fortnightsData,
+  theme: "grid",
+  styles: { fontSize: 8 },
+  startY: currentYPosition,
+});
+
+currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+
+
+
     const summaryBlockData = [
       [
         { content: "Mileage:", colSpan: 1, styles: { fontStyle: "bold" } },
