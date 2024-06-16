@@ -18,27 +18,35 @@ interface FortnightBlockProps {
 }
 
 const FORTNIGHT_DATES = [
-  new Date('2024-04-01'),
-  new Date('2024-04-15'),
-  new Date('2024-04-29'),
-  new Date('2024-05-13'),
-  new Date('2024-05-27'),
-  new Date('2024-06-10'),
-  new Date('2024-06-24'),
-  new Date('2024-07-08'),
-  new Date('2024-07-22'),
-  new Date('2024-08-05'),
-  new Date('2024-08-19'),
-  new Date('2024-09-02'),
-  new Date('2024-09-16'),
-  new Date('2024-09-30'),
-  new Date('2024-10-14'),
-  new Date('2024-10-28'),
-  new Date('2024-11-11'),
-  new Date('2024-11-25'),
-  new Date('2024-12-09'),
-  new Date('2024-12-23'),
+  new Date('2024-01-01'),
+  new Date('2024-01-15'),
+  new Date('2024-01-29'),
+  new Date('2024-02-12'),
+  new Date('2024-02-26'),
+  new Date('2024-03-11'),
+  new Date('2024-03-25'),
+  new Date('2024-04-08'),
+  new Date('2024-04-22'),
+  new Date('2024-05-06'),
+  new Date('2024-05-19'),
+  new Date('2024-06-02'),
+  new Date('2024-06-16'),
+  new Date('2024-06-30'),
+  new Date('2024-07-14'),
+  new Date('2024-07-28'),
+  new Date('2024-08-11'),
+  new Date('2024-08-25'),
+  new Date('2024-09-08'),
+  new Date('2024-09-22'),
+  new Date('2024-10-06'),
+  new Date('2024-10-20'),
+  new Date('2024-11-03'),
+  new Date('2024-11-17'),
+  new Date('2024-12-01'),
+  new Date('2024-12-15'),
+  new Date('2024-12-29')
 ];
+
 
 const FortnightBlock: React.FC<FortnightBlockProps> = ({
     selectedMonth,
@@ -119,7 +127,7 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
       setFortnights(intersectingFortnights);
       onOvertimeAllowanceChange(totalOvertimeAllowance);
     };
-    
+
     const handleApply = () => {
       const hours = Number(inputHours);
       setInputHours(hours);

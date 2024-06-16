@@ -235,7 +235,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
           "Dep. Time",
           "Arr. Time",
           "Distance",
-          "Duty Hours",
+          "Duration",
           "km earned",
           "Remarks",
         ],
@@ -308,7 +308,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
             colSpan: 1,
           },
           {
-            content: `Rs. ${duty.calculateTotalAllowance().toFixed(2)}`,
+            content: `${duty.calculateTotalAllowance().toFixed(2)}`,
             colSpan: 1,
           },
           {
