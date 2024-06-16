@@ -1,6 +1,6 @@
 // FortnightBlock.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Button } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, ScrollView } from 'react-native';
 import { format } from 'date-fns';
 import Duty from '../duty/Duty';
 import Fortnight from './Fortnight';
@@ -146,24 +146,26 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
           />
           <Button title="Apply" onPress={handleApply} />
         </View>
-        {fortnights.map((fortnight, index) => (
-          <View key={index} style={styles.fortnight}>
-            <Text style={styles.fortnightText}>
-              {format(fortnight.startDate, 'dd MMM yyyy')} - {format(fortnight.endDate, 'dd MMM yyyy')}
-            </Text>
-            <Text style={styles.fortnightText}>
-            Total Fortnight Duration: {fortnight.totalForthnightDuration ? fortnight.totalForthnightDuration.toFixed(2) : '0.00'} hours
-            </Text>
-            <Text style={styles.fortnightText}>
-            Total Overtime Hours: {fortnight.totalOvertimeHours.toFixed(2)}
-          </Text>
-            <Text style={styles.fortnightText}>
-            Overtime Allowance: {fortnight.overtimeAllowance ? fortnight.overtimeAllowance.toFixed(2) : '0.00'}
-            </Text>
-          </View>
-        ))}
+        <ScrollView horizontal contentContainerStyle={styles.fortnightsContainer}>
+          {fortnights.map((fortnight, index) => (
+            <View key={index} style={styles.fortnight}>
+              <Text style={styles.fortnightText}>
+                {format(fortnight.startDate, 'dd MMM')} - {format(fortnight.endDate, 'dd MMM')}
+              </Text>
+              <Text style={styles.fortnightText}>
+                Total Hours: {fortnight.totalForthnightDuration ? fortnight.totalForthnightDuration.toFixed(2) : '0.00'}
+              </Text>
+              <Text style={styles.fortnightText}>
+                Overtime Hours: {fortnight.totalOvertimeHours.toFixed(2)}
+              </Text>
+              <Text style={styles.fortnightText}>
+                Overtime Allowance: {fortnight.overtimeAllowance ? fortnight.overtimeAllowance.toFixed(2) : '0.00'}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
         <Text style={styles.totalText}>
-        Total Overtime Allowance: {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : '0.00'}
+          Total Overtime Allowance: {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : '0.00'}
         </Text>
       </View>
     );
@@ -179,11 +181,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 8,
-  },
-  fortnight: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
     marginBottom: 8,
   },
   fortnightText: {
@@ -210,6 +207,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginTop: 16,
+  },
+  fortnightsContainer: {
+    flexDirection: 'row',
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  fortnight: {
+    minWidth: 120,
+    padding: 8,
+    backgroundColor: '#ffffff',
+    borderRadius: 4,
+    marginRight: 8,
   },
 });
 

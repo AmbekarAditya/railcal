@@ -85,9 +85,6 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.heading}>Summary:</Text>
-        <Text style={styles.dates}>
-          {startDate} to {endDate}
-        </Text>
       </View>
       <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
         <View style={styles.infoContainerWrapper}>
