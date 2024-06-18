@@ -2,6 +2,7 @@ import React from 'react';
 import { Platform, Text, View, Button, ScrollView, StyleSheet,TextInput, TouchableOpacity,Dimensions } from 'react-native';
 import Duty from '../duty/Duty';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { monthNames } from '../../utils/constants';
 
 // Use Dimensions to get window size for responsive design
 const { width } = Dimensions.get('window');
@@ -10,6 +11,7 @@ interface EndDutyModalProps {
   duty: Duty;
   updateDutyDetails: (updatedDuty: Duty) => void;
   closeModal: () => void;
+  selectedMonth: keyof typeof monthNames;
 }
 
 interface EndDutyModalState {
@@ -28,11 +30,16 @@ interface EndDutyModalState {
 class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState> {
   constructor(props: EndDutyModalProps) {
     super(props);
+    const { selectedMonth } = props;
+    const currentYear = new Date().getFullYear();
+    const monthNumber = monthNames[selectedMonth];
+    const defaultDate = new Date(currentYear, monthNumber - 1, 1);
+
     this.state = {
-      dutyStartDate: new Date(),
-      dutyStartTime: new Date(),
-      dutyEndDate: new Date(),
-      dutyEndTime: new Date(),
+      dutyStartDate: defaultDate,
+      dutyStartTime: defaultDate,
+      dutyEndDate: defaultDate,
+      dutyEndTime: defaultDate,  
       isOSDAApplicable: false,
       isRRAApplicable: false,
       isStartDatePickerVisible: false,

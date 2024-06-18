@@ -9,7 +9,8 @@ import DutyInfo from "./DutyInfo";
 import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
 import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import WebDatePicker from "../DatePicker/WebDatePicker";
-import { parseISO, format } from "date-fns";
+import { monthNames } from "../../utils/constants";
+
 import {
   Platform,
   View,
@@ -42,6 +43,7 @@ interface DutyRowProps {
   ) => void;
   deleteTrip: (dutyId: number, tripId: number) => void;
   setTotalLeaves: (newTotalLeaves: number) => void;
+  selectedMonth: keyof typeof monthNames; // Update the selectedMonth prop type
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -52,6 +54,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteTrip,
   deleteDuty,
   setTotalLeaves,
+  selectedMonth, // Receive the selectedMonth prop
 }) => {
   const [hasEnded, setHasEnded] = useState(duty.hasEnded);
 
@@ -62,46 +65,48 @@ const DutyRow: React.FC<DutyRowProps> = ({
   ) => {
     const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
     const trip = duty.trips[tripIndex];
-  
-    const shouldDisableInputFields = (typeOfWork: string) => {
 
+    const shouldDisableInputFields = (typeOfWork: string) => {
       return disabledTypes.includes(typeOfWork);
     };
-  
+
     // Update the dutyHours for leave types before updating the trip data
     if (field === "typeOfWork") {
       duty.updateDutyHoursForLeaveTypes(value);
-  
+
       // Check if the new type is a leave type and the previous type was not
-      if (shouldDisableInputFields(value) && !shouldDisableInputFields(trip.typeOfWork)) {
+      if (
+        shouldDisableInputFields(value) &&
+        !shouldDisableInputFields(trip.typeOfWork)
+      ) {
         // Reset all values except date
         const updatedTrip = {
           ...trip,
           [field]: value,
-          sourceStation: '',
-          destinationStation: '',
+          sourceStation: "",
+          destinationStation: "",
           distance: 0,
-          trainNumber: '',
-          arrivalTime: '',
-          departureTime: '',
-          dutyHours: '',
+          trainNumber: "",
+          arrivalTime: "",
+          departureTime: "",
+          dutyHours: "",
           allowance: 0,
-          remarks: '',
+          remarks: "",
         };
         updateTripData(duty.id, tripId, field, value);
-        updateTripData(duty.id, tripId, 'sourceStation', '');
-        updateTripData(duty.id, tripId, 'destinationStation', '');
-        updateTripData(duty.id, tripId, 'distance', 0);
-        updateTripData(duty.id, tripId, 'trainNumber', '');
-        updateTripData(duty.id, tripId, 'arrivalTime', '');
-        updateTripData(duty.id, tripId, 'departureTime', '');
-        updateTripData(duty.id, tripId, 'dutyHours', '');
-        updateTripData(duty.id, tripId, 'allowance', 0);
-        updateTripData(duty.id, tripId, 'remarks', '');
-        
+        updateTripData(duty.id, tripId, "sourceStation", "");
+        updateTripData(duty.id, tripId, "destinationStation", "");
+        updateTripData(duty.id, tripId, "distance", 0);
+        updateTripData(duty.id, tripId, "trainNumber", "");
+        updateTripData(duty.id, tripId, "arrivalTime", "");
+        updateTripData(duty.id, tripId, "departureTime", "");
+        updateTripData(duty.id, tripId, "dutyHours", "");
+        updateTripData(duty.id, tripId, "allowance", 0);
+        updateTripData(duty.id, tripId, "remarks", "");
+
         // Set duty.hasEnded to true if the new type is a leave type
         duty.hasEnded = true;
-  
+
         return;
       } else if (shouldDisableInputFields(value)) {
         // Set duty.hasEnded to true if the new type is a leave type
@@ -111,33 +116,32 @@ const DutyRow: React.FC<DutyRowProps> = ({
         duty.hasEnded = false;
       }
     }
-  
+
     // Update the trip data
     const updatedTrip = { ...trip, [field]: value };
     updateTripData(duty.id, tripId, field, value);
-  
+
     // Recalculate allowance and remarks whenever any field that affects the calculation is changed
     const dutyHoursInMinutes = calculateDutyHoursFromTimes(
       updatedTrip.arrivalTime,
       updatedTrip.departureTime
     );
-  
+
     const { allowance, remarks } = calculateAllowanceAndRemarks(
       updatedTrip.distance,
       updatedTrip.typeOfWork,
       dutyHoursInMinutes
     );
-  
+
     updateTripData(duty.id, tripId, "allowance", allowance);
     updateTripData(duty.id, tripId, "remarks", remarks);
   };
-  
 
   const handleTimesChange = useCallback(
     debounce((tripId, arrivalTime, departureTime, dutyHours) => {
-      handleTripDataChange(tripId, 'arrivalTime', arrivalTime);
-      handleTripDataChange(tripId, 'departureTime', departureTime);
-      handleTripDataChange(tripId, 'dutyHours', dutyHours);
+      handleTripDataChange(tripId, "arrivalTime", arrivalTime);
+      handleTripDataChange(tripId, "departureTime", departureTime);
+      handleTripDataChange(tripId, "dutyHours", dutyHours);
     }, 300),
     [handleTripDataChange]
   );
@@ -206,7 +210,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
     duty.hasEnded = false; // Directly modify the duty object
   };
 
-
   useEffect(() => {
     duty.trips.forEach((trip) => {
       const dutyHoursInMinutes = calculateDutyHoursFromTimes(
@@ -220,10 +223,16 @@ const DutyRow: React.FC<DutyRowProps> = ({
         dutyHoursInMinutes
       );
 
-      updateTripData(duty.id, trip.id, 'allowance', allowance);
-      updateTripData(duty.id, trip.id, 'remarks', remarks);
+      updateTripData(duty.id, trip.id, "allowance", allowance);
+      updateTripData(duty.id, trip.id, "remarks", remarks);
     });
-  }, [duty.trips, updateTripData, duty.id, calculateDutyHoursFromTimes, calculateAllowanceAndRemarks]);
+  }, [
+    duty.trips,
+    updateTripData,
+    duty.id,
+    calculateDutyHoursFromTimes,
+    calculateAllowanceAndRemarks,
+  ]);
 
   const shouldDisableInputFields = (typeOfWork: string) => {
     return disabledTypes.includes(typeOfWork);
@@ -239,7 +248,10 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <View style={styles.dateContainer}>
             {Platform.OS === "web" ? (
               <WebDatePicker
-                value={trip.date}
+                value={
+                  trip.date ||
+                  `${new Date().getFullYear()}-${monthNames[selectedMonth]}-01`
+                } // Set default date to the first day of the selected month
                 onChange={(date) => handleTripDataChange(trip.id, "date", date)}
               />
             ) : (
@@ -247,6 +259,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 onDateSelected={(date) =>
                   handleTripDataChange(trip.id, "date", date)
                 }
+                defaultDate={`${new Date().getFullYear()}-${
+                  monthNames[selectedMonth]
+                }-01`} // Set default date to the first day of the selected month
               />
             )}
           </View>
@@ -284,22 +299,27 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <View style={styles.timePickerContainer}>
             <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) =>
-                handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
+                handleTimesChange(
+                  trip.id,
+                  arrivalTime,
+                  departureTime,
+                  dutyHours
+                )
               }
               disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </View>
-          <View style={{margin:20}}>
+          <View style={{ margin: 20 }}>
             <Text style={styles.durationText}>{trip.dutyHours}</Text>
             <Text style={styles.durationText}>duration</Text>
           </View>
-          <View style={{margin:20}}>
+          <View style={{ margin: 20 }}>
             <Text style={styles.allowanceText}>
               {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
             </Text>
             <Text>km earned</Text>
           </View>
-          <View style={{margin:20}}>
+          <View style={{ margin: 20 }}>
             <Text style={styles.remarksText}>{trip.remarks}</Text>
             <Text style={styles.remarksText}>remarks</Text>
           </View>
@@ -317,14 +337,18 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <TouchableOpacity
           style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
           onPress={() => addTrip(duty.id)}
-          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)} // Disable if duty has ended
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          } // Disable if duty has ended
         >
           <Text>Add Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, { marginRight: 10 }]}
           onPress={() => handleEndDuty(duty)}
-          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          }
         >
           <Text>End Duty</Text>
         </TouchableOpacity>
@@ -342,7 +366,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text>Edit Duty</Text>
         </TouchableOpacity>
       </View>
-      {duty.hasEnded && <DutyInfo duty={duty} />} {/* Render DutyInfo only if duty has ended */}
+      {duty.hasEnded && <DutyInfo duty={duty} />}{" "}
+      {/* Render DutyInfo only if duty has ended */}
       {duty.trips.length > 0 && (
         <View style={styles.separator}>
           <View style={{ height: 1, backgroundColor: "gray" }} />

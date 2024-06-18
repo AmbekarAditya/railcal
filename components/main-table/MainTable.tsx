@@ -53,7 +53,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     selectedDuty: null,
     totalLeaves: 0,
     overtimeResult: 0,
-    progressiveDutyHours : 0,
+    progressiveDutyHours: 0,
     fortnights: [],
   };
 
@@ -286,7 +286,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ overtimeResult: newAllowance });
   };
 
-
   handleFortnightsChange = (fortnights: Fortnight[]) => {
     this.setState({ fortnights });
   };
@@ -371,7 +370,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
 
     const totalAllowance =
-      mileage + nightDutyAllowance + osdaAllowance + leaveMileageAllowance + overtimeResult; // OT to be added
+      mileage +
+      nightDutyAllowance +
+      osdaAllowance +
+      leaveMileageAllowance +
+      overtimeResult; // OT to be added
 
     const lastDuty = duties[duties.length - 1];
     // const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
@@ -380,22 +383,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (leaveMileageAllowance || 0) +
       (osdaAllowance || 0);
 
-      const calculateTotalDutyHours = (duties: Duty[]): number => {
-        return duties.reduce((total, duty) => {
-          return (
-            total +
-            duty.trips.reduce((dutyTotal, trip) => {
-              const dutyHours = parseFloat(trip.dutyHours);
-              return dutyTotal + (isNaN(dutyHours) ? 0 : dutyHours);
-            }, 0)
-          );
-        }, 0);
-      };
+    const calculateTotalDutyHours = (duties: Duty[]): number => {
+      return duties.reduce((total, duty) => {
+        return (
+          total +
+          duty.trips.reduce((dutyTotal, trip) => {
+            const dutyHours = parseFloat(trip.dutyHours);
+            return dutyTotal + (isNaN(dutyHours) ? 0 : dutyHours);
+          }, 0)
+        );
+      }, 0);
+    };
 
-      
-      const totalDutyHours = calculateTotalDutyHours(duties)
-
-      
+    const totalDutyHours = calculateTotalDutyHours(duties);
 
     return (
       <ScrollView
@@ -478,7 +478,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           totalOvertimeAllowance={overtimeResult}
           onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
           onFortnightsChange={this.handleFortnightsChange}
-
         />
         {duties.length > 0 && (
           <ScrollView>
@@ -510,6 +509,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               duty={selectedDuty}
               updateDutyDetails={this.updateDutyDetails}
               closeModal={() => this.setState({ showModal: false })}
+              selectedMonth={selectedMonth}
             />
           )}
         </Modal>
