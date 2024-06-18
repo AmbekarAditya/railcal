@@ -30,16 +30,41 @@ interface EndDutyModalState {
 class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState> {
   constructor(props: EndDutyModalProps) {
     super(props);
-    const { selectedMonth } = props;
+    const { selectedMonth, duty } = props;
     const currentYear = new Date().getFullYear();
     const monthNumber = monthNames[selectedMonth];
-    const defaultDate = new Date(currentYear, monthNumber - 1, 1);
+    const firstTripDate = duty.trips.length > 0 ? duty.trips[0].date : '';
+    const defaultStartDate = firstTripDate ? new Date(firstTripDate) : new Date(currentYear, monthNumber - 1, 1);
+
+    let defaultEndDate = new Date(defaultStartDate);
+    let defaultEndTime = new Date(defaultStartDate);
+  
+    if (duty.trips.length > 0) {
+      const lastTrip = duty.trips[duty.trips.length - 1];
+      const lastTripDepartureTime = lastTrip.departureTime;
+      const lastTripDate = lastTrip.date;
+  
+      if (lastTripDate) {
+        defaultEndDate = new Date(lastTripDate);
+      }
+  
+      if (lastTripDepartureTime) {
+        const [hours, minutes] = lastTripDepartureTime.split(':');
+        defaultEndTime.setHours(parseInt(hours, 10));
+        defaultEndTime.setMinutes(parseInt(minutes, 10) + 30);
+  
+        // Adjust the defaultEndDate if the defaultEndTime crosses midnight
+        if (defaultEndTime < defaultStartDate) {
+          defaultEndDate.setDate(defaultEndDate.getDate() + 1);
+        }
+      }
+    }  
 
     this.state = {
-      dutyStartDate: defaultDate,
-      dutyStartTime: defaultDate,
-      dutyEndDate: defaultDate,
-      dutyEndTime: defaultDate,  
+      dutyStartDate: defaultStartDate,
+      dutyStartTime: defaultStartDate,
+      dutyEndDate: defaultEndDate,
+      dutyEndTime: defaultEndTime, 
       isOSDAApplicable: false,
       isRRAApplicable: false,
       isStartDatePickerVisible: false,
