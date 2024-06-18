@@ -178,6 +178,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 updatedTrip.destinationStation = '';
                 duty.signIn = null;
                 duty.signOff = null;
+                duty.isLeave = true;
 
                 } else if (!isLeave && wasLeave) {
                   this.setState((prevState) => ({

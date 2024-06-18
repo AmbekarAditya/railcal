@@ -15,6 +15,7 @@ class Duty {
   progressiveDutyHours:number;
   progressiveNightDutyHours: number;
   hasEnded: boolean; // Add this line
+  isLeave: boolean;
 
   constructor(id: number, trips: Trip[] = []) {
     this.id = id;
@@ -30,6 +31,7 @@ class Duty {
     this.progressiveDutyHours=0;
     this.progressiveNightDutyHours=0;
     this.hasEnded = false; // Initialize hasEnded
+    this.isLeave = false;
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {

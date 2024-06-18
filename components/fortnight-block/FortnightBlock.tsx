@@ -85,7 +85,12 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
         let lastDutyProgressiveHours = progressiveDutyHours;
     
         sortedDuties.forEach((duty) => {
-          const dutyStart = new Date(duty.signIn);
+          let dutyStart;
+          if (duty.isLeave && duty.trips.length > 0) {
+            dutyStart = new Date(duty.trips[0].date);
+          } else {
+            dutyStart = new Date(duty.signIn);
+          }
           if (dutyStart >= startDate && dutyStart <= endDate) {
             const dutyHours = duty.dutyHours && !isNaN(duty.dutyHours) ? parseFloat(duty.dutyHours) : 0;
             totalForthnightDuration += dutyHours;
