@@ -250,9 +250,10 @@ const DutyRow: React.FC<DutyRowProps> = ({
               <WebDatePicker
                 value={
                   trip.date ||
-                  `${new Date().getFullYear()}-${monthNames[selectedMonth]}-01`
+                  `${new Date().getFullYear()}-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`
                 } // Set default date to the first day of the selected month
                 onChange={(date) => handleTripDataChange(trip.id, "date", date)}
+                min={`2023-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`} // Set the minimum selectable date
               />
             ) : (
               <DatePickerComponent
@@ -262,6 +263,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 defaultDate={`${new Date().getFullYear()}-${
                   monthNames[selectedMonth]
                 }-01`} // Set default date to the first day of the selected month
+                minimumDate={new Date(`2023-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`)} // Set the minimum selectable date
               />
             )}
           </View>

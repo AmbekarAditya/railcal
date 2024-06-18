@@ -11,11 +11,13 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 interface DatePickerComponentProps {
   onDateSelected: (date: string) => void;
   defaultDate: string;
+  minimumDate?: Date; // Add the minimumDate prop
 }
 
 const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
   onDateSelected,
   defaultDate,
+  minimumDate, // Add the minimumDate prop
 }) => {
   const [isDatePickerVisible, setDatePickerVisible] = useState(false);
   const [selectedDateString, setSelectedDateString] = useState("Select Date");
@@ -52,6 +54,7 @@ const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
         onCancel={hideDatePicker}
         isDarkModeEnabled={Platform.OS === "ios"} // Example of platform-specific property
         date={selectedDate} // Set initial date to selectedDate
+        minimumDate={minimumDate} // Set the minimum selectable date
       />
     </View>
   );

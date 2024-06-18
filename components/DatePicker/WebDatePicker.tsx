@@ -6,9 +6,10 @@ interface WebDatePickerProps {
   style?: StyleProp<ViewStyle>;
   value: string;
   onChange: (date: string) => void;
+  min?: string; // Add the min prop
 }
 
-const WebDatePicker: React.FC<WebDatePickerProps> = ({ style, value, onChange }) => {
+const WebDatePicker: React.FC<WebDatePickerProps> = ({ style, value, onChange, min }) => {
   const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
@@ -19,6 +20,7 @@ const WebDatePicker: React.FC<WebDatePickerProps> = ({ style, value, onChange })
       value={value}
       onChange={handleDateChange}
       style={styles.date}
+      min="2022-01-01" // Set the minimum selectable date
     />
   );
 };

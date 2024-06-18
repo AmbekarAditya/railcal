@@ -171,6 +171,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   this.setState((prevState) => ({
                     totalLeaves: prevState.totalLeaves + 1,
                   }));
+                                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
+                updatedTrip.arrivalTime = '';
+                updatedTrip.departureTime = '';
+                updatedTrip.sourceStation = '';
+                updatedTrip.destinationStation = '';
+                duty.signIn = null;
+                duty.signOff = null;
+
                 } else if (!isLeave && wasLeave) {
                   this.setState((prevState) => ({
                     totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
