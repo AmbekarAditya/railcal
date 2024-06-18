@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { combinations } from "../../utils/combinations";
 import { styles } from "../../styles_component/styles_stationpicker";
+import Duty from "../duty/Duty";
 
 interface PickerComponentStationProps {
   onStationChange: (
@@ -15,6 +16,7 @@ interface PickerComponentStationProps {
   dutyId: number;
   tripId: number;
   disabled: boolean;
+  duty: Duty;
 }
 
 const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
@@ -22,10 +24,19 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
   dutyId,
   tripId,
   disabled,
+  duty,
 }) => {
   const [fromStation, setFromStation] = useState("");
   const [toStation, setToStation] = useState("");
   const [distance, setDistance] = useState(0);
+
+  const currentTripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
+  const previousTrip = currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
+  const previousTripDestinationStation = previousTrip ? previousTrip.destinationStation : "";
+
+  useEffect(() => {
+    setFromStation(previousTripDestinationStation || "");
+  }, [previousTripDestinationStation]);
 
   const handleFromStationChange = (selectedStation: string) => {
     setFromStation(selectedStation);

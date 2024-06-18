@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Duty from "./Duty";
 import Trip from "../trip/Trip";
 import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
-import PickerComponentStation from "../station-picker/stationpicker";
+import PickerComponentStation from "../station-picker/stationPicker";
 import TrainNumberInput from "../trainNumber";
 import ArrivalDepartureTimePicker from "../arrivalDepartureTImePIcker/ArrivalDepartureTimePicker";
 import DutyInfo from "./DutyInfo";
@@ -288,6 +288,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
               tripId={trip.id}
               disabled={shouldDisableInputFields(trip.typeOfWork)}
               maxLength={5}
+              duty={duty}
             />
           </View>
           <Text style={styles.distanceText}>
