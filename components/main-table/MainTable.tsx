@@ -142,7 +142,62 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   handleEndDuty = (duty: Duty) => {
-    this.setState({ selectedDuty: duty, showModal: true });
+    this.setState((prevState) => {
+      const updatedDuties = prevState.duties.map((d) => {
+        if (d.id === duty.id) {
+          return duty;
+        }
+        return d;
+      });
+  
+      // Filter non-leave duties
+      const nonLeaveDuties = updatedDuties.filter((d) => !d.isLeave);
+  
+      // Sort duties by signIn time
+      const sortedDuties = nonLeaveDuties.sort((a, b) => {
+        return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
+      });
+  
+      // Calculate cumulative night duty hours and update progressive night duty
+      let cumulativeNightDutyHours = 0;
+      sortedDuties.forEach((d) => {
+        cumulativeNightDutyHours += d.nightDutyHours;
+        d.progressiveNightDutyHours = cumulativeNightDutyHours;
+      });
+  
+      return {
+        duties: updatedDuties,
+        selectedDuty: duty,
+        showModal: true,
+      };
+    });
+  };
+
+  updateProgressiveNightDutyHours = () => {
+    this.setState((prevState) => {
+      const duties = [...prevState.duties];
+  
+      // Filter duties with signIn and signOff
+      const completedDuties = duties.filter((duty) => duty.signIn && duty.signOff);
+  
+      // Sort completed duties by signIn time
+      const sortedDuties = completedDuties.sort((a, b) => {
+        return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
+      });
+  
+      // Calculate cumulative night duty hours and update progressive night duty
+      let cumulativeNightDutyHours = 0;
+      sortedDuties.forEach((duty) => {
+        if (!duty.isLeave) {
+          cumulativeNightDutyHours += duty.nightDutyHours;
+          duty.progressiveNightDutyHours = cumulativeNightDutyHours;
+        }
+      });
+  
+      return {
+        duties: duties,
+      };
+    });
   };
 
   updateDutyDetails = (updatedDuty: Duty) => {
@@ -154,7 +209,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         return duty;
       }),
       showModal: false,
-    }));
+    }), () => {
+      // Call updateProgressiveNightDutyHours after the state is updated
+      if (updatedDuty.signIn && updatedDuty.signOff) {
+        this.updateProgressiveNightDutyHours();
+      }
+    });
   };
 
   updateTripData = (
