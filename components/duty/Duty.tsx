@@ -71,18 +71,18 @@ class Duty {
     return totalDistance;
   }
 
-  calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
-    if (dutyIndex === 0) {
-      // For the first duty, the progressiveDutyHours is the same as dutyHours
-      this.progressiveDutyHours = this.dutyHours;
-    } else {
-      // Calculate the progressive duty hours based on the previous duty's progressiveDutyHours
-      const previousDuty = totalDuties[dutyIndex - 1];
-      this.progressiveDutyHours = previousDuty.progressiveDutyHours + this.dutyHours;
-    }
+  // calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
+  //   if (dutyIndex === 0) {
+  //     // For the first duty, the progressiveDutyHours is the same as dutyHours
+  //     this.progressiveDutyHours = this.dutyHours;
+  //   } else {
+  //     // Calculate the progressive duty hours based on the previous duty's progressiveDutyHours
+  //     const previousDuty = totalDuties[dutyIndex - 1];
+  //     this.progressiveDutyHours = previousDuty.progressiveDutyHours + this.dutyHours;
+  //   }
   
-    return this.progressiveDutyHours;
-  }
+  //   return this.progressiveDutyHours;
+  // }
 
   calculateProgressiveNightDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
     if (dutyIndex === 0) {
@@ -104,6 +104,7 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     this.dutyHours = 7.41667; // 7 hours and 25 minutes
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
+    this.isLeave = true;
   } else if (endedTypes.includes(typeOfWork)) {
     this.dutyHours = 0; // Set dutyHours to 0 for "Periodic Rest" and "Waiting for duty"
     this.dutyAllowance = 0;

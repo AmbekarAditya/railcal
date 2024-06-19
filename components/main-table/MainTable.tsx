@@ -8,7 +8,7 @@ import {
   Platform,
 } from "react-native";
 import Duty from "../duty/Duty";
-import { leaveTypes } from "../../utils/constants";
+import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
@@ -59,10 +59,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   constructor(props: MainTableProps) {
     super(props);
+    const monthNumber = monthNames[this.props.selectedMonth];
+    const paddedMonth = String(monthNumber).padStart(2, '0');
 
     const trip: Trip = {
       id: 1,
-      date: "",
+      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
       typeOfWork: "",
       arrivalTime: "",
       departureTime: "",
@@ -87,9 +89,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   addDuty = () => {
+    const monthNumber = monthNames[this.props.selectedMonth];
+    const paddedMonth = String(monthNumber).padStart(2, '0');
     const newTrip: Trip = {
       id: 1,
-      date: "",
+      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
       typeOfWork: "",
       arrivalTime: "",
       departureTime: "",
@@ -113,9 +117,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState((prevState) => ({
       duties: prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
+          const monthNumber = monthNames[this.props.selectedMonth];
+          const paddedMonth = String(monthNumber).padStart(2, '0');
           const newTrip: Trip = {
             id: duty.trips.length + 1,
-            date: "",
+            date: `${new Date().getFullYear()}-${paddedMonth}-01`,
             typeOfWork: "",
             arrivalTime: "",
             departureTime: "",
@@ -249,9 +255,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       // If all the duties are deleted, there should be a default duty present.
 
       if (updatedDuties.length === 0) {
+
+        const monthNumber = monthNames[this.props.selectedMonth];
+        const paddedMonth = String(monthNumber).padStart(2, '0');
+
         const newTrip: Trip = {
           id: 1,
-          date: "",
+          date: `${new Date().getFullYear()}-${paddedMonth}-01`,
           typeOfWork: "",
           arrivalTime: "",
           departureTime: "",
@@ -275,10 +285,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   setTotalLeaves = (newTotalLeaves: number) => {
     this.setState({ totalLeaves: newTotalLeaves });
-  };
-
-  handleProgressiveDutyHoursChange = (hours: number) => {
-    this.setState({ progressiveDutyHours: hours });
   };
 
   handleDutiesChange = (updatedDuties: Duty[] | any[]) => {
@@ -314,21 +320,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     // Calculate the number of days in the month from the first trip date if available// Assuming selectedMonth is passed as a prop and is the full name of the month
     const year = new Date().getFullYear(); // Use the current year or another relevant year
-
-    const monthNames = {
-      January: 1,
-      February: 2,
-      March: 3,
-      April: 4,
-      May: 5,
-      June: 6,
-      July: 7,
-      August: 8,
-      September: 9,
-      October: 10,
-      November: 11,
-      December: 12,
-    };
 
     let daysInMonth = 1;
     if (selectedMonth && monthNames[selectedMonth]) {
