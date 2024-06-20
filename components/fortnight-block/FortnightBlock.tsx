@@ -80,10 +80,12 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
     const startDate = new Date(2024, monthIndex, 1);
     const endDate = new Date(2024, monthIndex + 1, 0);
 
-    // Sort duties by start date in ascending order
-    const sortedDuties = [...duties].sort(
-      (a, b) => new Date(a.signIn).getTime() - new Date(b.signIn).getTime()
-    );
+      // Sort duties by start date in ascending order
+  const sortedDuties = [...duties].sort((a, b) => {
+    const aStartDate = a.signIn ? new Date(a.signIn) : new Date(a.trips[0].date);
+    const bStartDate = b.signIn ? new Date(b.signIn) : new Date(b.trips[0].date);
+    return aStartDate.getTime() - bStartDate.getTime();
+  });
 
     const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter(
       (date) => {
