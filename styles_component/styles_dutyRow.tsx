@@ -1,7 +1,10 @@
 import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  scrollViewContainer: {
+  container: {
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginBottom: 15,
     padding: 10,
   },
   headerContainer: {
@@ -11,76 +14,99 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   serialNumber: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
+  },
+  tripsContainer: {
+    maxHeight: 300, // Adjust this value as needed
   },
   tripContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 10,
     marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
   },
   dateContainer: {
-    flex: 1,
-    marginRight: 10,
+    width: 120,
+    marginRight: 5,
   },
   dutyTypeContainer: {
-    flex: 1,
-    marginRight: 10,
+    width: 120,
+    marginRight: 5,
   },
   trainNoContainer: {
-    flex: 1,
-    marginRight: 10,
+    width: 80,
+    marginRight: 5,
   },
   stationsContainer: {
-    flex: 2,
-    marginRight: 10,
+    width: 200,
+    marginRight: 5,
   },
   timePickerContainer: {
-    flex: 2,
-    marginRight: 10,
+    width: 200,
+    marginRight: 5,
   },
   durationContainer: {
-    flex: 1,
+    width: 70,
     alignItems: 'center',
+    marginRight: 5,
   },
   durationText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
+    color: '#333',
   },
   durationLabel: {
-    fontSize: 12,
+    fontSize: 10,
+    color: '#666',
   },
   allowanceContainer: {
-    flex: 1,
+    width: 70,
     alignItems: 'center',
+    marginRight: 5,
   },
   allowanceText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
+    color: '#4CAF50',
   },
   allowanceLabel: {
-    fontSize: 12,
+    fontSize: 10,
+    color: '#666',
   },
   remarksContainer: {
-    flex: 1,
+    width: 100,
     alignItems: 'center',
+    marginRight: 5,
   },
   remarksText: {
-    fontSize: 14,
+    fontSize: 12,
+    color: '#333',
   },
   remarksLabel: {
-    fontSize: 12,
+    fontSize: 10,
+    color: '#666',
   },
   actionsContainer: {
-    marginLeft: 10,
+    width: 60,
   },
   deleteButton: {
     backgroundColor: '#ff4d4d',
     padding: 5,
     borderRadius: 5,
+    alignItems: 'center',
   },
   deleteButtonText: {
     color: 'white',
+    fontSize: 10,
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -92,7 +118,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
-    marginHorizontal: 5,
+    marginHorizontal: 2,
   },
   addTripButton: {
     backgroundColor: '#4CAF50',
@@ -109,13 +135,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 10,
-  },
-  separatorLine: {
-    height: 1,
-    backgroundColor: 'gray',
+    fontSize: 12,
   },
 });
 
