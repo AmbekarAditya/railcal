@@ -1,176 +1,122 @@
-import { StyleSheet ,Platform} from "react-native";
+import { StyleSheet } from 'react-native';
+
 const styles = StyleSheet.create({
   scrollViewContainer: {
-    flexGrow: 1,
-  },
-  tripContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "gray",
-  },
-  headerRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-    paddingHorizontal: 10,
-  },
-  
-  headerCell: {
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
+    padding: 10,
   },
   headerContainer: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 10,
   },
   serialNumber: {
-    color: 'grey',
-  },
-  headerDate:
-  { 
+    fontSize: 16,
     fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
   },
-  headerDuration:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
-  },
-  headerAllowance:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
-  },
-  headerRemarks:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
-  },
-  headerActions:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 30 }),
-  },
-  headerDistance:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 100 }),
-  },
-  headerTimes:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 130 }),
-  },
-  headertTypeofWork:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 120 }),
-  },
-  headerTrainNumber:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 150 }),
-  },
-  headerStation:
-  { 
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    textAlign: 'center',
-    ...(Platform.OS === "web" && { marginLeft: 150 }),
+  tripContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   dateContainer: {
-    flex: 2,
-    marginRight: 8,
+    flex: 1,
+    marginRight: 10,
   },
   dutyTypeContainer: {
-    flex: 2,
-    ...(Platform.OS === "web" && { marginLeft: 30 , marginBottom:5}),
-    marginRight: 8,
+    flex: 1,
+    marginRight: 10,
   },
   trainNoContainer: {
-    flex: 1.5,
-    ...(Platform.OS === "web" && { marginLeft: 110 }),
-    marginRight: 8,
+    flex: 1,
+    marginRight: 10,
   },
   stationsContainer: {
-    flex: 2.5,
-    ...(Platform.OS === "web" && { marginLeft: 110 }),
-    marginRight: 8,
-  },
-  distanceText: {
-    flex: 1,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginRight: 8,
-    marginLeft: 20,
+    flex: 2,
+    marginRight: 10,
   },
   timePickerContainer: {
-    flex: 2.5,
-    marginRight: 8,
-    ...(Platform.OS === "web" && { marginLeft: 100 }),
+    flex: 2,
+    marginRight: 10,
+  },
+  durationContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   durationText: {
-    flex: 1.5,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginHorizontal: 8,
-
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  durationLabel: {
+    fontSize: 12,
+  },
+  allowanceContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   allowanceText: {
-    flex: 1.5,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginHorizontal: 8,
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  allowanceLabel: {
+    fontSize: 12,
+  },
+  remarksContainer: {
+    flex: 1,
+    alignItems: 'center',
   },
   remarksText: {
-    fontWeight: "bold",
-    flex: 2,
-    marginHorizontal: 8,
+    fontSize: 14,
+  },
+  remarksLabel: {
+    fontSize: 12,
   },
   actionsContainer: {
-    flex: 1,
-    margin: 5,
-    alignItems: "center",
-    borderWidth: 1,
+    marginLeft: 10,
+  },
+  deleteButton: {
+    backgroundColor: '#ff4d4d',
     padding: 5,
     borderRadius: 5,
   },
+  deleteButtonText: {
+    color: 'white',
+  },
   buttonsContainer: {
-    flexDirection: "row",
-    marginLeft: 10,
-    marginVertical: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
   button: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "#ccc",
+    flex: 1,
+    padding: 10,
     borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  addTripButton: {
+    backgroundColor: '#4CAF50',
+  },
+  endDutyButton: {
+    backgroundColor: '#2196F3',
+  },
+  deleteDutyButton: {
+    backgroundColor: '#f44336',
+  },
+  editDutyButton: {
+    backgroundColor: '#FF9800',
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   separator: {
     marginVertical: 10,
   },
+  separatorLine: {
+    height: 1,
+    backgroundColor: 'gray',
+  },
 });
-export default styles ;
+
+export default styles;

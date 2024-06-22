@@ -437,20 +437,36 @@ export const pickerItems = [
     value: "Through",
   },
   {
-    label: "Light Engine on Mechanical Account",
-    value: "Light Engine on Mechanical Account",
+    label: "Light Engine/Multi",
+    value: "Light Engine/Multi",
   },
   {
     label: "Periodic rest",
     value: "Periodic rest",
   },
   {
-    label: "Light Engine/Multi",
-    value: "Light Engine/Multi",
+    label: "Waiting for duty",
+    value: "Waiting for duty",
+  },
+  {
+    label: "Material Train",
+    value: "Material Train",
   },
   {
     label: "Paid leave",
     value: "Paid leave",
+  },
+  {
+    label: "Sick leave",
+    value: "Sick leave",
+  },
+  {
+    label: "Casual leave",
+    value: "Casual leave",
+  },
+  {
+    label: "Light Engine on Mechanical Account",
+    value: "Light Engine on Mechanical Account",
   },
   {
     label: "Shunting",
@@ -459,14 +475,6 @@ export const pickerItems = [
   {
     label: "Ghat",
     value: "Ghat",
-  },
-  {
-    label: "Sick leave",
-    value: "Sick leave",
-  },
-  {
-    label: "Waiting for duty",
-    value: "Waiting for duty",
   },
   {
     label: "Breakdown Specials",
@@ -489,17 +497,8 @@ export const pickerItems = [
     value: "Officating",
   },
   {
-    label: "Material Train",
-    value: "Material Train",
-  },
-
-  {
     label: "Spare by Goods",
     value: "Spare by Goods",
-  },
-  {
-    label: "Casual leave",
-    value: "Casual leave",
   },
   {
     label: "Maternal leave",
@@ -510,6 +509,7 @@ export const pickerItems = [
     value: "Paternal leave",
   },
 ];
+
 
 export const DESIGNATION_MULTIPLIERS = {
   "Locopilot Mail Express": 5.3,

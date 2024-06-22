@@ -250,10 +250,15 @@ const DutyRow: React.FC<DutyRowProps> = ({
               <WebDatePicker
                 value={
                   trip.date ||
-                  `${new Date().getFullYear()}-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`
-                } // Set default date to the first day of the selected month
+                  `${new Date().getFullYear()}-${String(
+                    monthNames[selectedMonth]
+                  ).padStart(2, "0")}-01`
+                }
                 onChange={(date) => handleTripDataChange(trip.id, "date", date)}
-                min={`2023-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`} // Set the minimum selectable date
+                min={`2023-${String(monthNames[selectedMonth]).padStart(
+                  2,
+                  "0"
+                )}-01`}
               />
             ) : (
               <DatePickerComponent
@@ -262,8 +267,15 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 }
                 defaultDate={`${new Date().getFullYear()}-${
                   monthNames[selectedMonth]
-                }-01`} // Set default date to the first day of the selected month
-                minimumDate={new Date(`2023-${String(monthNames[selectedMonth]).padStart(2, '0')}-01`)} // Set the minimum selectable date
+                }-01`}
+                minimumDate={
+                  new Date(
+                    `2023-${String(monthNames[selectedMonth]).padStart(
+                      2,
+                      "0"
+                    )}-01`
+                  )
+                }
               />
             )}
           </View>
@@ -293,12 +305,6 @@ const DutyRow: React.FC<DutyRowProps> = ({
               duty={duty}
             />
           </View>
-          <Text style={styles.distanceText}>
-            {typeof trip.distance === "number"
-              ? trip.distance.toFixed(2)
-              : trip.distance}
-            km
-          </Text>
           <View style={styles.timePickerContainer}>
             <ArrivalDepartureTimePicker
               onTimesChange={(arrivalTime, departureTime, dutyHours) =>
@@ -312,68 +318,67 @@ const DutyRow: React.FC<DutyRowProps> = ({
               disabled={shouldDisableInputFields(trip.typeOfWork)}
             />
           </View>
-          <View style={{ margin: 20 }}>
+          <View style={styles.durationContainer}>
             <Text style={styles.durationText}>{trip.dutyHours}</Text>
-            <Text style={styles.durationText}>duration</Text>
+            <Text style={styles.durationLabel}>duration</Text>
           </View>
-          <View style={{ margin: 20 }}>
+          <View style={styles.allowanceContainer}>
             <Text style={styles.allowanceText}>
               {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
             </Text>
-            <Text>km earned</Text>
+            <Text style={styles.allowanceLabel}>km earned</Text>
           </View>
-          <View style={{ margin: 20 }}>
+          <View style={styles.remarksContainer}>
             <Text style={styles.remarksText}>{trip.remarks}</Text>
-            <Text style={styles.remarksText}>remarks</Text>
+            <Text style={styles.remarksLabel}>remarks</Text>
           </View>
           <View style={styles.actionsContainer}>
             <TouchableOpacity
               onPress={() => deleteTrip(duty.id, trip.id)}
               disabled={duty.trips.length === 1}
+              style={styles.deleteButton}
             >
-              <Text>Delete</Text>
+              <Text style={styles.deleteButtonText}>Delete</Text>
             </TouchableOpacity>
           </View>
         </View>
       ))}
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, { marginLeft: 3, marginRight: 10 }]}
+          style={[styles.button, styles.addTripButton]}
           onPress={() => addTrip(duty.id)}
           disabled={
             duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
-          } // Disable if duty has ended
+          }
         >
-          <Text>Add Trip</Text>
+          <Text style={styles.buttonText}>Add Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { marginRight: 10 }]}
+          style={[styles.button, styles.endDutyButton]}
           onPress={() => handleEndDuty(duty)}
           disabled={
             duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
           }
         >
-          <Text>End Duty</Text>
+          <Text style={styles.buttonText}>End Duty</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, styles.deleteDutyButton]}
           onPress={() => deleteDuty(duty.id)}
         >
-          <Text>Delete Duty</Text>
+          <Text style={styles.buttonText}>Delete Duty</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, { marginLeft: 10 }]}
+          style={[styles.button, styles.editDutyButton]}
           onPress={handleEditDuty}
-          // disabled={!hasEnded} // Enable only if duty has ended
         >
-          <Text>Edit Duty</Text>
+          <Text style={styles.buttonText}>Edit Duty</Text>
         </TouchableOpacity>
       </View>
-      {duty.hasEnded && <DutyInfo duty={duty} />}{" "}
-      {/* Render DutyInfo only if duty has ended */}
+      {duty.hasEnded && <DutyInfo duty={duty} />}
       {duty.trips.length > 0 && (
         <View style={styles.separator}>
-          <View style={{ height: 1, backgroundColor: "gray" }} />
+          <View style={styles.separatorLine} />
         </View>
       )}
     </ScrollView>

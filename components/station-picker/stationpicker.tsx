@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Platform } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Platform, StyleSheet } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { combinations } from "../../utils/combinations";
-import { styles } from "../../styles_component/styles_stationpicker";
 import Duty from "../duty/Duty";
 
 interface PickerComponentStationProps {
@@ -28,11 +27,13 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
 }) => {
   const [fromStation, setFromStation] = useState("");
   const [toStation, setToStation] = useState("");
-  const [distance, setDistance] = useState(0);
 
   const currentTripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
-  const previousTrip = currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
-  const previousTripDestinationStation = previousTrip ? previousTrip.destinationStation : "";
+  const previousTrip =
+    currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
+  const previousTripDestinationStation = previousTrip
+    ? previousTrip.destinationStation
+    : "";
 
   useEffect(() => {
     setFromStation(previousTripDestinationStation || "");
@@ -53,7 +54,6 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
       (c) => c.from_station === from && c.to_station === to
     );
     if (combo) {
-      setDistance(combo.distance);
       onStationChange(dutyId, tripId, from, to, combo.distance);
     }
   };
@@ -71,6 +71,7 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
           enabled={!disabled}
           style={styles.picker}
         >
+          <Picker.Item label="From Station" value="" />
           {uniqueFromStations.map((station, index) => (
             <Picker.Item key={index} label={station} value={station} />
           ))}
@@ -83,16 +84,39 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
           enabled={!disabled}
           style={styles.picker}
         >
+          <Picker.Item label="To Station" value="" />
           {combinations
             .filter((item) => item.from_station === fromStation)
             .map((item, index) => (
-              <Picker.Item key={index} label={item.to_station} value={item.to_station} />
+              <Picker.Item
+                key={index}
+                label={item.to_station}
+                value={item.to_station}
+              />
             ))}
         </Picker>
       </View>
-      {/* <Text style={styles.distanceText}>Distance: {distance} km</Text> */}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  pickerContainer: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  picker: {
+    height: 40,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+  },
+});
 
 export default PickerComponentStation;
