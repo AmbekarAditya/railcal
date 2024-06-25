@@ -72,12 +72,12 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     return timeDiff >= 0 ? timeDiff : 0;
   };
   
-  const handleArrivalTimeChange = (hour: string, minute: string) => {
-    setArrivalTime(`${hour}:${minute}`);
+  const handleArrivalTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setArrivalTime(event.target.value);
   };
 
-  const handleDepartureTimeChange = (hour: string, minute: string) => {
-    setDepartureTime(`${hour}:${minute}`);
+  const handleDepartureTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDepartureTime(event.target.value);
   };
 
   const openArrivalPicker = () => {
@@ -110,16 +110,23 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     }
   };
 
+
   return (
     <View style={styles.container}>
       <View style={styles.timePickerContainer}>
         <Text style={styles.label}>Departure Time:</Text>
         <View style={styles.timePickerWrapper}>
           {Platform.OS === "web" ? (
-            <TimePicker disabled={disabled} onTimeChange={handleArrivalTimeChange} />
+            <input
+              type="time"
+              value={arrivalTime}
+              onChange={handleArrivalTimeChange}
+              disabled={disabled}
+              style={styles.timeInput}
+            />
           ) : (
             <View>
-              <TouchableOpacity onPress={openArrivalPicker} disabled={disabled}>
+              <TouchableOpacity onPress={() => setShowArrivalPicker(true)} disabled={disabled}>
                 <View style={styles.timeContainer}>
                   <Text>{arrivalTime || "--:--"}</Text>
                 </View>
@@ -141,10 +148,16 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
         <Text style={styles.label}>Arrival Time:</Text>
         <View style={styles.timePickerWrapper}>
           {Platform.OS === "web" ? (
-            <TimePicker disabled={disabled} onTimeChange={handleDepartureTimeChange} />
+            <input
+              type="time"
+              value={departureTime}
+              onChange={handleDepartureTimeChange}
+              disabled={disabled}
+              style={styles.timeInput}
+            />
           ) : (
             <View>
-              <TouchableOpacity onPress={openDeparturePicker} disabled={disabled}>
+              <TouchableOpacity onPress={() => setShowDeparturePicker(true)} disabled={disabled}>
                 <View style={styles.timeContainer}>
                   <Text>{departureTime || "--:--"}</Text>
                 </View>
@@ -187,6 +200,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: 'gray',
+  },
+  timeInput: {
+    width: '100%',
+    height: 40,
+    borderWidth: 1,
+    borderColor: 'gray',
+    padding: 5,
   },
 });
 

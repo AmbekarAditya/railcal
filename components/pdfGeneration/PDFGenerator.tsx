@@ -219,12 +219,11 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
 
     let currentYPosition = doc.lastAutoTable.finalY + 10; // Track the current y position
 
-    // Sort duties based on their signIn date
+    // Sort duties based on the date of the first trip in each duty
     const sortedDuties = [...duties].sort((a, b) => {
-      if (a.signIn && b.signIn) {
-        return a.signIn.getTime() - b.signIn.getTime();
-      }
-      return 0; // If signIn is null for either duty, keep their original order
+      const aFirstTripDate = a.trips.length > 0 ? new Date(a.trips[0].date).getTime() : 0;
+      const bFirstTripDate = b.trips.length > 0 ? new Date(b.trips[0].date).getTime() : 0;
+      return aFirstTripDate - bFirstTripDate;
     });
 
     sortedDuties.forEach((duty, dutyIndex) => {
