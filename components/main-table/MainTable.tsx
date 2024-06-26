@@ -615,7 +615,8 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 16,
+    width: "50%",
+    // marginBottom: 16,
   },
   addDuty: {
     flex: 1,

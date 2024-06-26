@@ -43,75 +43,31 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   trainNoContainer: {
-    width: '7%',
+    width: '15%', // Increased width to provide more space
     marginRight: 5,
   },
-  spacer: {
-    width: '3%', // Add this new style for the spacer
-  },
   stationsContainer: {
-    width: '12%', // Increased from 10% to 12%
+    width: '15%', // Increased width to provide more space
     marginRight: 5,
   },
   timePickerContainer: {
-    width: '12%', // Increased from 10% to 12%
+    width: '15%', // Increased width to provide more space
     marginRight: 5,
-  },
-  timePicker: {
-    marginBottom: 5,
-  },
-  timePickerLabel: {
-    fontSize: 10,
-    color: '#666',
-    marginBottom: 2,
-  },
-  timeInput: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 4,
-    fontSize: 12,
   },
   durationContainer: {
-    width: '6%',
+    width: '8%',
     alignItems: 'center',
     marginRight: 5,
-  },
-  durationText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  durationLabel: {
-    fontSize: 10,
-    color: '#666',
   },
   allowanceContainer: {
-    width: '6%',
+    width: '8%',
     alignItems: 'center',
     marginRight: 5,
-  },
-  allowanceText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: '#4CAF50',
-  },
-  allowanceLabel: {
-    fontSize: 10,
-    color: '#666',
   },
   remarksContainer: {
     width: '8%',
     alignItems: 'center',
     marginRight: 5,
-  },
-  remarksText: {
-    fontSize: 12,
-    color: '#333',
-  },
-  remarksLabel: {
-    fontSize: 10,
-    color: '#666',
   },
   actionsContainer: {
     width: '5%',
@@ -129,26 +85,26 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 10,
+    width: '50%', // Set to 50% of the row width
   },
   button: {
-    flex: 1,
+    flex: 0.5, // Adjusted to 30% of the previous length
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',
     marginHorizontal: 2,
   },
   addTripButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#2196F3',
   },
   endDutyButton: {
     backgroundColor: '#2196F3',
   },
   deleteDutyButton: {
-    backgroundColor: '#f44336',
+    backgroundColor: '#2196F3',
   },
   editDutyButton: {
-    backgroundColor: '#FF9800',
+    backgroundColor: '#2196F3',
   },
   buttonText: {
     color: 'white',
