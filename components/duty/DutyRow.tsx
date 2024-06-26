@@ -246,31 +246,55 @@ const DutyRow: React.FC<DutyRowProps> = ({
             <View style={styles.dateContainer}>
               {Platform.OS === "web" ? (
                 <WebDatePicker
-                  value={trip.date || `${new Date().getFullYear()}-${String(monthNames[selectedMonth]).padStart(2, "0")}-01`}
-                  onChange={(date) => handleTripDataChange(trip.id, "date", date)}
-                  min={`2023-${String(monthNames[selectedMonth]).padStart(2, "0")}-01`}
+                  value={
+                    trip.date ||
+                    `${new Date().getFullYear()}-${String(
+                      monthNames[selectedMonth]
+                    ).padStart(2, "0")}-01`
+                  }
+                  onChange={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
+                  min={`2023-${String(monthNames[selectedMonth]).padStart(
+                    2,
+                    "0"
+                  )}-01`}
                 />
               ) : (
                 <DatePickerComponent
-                  onDateSelected={(date) => handleTripDataChange(trip.id, "date", date)}
-                  defaultDate={`${new Date().getFullYear()}-${monthNames[selectedMonth]}-01`}
-                  minimumDate={new Date(`2023-${String(monthNames[selectedMonth]).padStart(2, "0")}-01`)}
+                  onDateSelected={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
+                  defaultDate={`${new Date().getFullYear()}-${
+                    monthNames[selectedMonth]
+                  }-01`}
+                  minimumDate={
+                    new Date(
+                      `2023-${String(monthNames[selectedMonth]).padStart(
+                        2,
+                        "0"
+                      )}-01`
+                    )
+                  }
                 />
               )}
             </View>
             <View style={styles.dutyTypeContainer}>
               <TypeofWorkPickerComponent
-                TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
+                TypeofWork={(newValue) =>
+                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+                }
               />
             </View>
             <View style={styles.trainNoContainer}>
               <TrainNumberInput
-                onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
+                onChange={(trainNumber) =>
+                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
+                }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={7}
               />
             </View>
-            <View style={styles.spacer} />
             <View style={styles.stationsContainer}>
               <PickerComponentStation
                 onStationChange={handleStationChange}
@@ -284,7 +308,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
             <View style={styles.timePickerContainer}>
               <ArrivalDepartureTimePicker
                 onTimesChange={(arrivalTime, departureTime, dutyHours) =>
-                  handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
+                  handleTimesChange(
+                    trip.id,
+                    arrivalTime,
+                    departureTime,
+                    dutyHours
+                  )
                 }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
               />
@@ -319,14 +348,18 @@ const DutyRow: React.FC<DutyRowProps> = ({
         <TouchableOpacity
           style={[styles.button, styles.addTripButton]}
           onPress={() => addTrip(duty.id)}
-          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          }
         >
           <Text style={styles.buttonText}>Add Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.button, styles.endDutyButton]}
           onPress={() => handleEndDuty(duty)}
-          disabled={duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)}
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          }
         >
           <Text style={styles.buttonText}>End Duty</Text>
         </TouchableOpacity>
