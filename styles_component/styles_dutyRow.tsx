@@ -35,27 +35,45 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   dateContainer: {
-    width: 120,
+    width: '10%',
     marginRight: 5,
   },
   dutyTypeContainer: {
-    width: 120,
+    width: '10%',
     marginRight: 5,
   },
   trainNoContainer: {
-    width: 80,
+    width: '7%',
     marginRight: 5,
   },
+  spacer: {
+    width: '3%', // Add this new style for the spacer
+  },
   stationsContainer: {
-    width: 200,
+    width: '12%', // Increased from 10% to 12%
     marginRight: 5,
   },
   timePickerContainer: {
-    width: 200,
+    width: '12%', // Increased from 10% to 12%
     marginRight: 5,
   },
+  timePicker: {
+    marginBottom: 5,
+  },
+  timePickerLabel: {
+    fontSize: 10,
+    color: '#666',
+    marginBottom: 2,
+  },
+  timeInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    padding: 4,
+    fontSize: 12,
+  },
   durationContainer: {
-    width: 70,
+    width: '6%',
     alignItems: 'center',
     marginRight: 5,
   },
@@ -69,7 +87,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   allowanceContainer: {
-    width: 70,
+    width: '6%',
     alignItems: 'center',
     marginRight: 5,
   },
@@ -83,7 +101,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   remarksContainer: {
-    width: 100,
+    width: '8%',
     alignItems: 'center',
     marginRight: 5,
   },
@@ -96,7 +114,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   actionsContainer: {
-    width: 60,
+    width: '5%',
   },
   deleteButton: {
     backgroundColor: '#ff4d4d',

@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Platform, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
 import TimePicker from "../time-picker/TimePicker";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 interface ArrivalDepartureTimePickerProps {
-  onTimesChange: (arrival: string, departure: string, dutyHours: string) => void;
+  onTimesChange: (
+    arrival: string,
+    departure: string,
+    dutyHours: string
+  ) => void;
   disabled: boolean;
 }
 
@@ -40,12 +50,14 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     return `${hours}h ${minutes}m`;
   };
 
-
-  const getTimeDifference = (arrivalTime: Date, departureTime: Date): number => {
+  const getTimeDifference = (
+    arrivalTime: Date,
+    departureTime: Date
+  ): number => {
     if (!arrivalTime || !departureTime) {
       return 0;
     }
-  
+
     // Check if arrival and departure times are equal
     if (arrivalTime.getTime() === departureTime.getTime()) {
       // Special case: both times are at midnight
@@ -54,7 +66,7 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
       }
       return 0;
     }
-  
+
     if (
       arrivalTime.getHours() === 0 &&
       arrivalTime.getMinutes() === 0 &&
@@ -63,20 +75,24 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     ) {
       return 24 * 60;
     }
-  
+
     const timeDiff = Math.round(
       (departureTime.getTime() - arrivalTime.getTime()) / 60000
     );
-  
+
     // Return 0 if the time difference is negative
     return timeDiff >= 0 ? timeDiff : 0;
   };
-  
-  const handleArrivalTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  const handleArrivalTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setArrivalTime(event.target.value);
   };
 
-  const handleDepartureTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDepartureTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setDepartureTime(event.target.value);
   };
 
@@ -88,125 +104,109 @@ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
     setShowDeparturePicker(true);
   };
 
-  const handleArrivalDateTimeChange = (event: any, selectedTime?: Date) => {
-    if (event.type === "set") {
-      const hour = String(selectedTime?.getHours()).padStart(2, '0');
-      const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
-      setArrivalTime(`${hour}:${minute}`);
-      setShowArrivalPicker(false);
-    } else {
-      setShowArrivalPicker(false);
-    }
-  };
+  const handleTimeChange =
+    (isArrival: boolean) => (event: any, selectedTime?: Date) => {
+      if (event.type === "set" && selectedTime) {
+        const hour = String(selectedTime.getHours()).padStart(2, "0");
+        const minute = String(selectedTime.getMinutes()).padStart(2, "0");
+        const timeString = `${hour}:${minute}`;
 
-  const handleDepartureDateTimeChange = (event: any, selectedTime?: Date) => {
-    if (event.type === "set") {
-      const hour = String(selectedTime?.getHours()).padStart(2, '0');
-      const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
-      setDepartureTime(`${hour}:${minute}`);
-      setShowDeparturePicker(false);
-    } else {
-      setShowDeparturePicker(false);
-    }
-  };
+        if (isArrival) {
+          setArrivalTime(timeString);
+          setShowArrivalPicker(false);
+        } else {
+          setDepartureTime(timeString);
+          setShowDeparturePicker(false);
+        }
+      } else {
+        setShowArrivalPicker(false);
+        setShowDeparturePicker(false);
+      }
+    };
 
+  const renderTimePicker = (isArrival: boolean) => {
+    const time = isArrival ? arrivalTime : departureTime;
+    const setShowPicker = isArrival
+      ? setShowArrivalPicker
+      : setShowDeparturePicker;
+    const showPicker = isArrival ? showArrivalPicker : showDeparturePicker;
+
+    return (
+      <View style={styles.timePickerContainer}>
+        <Text style={styles.label}>{isArrival ? "Dep:" : "Arr:"}</Text>
+        {Platform.OS === "web" ? (
+          <input
+            type="time"
+            value={time}
+            onChange={(e) =>
+              isArrival
+                ? setArrivalTime(e.target.value)
+                : setDepartureTime(e.target.value)
+            }
+            disabled={disabled}
+            style={styles.timeInput}
+          />
+        ) : (
+          <TouchableOpacity
+            onPress={() => setShowPicker(true)}
+            disabled={disabled}
+          >
+            <View style={styles.timeContainer}>
+              <Text style={styles.timeText}>{time || "--:--"}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        {Platform.OS !== "web" && showPicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={handleTimeChange(isArrival)}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.timePickerContainer}>
-        <Text style={styles.label}>Departure Time:</Text>
-        <View style={styles.timePickerWrapper}>
-          {Platform.OS === "web" ? (
-            <input
-              type="time"
-              value={arrivalTime}
-              onChange={handleArrivalTimeChange}
-              disabled={disabled}
-              style={styles.timeInput}
-            />
-          ) : (
-            <View>
-              <TouchableOpacity onPress={() => setShowArrivalPicker(true)} disabled={disabled}>
-                <View style={styles.timeContainer}>
-                  <Text>{arrivalTime || "--:--"}</Text>
-                </View>
-              </TouchableOpacity>
-              {showArrivalPicker && (
-                <DateTimePicker
-                  value={new Date()}
-                  mode="time"
-                  is24Hour={true}
-                  display="default"
-                  onChange={handleArrivalDateTimeChange}
-                />
-              )}
-            </View>
-          )}
-        </View>
-      </View>
-      <View style={styles.timePickerContainer}>
-        <Text style={styles.label}>Arrival Time:</Text>
-        <View style={styles.timePickerWrapper}>
-          {Platform.OS === "web" ? (
-            <input
-              type="time"
-              value={departureTime}
-              onChange={handleDepartureTimeChange}
-              disabled={disabled}
-              style={styles.timeInput}
-            />
-          ) : (
-            <View>
-              <TouchableOpacity onPress={() => setShowDeparturePicker(true)} disabled={disabled}>
-                <View style={styles.timeContainer}>
-                  <Text>{departureTime || "--:--"}</Text>
-                </View>
-              </TouchableOpacity>
-              {showDeparturePicker && (
-                <DateTimePicker
-                  value={new Date()}
-                  mode="time"
-                  is24Hour={true}
-                  display="default"
-                  onChange={handleDepartureDateTimeChange}
-                />
-              )}
-            </View>
-          )}
-        </View>
-      </View>
+      {renderTimePicker(true)}
+      {renderTimePicker(false)}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-  },
-  label: {
-    marginTop: 5,
-    marginBottom: 5,
+    width: "100%",
   },
   timePickerContainer: {
+    flexDirection: "row",
     alignItems: "center",
+    marginBottom: 4,
   },
-  timePickerWrapper: {
-    width: 200,
+  label: {
+    fontSize: 10,
+    marginRight: 4,
   },
   timeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
+    borderRadius: 4,
+    padding: 2,
+  },
+  timeText: {
+    fontSize: 12,
   },
   timeInput: {
-    width: '100%',
-    height: 40,
+    width: "70%",
+    height: 24,
     borderWidth: 1,
-    borderColor: 'gray',
-    padding: 5,
+    borderColor: "gray",
+    borderRadius: 4,
+    padding: 2,
+    fontSize: 12,
   },
 });
 

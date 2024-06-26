@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Platform, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { combinations } from "../../utils/combinations";
 import Duty from "../duty/Duty";
@@ -62,60 +62,82 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
     new Set(combinations.map((item) => item.from_station))
   );
 
+  const renderPicker = (isFrom: boolean) => {
+    const label = isFrom ? "From:" : "To:";
+    const value = isFrom ? fromStation : toStation;
+    const onValueChange = isFrom ? handleFromStationChange : handleToStationChange;
+    const items = isFrom
+      ? uniqueFromStations
+      : combinations.filter((item) => item.from_station === fromStation).map((item) => item.to_station);
+
+    return (
+      <View style={styles.pickerContainer}>
+        <Text style={styles.label}>{label}</Text>
+        {Platform.OS === "web" ? (
+          <select
+            value={value}
+            onChange={(e) => onValueChange(e.target.value)}
+            disabled={disabled}
+            style={styles.webSelect}
+          >
+            <option value="">{isFrom ? "From Station" : "To Station"}</option>
+            {items.map((station, index) => (
+              <option key={index} value={station}>
+                {station}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Picker
+            selectedValue={value}
+            onValueChange={onValueChange}
+            enabled={!disabled}
+            style={styles.picker}
+          >
+            <Picker.Item label={isFrom ? "From Station" : "To Station"} value="" />
+            {items.map((station, index) => (
+              <Picker.Item key={index} label={station} value={station} />
+            ))}
+          </Picker>
+        )}
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={fromStation}
-          onValueChange={handleFromStationChange}
-          enabled={!disabled}
-          style={styles.picker}
-        >
-          <Picker.Item label="From Station" value="" />
-          {uniqueFromStations.map((station, index) => (
-            <Picker.Item key={index} label={station} value={station} />
-          ))}
-        </Picker>
-      </View>
-      <View style={styles.pickerContainer}>
-        <Picker
-          selectedValue={toStation}
-          onValueChange={handleToStationChange}
-          enabled={!disabled}
-          style={styles.picker}
-        >
-          <Picker.Item label="To Station" value="" />
-          {combinations
-            .filter((item) => item.from_station === fromStation)
-            .map((item, index) => (
-              <Picker.Item
-                key={index}
-                label={item.to_station}
-                value={item.to_station}
-              />
-            ))}
-        </Picker>
-      </View>
+      {renderPicker(true)}
+      {renderPicker(false)}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     width: "100%",
   },
   pickerContainer: {
-    flex: 1,
-    marginHorizontal: 5,
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 10,
+    marginBottom: 2,
   },
   picker: {
-    height: 40,
+    height: 30,
     backgroundColor: "white",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
+    borderRadius: 4,
+  },
+  webSelect: {
+    width: "100%",
+    height: 30,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    fontSize: 12,
   },
 });
 

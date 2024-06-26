@@ -270,6 +270,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 maxLength={7}
               />
             </View>
+            <View style={styles.spacer} />
             <View style={styles.stationsContainer}>
               <PickerComponentStation
                 onStationChange={handleStationChange}
