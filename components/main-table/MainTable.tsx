@@ -24,6 +24,8 @@ import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
 import Fortnight from "../fortnight-block/Fortnight";
+import FloatingNextButton from "./FloatingNextButton";
+
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
@@ -60,7 +62,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   constructor(props: MainTableProps) {
     super(props);
     const monthNumber = monthNames[this.props.selectedMonth];
-    const paddedMonth = String(monthNumber).padStart(2, '0');
+    const paddedMonth = String(monthNumber).padStart(2, "0");
 
     const trip: Trip = {
       id: 1,
@@ -88,9 +90,40 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     };
   }
 
+  focusNextElement = () => {
+    if (typeof document !== "undefined") {
+      const focusableElements =
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+      const elements = document.querySelectorAll(focusableElements);
+      const currentElement = document.activeElement;
+      let currentIndex = -1;
+      let nextElement = null;
+
+      for (let i = 0; i < elements.length; i++) {
+        if (elements[i] === currentElement) {
+          currentIndex = i;
+          break;
+        }
+      }
+
+      if (currentIndex > -1 && currentIndex < elements.length - 1) {
+        nextElement = elements[currentIndex + 1] as HTMLElement;
+      } else {
+        nextElement = elements[0] as HTMLElement;
+      }
+
+      if (nextElement) {
+        nextElement.focus();
+        if (nextElement.tagName.toLowerCase() === "input") {
+          (nextElement as HTMLInputElement).select();
+        }
+      }
+    }
+  };
+
   addDuty = () => {
     const monthNumber = monthNames[this.props.selectedMonth];
-    const paddedMonth = String(monthNumber).padStart(2, '0');
+    const paddedMonth = String(monthNumber).padStart(2, "0");
     const newTrip: Trip = {
       id: 1,
       date: `${new Date().getFullYear()}-${paddedMonth}-01`,
@@ -118,7 +151,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       duties: prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
           const monthNumber = monthNames[this.props.selectedMonth];
-          const paddedMonth = String(monthNumber).padStart(2, '0');
+          const paddedMonth = String(monthNumber).padStart(2, "0");
           const newTrip: Trip = {
             id: duty.trips.length + 1,
             date: `${new Date().getFullYear()}-${paddedMonth}-01`,
@@ -149,22 +182,22 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         }
         return d;
       });
-  
+
       // Filter non-leave duties
       const nonLeaveDuties = updatedDuties.filter((d) => !d.isLeave);
-  
+
       // Sort duties by signIn time
       const sortedDuties = nonLeaveDuties.sort((a, b) => {
         return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
       });
-  
+
       // Calculate cumulative night duty hours and update progressive night duty
       let cumulativeNightDutyHours = 0;
       sortedDuties.forEach((d) => {
         cumulativeNightDutyHours += d.nightDutyHours;
         d.progressiveNightDutyHours = cumulativeNightDutyHours;
       });
-  
+
       return {
         duties: updatedDuties,
         selectedDuty: duty,
@@ -176,15 +209,17 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   updateProgressiveNightDutyHours = () => {
     this.setState((prevState) => {
       const duties = [...prevState.duties];
-  
+
       // Filter duties with signIn and signOff
-      const completedDuties = duties.filter((duty) => duty.signIn && duty.signOff);
-  
+      const completedDuties = duties.filter(
+        (duty) => duty.signIn && duty.signOff
+      );
+
       // Sort completed duties by signIn time
       const sortedDuties = completedDuties.sort((a, b) => {
         return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
       });
-  
+
       // Calculate cumulative night duty hours and update progressive night duty
       let cumulativeNightDutyHours = 0;
       sortedDuties.forEach((duty) => {
@@ -193,7 +228,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           duty.progressiveNightDutyHours = cumulativeNightDutyHours;
         }
       });
-  
+
       return {
         duties: duties,
       };
@@ -201,20 +236,23 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   updateDutyDetails = (updatedDuty: Duty) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
-        if (duty.id === updatedDuty.id) {
-          return updatedDuty;
-        }
-        return duty;
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === updatedDuty.id) {
+            return updatedDuty;
+          }
+          return duty;
+        }),
+        showModal: false,
       }),
-      showModal: false,
-    }), () => {
-      // Call updateProgressiveNightDutyHours after the state is updated
-      if (updatedDuty.signIn && updatedDuty.signOff) {
-        this.updateProgressiveNightDutyHours();
+      () => {
+        // Call updateProgressiveNightDutyHours after the state is updated
+        if (updatedDuty.signIn && updatedDuty.signOff) {
+          this.updateProgressiveNightDutyHours();
+        }
       }
-    });
+    );
   };
 
   updateTripData = (
@@ -237,15 +275,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   this.setState((prevState) => ({
                     totalLeaves: prevState.totalLeaves + 1,
                   }));
-                                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
-                updatedTrip.arrivalTime = '';
-                updatedTrip.departureTime = '';
-                updatedTrip.sourceStation = '';
-                updatedTrip.destinationStation = '';
-                duty.signIn = null;
-                duty.signOff = null;
-                duty.isLeave = true;
-
+                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
+                  updatedTrip.arrivalTime = "";
+                  updatedTrip.departureTime = "";
+                  updatedTrip.sourceStation = "";
+                  updatedTrip.destinationStation = "";
+                  duty.signIn = null;
+                  duty.signOff = null;
+                  duty.isLeave = true;
                 } else if (!isLeave && wasLeave) {
                   this.setState((prevState) => ({
                     totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
@@ -315,9 +352,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       // If all the duties are deleted, there should be a default duty present.
 
       if (updatedDuties.length === 0) {
-
         const monthNumber = monthNames[this.props.selectedMonth];
-        const paddedMonth = String(monthNumber).padStart(2, '0');
+        const paddedMonth = String(monthNumber).padStart(2, "0");
 
         const newTrip: Trip = {
           id: 1,
@@ -573,6 +609,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             />
           )}
         </Modal>
+        <FloatingNextButton onPress={this.scrollToNextElement} />
       </ScrollView>
     );
   }
