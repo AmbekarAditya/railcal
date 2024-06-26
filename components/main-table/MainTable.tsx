@@ -24,7 +24,6 @@ import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
 import Fortnight from "../fortnight-block/Fortnight";
-import FloatingNextButton from "./FloatingNextButton";
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -89,37 +88,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       totalLeaves: 0,
     };
   }
-
-  focusNextElement = () => {
-    if (typeof document !== "undefined") {
-      const focusableElements =
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-      const elements = document.querySelectorAll(focusableElements);
-      const currentElement = document.activeElement;
-      let currentIndex = -1;
-      let nextElement = null;
-
-      for (let i = 0; i < elements.length; i++) {
-        if (elements[i] === currentElement) {
-          currentIndex = i;
-          break;
-        }
-      }
-
-      if (currentIndex > -1 && currentIndex < elements.length - 1) {
-        nextElement = elements[currentIndex + 1] as HTMLElement;
-      } else {
-        nextElement = elements[0] as HTMLElement;
-      }
-
-      if (nextElement) {
-        nextElement.focus();
-        if (nextElement.tagName.toLowerCase() === "input") {
-          (nextElement as HTMLInputElement).select();
-        }
-      }
-    }
-  };
 
   addDuty = () => {
     const monthNumber = monthNames[this.props.selectedMonth];
@@ -609,7 +577,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             />
           )}
         </Modal>
-        <FloatingNextButton onPress={this.scrollToNextElement} />
       </ScrollView>
     );
   }
