@@ -346,7 +346,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
       </ScrollView>
       <View style={styles.buttonsContainer}>
         <TouchableOpacity
-          style={[styles.button, styles.addTripButton]}
+          style={[styles.commonButtonStyle, styles.addTripButton]}
           onPress={() => addTrip(duty.id)}
           disabled={
             duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
@@ -355,7 +355,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text style={styles.buttonText}>Add Trip</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, styles.endDutyButton]}
+          style={[styles.commonButtonStyle, styles.endDutyButton]}
           onPress={() => handleEndDuty(duty)}
           disabled={
             duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
@@ -364,13 +364,13 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text style={styles.buttonText}>End Duty</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, styles.deleteDutyButton]}
+          style={[styles.commonButtonStyle, styles.deleteDutyButton]}
           onPress={() => deleteDuty(duty.id)}
         >
           <Text style={styles.buttonText}>Delete Duty</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.button, styles.editDutyButton]}
+          style={[styles.commonButtonStyle, styles.editDutyButton]}
           onPress={handleEditDuty}
         >
           <Text style={styles.buttonText}>Edit Duty</Text>
