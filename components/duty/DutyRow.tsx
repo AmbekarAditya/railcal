@@ -18,6 +18,22 @@ import DatePickerComponent from "../DatePicker/DatePickerComponent";
 import WebDatePicker from "../DatePicker/WebDatePicker";
 import { monthNames, disabledTypes } from "../../utils/constants";
 import styles from "../../styles_component/styles_dutyRow";
+import withFocusManagement from "./withFocusManagement"; // Adjust the import path as needed
+
+// Wrap your components with the HOC
+const FocusableWebDatePicker = withFocusManagement(WebDatePicker);
+const FocusableDatePickerComponent = withFocusManagement(DatePickerComponent);
+const FocusableTypeofWorkPickerComponent = withFocusManagement(
+  TypeofWorkPickerComponent
+);
+const FocusableTrainNumberInput = withFocusManagement(TrainNumberInput);
+const FocusablePickerComponentStation = withFocusManagement(
+  PickerComponentStation
+);
+const FocusableArrivalDepartureTimePicker = withFocusManagement(
+  ArrivalDepartureTimePicker
+);
+
 
 const debounce = (func, delay) => {
   let timeoutId;
@@ -54,6 +70,11 @@ const DutyRow: React.FC<DutyRowProps> = ({
   selectedMonth, // Receive the selectedMonth prop
 }) => {
   const [hasEnded, setHasEnded] = useState(duty.hasEnded);
+  const [focusIndex, setFocusIndex] = useState(0);
+
+  const moveFocusToNext = useCallback(() => {
+    setFocusIndex((prevIndex) => (prevIndex + 1) % 5); // Assuming 5 focusable components per trip
+  }, []);
 
   const handleTripDataChange = (
     tripId: number,
@@ -245,7 +266,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <View key={trip.id} style={styles.tripContainer}>
             <View style={styles.dateContainer}>
               {Platform.OS === "web" ? (
-                <WebDatePicker
+                <FocusableWebDatePicker
                   value={
                     trip.date ||
                     `${new Date().getFullYear()}-${String(
@@ -259,9 +280,10 @@ const DutyRow: React.FC<DutyRowProps> = ({
                     2,
                     "0"
                   )}-01`}
+                  onFocusComplete={moveFocusToNext}
                 />
               ) : (
-                <DatePickerComponent
+                <FocusableDatePickerComponent
                   onDateSelected={(date) =>
                     handleTripDataChange(trip.id, "date", date)
                   }
@@ -276,46 +298,42 @@ const DutyRow: React.FC<DutyRowProps> = ({
                       )}-01`
                     )
                   }
+                  onFocusComplete={moveFocusToNext}
                 />
               )}
             </View>
             <View style={styles.dutyTypeContainer}>
-              <TypeofWorkPickerComponent
-                TypeofWork={(newValue) =>
-                  handleTripDataChange(trip.id, "typeOfWork", newValue)
-                }
+            <FocusableTypeofWorkPickerComponent
+                TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
+                onFocusComplete={moveFocusToNext}
               />
             </View>
             <View style={styles.trainNoContainer}>
-              <TrainNumberInput
-                onChange={(trainNumber) =>
-                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
-                }
+              <FocusableTrainNumberInput
+                onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={7}
+                onFocusComplete={moveFocusToNext}
               />
             </View>
             <View style={styles.stationsContainer}>
-              <PickerComponentStation
+              <FocusablePickerComponentStation
                 onStationChange={handleStationChange}
                 dutyId={duty.id}
                 tripId={trip.id}
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={5}
                 duty={duty}
+                onFocusComplete={moveFocusToNext}
               />
             </View>
             <View style={styles.timePickerContainer}>
-              <ArrivalDepartureTimePicker
+              <FocusableArrivalDepartureTimePicker
                 onTimesChange={(arrivalTime, departureTime, dutyHours) =>
-                  handleTimesChange(
-                    trip.id,
-                    arrivalTime,
-                    departureTime,
-                    dutyHours
-                  )
+                  handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
                 }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
+                onFocusComplete={moveFocusToNext}
               />
             </View>
             <View style={styles.durationContainer}>
