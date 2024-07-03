@@ -89,9 +89,9 @@ const styles = StyleSheet.create({
   },
 
   commonButtonStyle: {
-    width: 120, // Increased width to accommodate larger text
-    height: 40, // Increased height
-    padding: 10,
+    width: 80, // Increased width to accommodate larger text
+    height: 30, // Increased height
+    padding: 8,
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
-    fontSize: 14, // Increased font size
+    fontSize: 10, // Increased font size
   },
 });
 

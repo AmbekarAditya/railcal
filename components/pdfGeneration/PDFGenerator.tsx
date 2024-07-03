@@ -655,7 +655,7 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
   };
   return (
     <View>
-      <Button title="Generate PDF" onPress={generatePDF} />
+      <Button title="PDF" onPress={generatePDF} />
     </View>
   );
 };

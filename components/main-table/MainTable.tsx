@@ -615,19 +615,12 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    width: "50%",
+    width: "20%",
     // marginBottom: 16,
   },
   addDuty: {
     flex: 1,
     marginLeft: 8,
-  },
-  summaryBlockContainer: {
-    height: "15%",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: 16,
   },
 });
 

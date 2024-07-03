@@ -250,7 +250,7 @@ const PdfGeneratorMobile: React.FC<PdfGeneratorMobileProps> = ({
 
   return (
     <View style={styles.container}>
-      <Button title="Generate PDF" onPress={generatePDF} />
+      <Button title="PDF" onPress={generatePDF} />
     </View>
   );
 };
