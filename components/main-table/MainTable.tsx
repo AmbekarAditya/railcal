@@ -90,44 +90,129 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   addDuty = () => {
-    const monthNumber = monthNames[this.props.selectedMonth];
-    const paddedMonth = String(monthNumber).padStart(2, "0");
-    const newTrip: Trip = {
-      id: 1,
-      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
-      typeOfWork: "",
-      arrivalTime: "",
-      departureTime: "",
-      timeDifference: 0,
-      sourceStation: "",
-      destinationStation: "",
-      distance: 0,
-      allowance: 0,
-      remarks: "",
-      trainNumber: "",
-      dutyHours: "",
-    };
-
-    const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
-    this.setState((prevState) => ({
-      duties: [...prevState.duties, newDuty],
-    }));
+    this.setState((prevState) => {
+      const monthNumber = monthNames[this.props.selectedMonth];
+      const paddedMonth = String(monthNumber).padStart(2, "0");
+      
+      let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
+      let newSourceStation = "";
+  
+      const setNextDayDate = (currentDate) => {
+        const nextDay = new Date(currentDate);
+        nextDay.setDate(nextDay.getDate() + 1);
+        return nextDay.toISOString().split('T')[0];
+      };
+  
+      if (prevState.duties.length > 0) {
+        const lastDuty = prevState.duties[prevState.duties.length - 1];
+        if (lastDuty.trips.length > 0) {
+          const lastTrip = lastDuty.trips[lastDuty.trips.length - 1];
+  
+          if (leaveTypes.includes(lastTrip.typeOfWork)) {
+            // If the last trip is a leave type, set the new trip date to the next day
+            newTripDate = setNextDayDate(lastTrip.date);
+          } else if (lastTrip.departureTime && lastTrip.arrivalTime) {
+            const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
+            const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
+            
+            if (lastDepartureTime < lastArrivalTime) {
+              newTripDate = setNextDayDate(lastTrip.date);
+            } else {
+              newTripDate = lastTrip.date;
+            }
+          } else {
+            newTripDate = lastTrip.date;
+          }
+  
+          newSourceStation = lastTrip.destinationStation;
+        }
+      }
+  
+      const newTrip: Trip = {
+        id: 1,
+        date: newTripDate,
+        typeOfWork: "",
+        arrivalTime: "",
+        departureTime: "",
+        timeDifference: 0,
+        sourceStation: newSourceStation,
+        destinationStation: "",
+        distance: 0,
+        allowance: 0,
+        remarks: "",
+        trainNumber: "",
+        dutyHours: "",
+      };
+  
+      const newDuty = new Duty(prevState.duties.length + 1, [newTrip]);
+  
+      return {
+        duties: [...prevState.duties, newDuty],
+      };
+    });
   };
 
   addTrip = (dutyId: number) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
+    this.setState((prevState) => {
+      const updatedDuties = prevState.duties.map((duty) => {
         if (duty.id === dutyId) {
           const monthNumber = monthNames[this.props.selectedMonth];
           const paddedMonth = String(monthNumber).padStart(2, "0");
+          
+          let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
+          let newSourceStation = "";
+          
+          if (duty.trips.length > 0) {
+            // There are existing trips in this duty
+            const lastTrip = duty.trips[duty.trips.length - 1];
+            if (lastTrip.departureTime && lastTrip.arrivalTime) {
+              const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
+              const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
+              
+              if (lastDepartureTime < lastArrivalTime) {
+                // If departure time is less than arrival time, add one day
+                const nextDay = new Date(lastTrip.date);
+                nextDay.setDate(nextDay.getDate() + 1);
+                newTripDate = nextDay.toISOString().split('T')[0];
+              } else {
+                newTripDate = lastTrip.date;
+              }
+            } else {
+              newTripDate = lastTrip.date;
+            }
+            newSourceStation = lastTrip.destinationStation;
+          } else if (dutyId > 1) {
+            // This is the first trip of a duty, but not the first duty
+            const previousDuty = prevState.duties.find(d => d.id === dutyId - 1);
+            if (previousDuty && previousDuty.trips.length > 0) {
+              const lastTripOfPreviousDuty = previousDuty.trips[previousDuty.trips.length - 1];
+              if (lastTripOfPreviousDuty.departureTime && lastTripOfPreviousDuty.arrivalTime) {
+                const lastDepartureTime = new Date(`2000-01-01T${lastTripOfPreviousDuty.departureTime}`);
+                const lastArrivalTime = new Date(`2000-01-01T${lastTripOfPreviousDuty.arrivalTime}`);
+                
+                if (lastDepartureTime < lastArrivalTime) {
+                  // If departure time is less than arrival time, add one day
+                  const nextDay = new Date(lastTripOfPreviousDuty.date);
+                  nextDay.setDate(nextDay.getDate() + 1);
+                  newTripDate = nextDay.toISOString().split('T')[0];
+                } else {
+                  newTripDate = lastTripOfPreviousDuty.date;
+                }
+              } else {
+                newTripDate = lastTripOfPreviousDuty.date;
+              }
+              newSourceStation = lastTripOfPreviousDuty.destinationStation;
+            }
+          }
+  
           const newTrip: Trip = {
             id: duty.trips.length + 1,
-            date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+            date: newTripDate,
             typeOfWork: "",
             arrivalTime: "",
             departureTime: "",
             timeDifference: 0,
-            sourceStation: "",
+            sourceStation: newSourceStation,
             destinationStation: "",
             distance: 0,
             allowance: 0,
@@ -138,8 +223,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           return new Duty(duty.id, [...duty.trips, newTrip]);
         }
         return duty;
-      }),
-    }));
+      });
+  
+      return { duties: updatedDuties };
+    });
   };
 
   handleEndDuty = (duty: Duty) => {
