@@ -74,19 +74,17 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
   }, [selectedMonth, duties, pastFortnightHours, pastFortnightMinutes]);
 
   const recalculateFortnights = (pastFortnight: number) => {
-    const monthIndex = new Date(
-      Date.parse(`${selectedMonth} 1, 2024`)
-    ).getMonth();
+    const monthIndex = new Date(Date.parse(`${selectedMonth} 1, 2024`)).getMonth();
     const startDate = new Date(2024, monthIndex, 1);
     const endDate = new Date(2024, monthIndex + 1, 0);
-
-      // Sort duties by start date in ascending order
-  const sortedDuties = [...duties].sort((a, b) => {
-    const aStartDate = a.signIn ? new Date(a.signIn) : new Date(a.trips[0].date);
-    const bStartDate = b.signIn ? new Date(b.signIn) : new Date(b.trips[0].date);
-    return aStartDate.getTime() - bStartDate.getTime();
-  });
-
+  
+    // Sort duties by start date in ascending order
+    const sortedDuties = [...duties].sort((a, b) => {
+      const aStartDate = a.signIn ? new Date(a.signIn) : new Date(a.trips[0].date);
+      const bStartDate = b.signIn ? new Date(b.signIn) : new Date(b.trips[0].date);
+      return aStartDate.getTime() - bStartDate.getTime();
+    });
+  
     const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter(
       (date) => {
         const fortnightEnd = new Date(date);
@@ -95,9 +93,9 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
       }
     ).map((startDate, index) => {
       const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
-
+  
       let totalForthnightDuration = index === 0 ? pastFortnight : 0;
-
+  
       sortedDuties.forEach((duty) => {
         let dutyStart;
         if (duty.isLeave && duty.trips.length > 0) {
@@ -111,7 +109,6 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
               ? parseFloat(duty.dutyHours)
               : 0;
           totalForthnightDuration += dutyHours;
-          // if (!duty.isLeave) {
           duty.progressiveDutyHours = totalForthnightDuration;
         }
       });
@@ -166,17 +163,21 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
     const hours = parseInt(text, 10);
     if (!isNaN(hours) && hours >= 0 && hours <= 200) {
       setPastFortnightHours(hours);
+      recalculateFortnights(hours + pastFortnightMinutes / 60);
     } else {
       setPastFortnightHours(0);
+      recalculateFortnights(pastFortnightMinutes / 60);
     }
   };
-
+  
   const handlePastFortnightMinutesChange = (text: string) => {
     const minutes = parseInt(text, 10);
     if (!isNaN(minutes) && minutes >= 0 && minutes <= 59) {
       setPastFortnightMinutes(minutes);
+      recalculateFortnights(pastFortnightHours + minutes / 60);
     } else {
       setPastFortnightMinutes(0);
+      recalculateFortnights(pastFortnightHours);
     }
   };
 
