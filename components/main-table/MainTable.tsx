@@ -439,13 +439,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       osdaAllowance +
       leaveMileageAllowance +
       overtimeResult; // OT to be added
-
-    const lastDuty = duties[duties.length - 1];
     // const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
-    const grandTotalAllowance =
-      (nightDutyAllowance || 0) +
-      (leaveMileageAllowance || 0) +
-      (osdaAllowance || 0);
 
     const calculateTotalDutyHours = (duties: Duty[]): number => {
       return duties.reduce((total, duty) => {

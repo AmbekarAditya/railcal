@@ -127,67 +127,7 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
               ₹{formatNumber(grandTotalAllowance)}
             </Text>
           </View>
-          {/* <View style={styles.infoContainer}>
-            <Text style={styles.label}>Over Time:</Text>
-            <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
-          </View> */}
         </View>
-        {overtimeResult && (
-          <View style={{ flexDirection: "row" }}>
-            {overtimeResult.firstFortnight && (
-              <View style={styles.overtimeRow}>
-                <View style={styles.overtimeInfo}>
-                  <Text style={styles.label}>First Fortnight</Text>
-                  <Text style={styles.value}>
-                    {formatOvertimeDuration(
-                      overtimeResult.firstFortnight.overtimeHours,
-                      overtimeResult.firstFortnight.overtimeMinutes
-                    )}
-                  </Text>
-                  <Text style={styles.overtimeUnit}>
-                    ({overtimeResult.firstFortnight.overtimeUnit})
-                  </Text>
-                </View>
-                <View style={styles.overtimeDates}>
-                  <Text style={styles.label}>Start Date:</Text>
-                  <Text style={styles.value}>
-                    {formatDate(overtimeResult.firstFortnight.startDate)}
-                  </Text>
-                  <Text style={styles.label}>End Date:</Text>
-                  <Text style={styles.value}>
-                    {formatDate(overtimeResult.firstFortnight.endDate)}
-                  </Text>
-                </View>
-              </View>
-            )}
-            {overtimeResult.secondFortnight && (
-              <View style={styles.overtimeRow}>
-                <View style={styles.overtimeInfo}>
-                  <Text style={styles.label}>Second Fortnight</Text>
-                  <Text style={styles.value}>
-                    {formatOvertimeDuration(
-                      overtimeResult.secondFortnight.overtimeHours,
-                      overtimeResult.secondFortnight.overtimeMinutes
-                    )}
-                  </Text>
-                  <Text style={styles.overtimeUnit}>
-                    ({overtimeResult.secondFortnight.overtimeUnit})
-                  </Text>
-                </View>
-                <View style={styles.overtimeDates}>
-                  <Text style={styles.label}>Start Date:</Text>
-                  <Text style={styles.value}>
-                    {formatDate(overtimeResult.secondFortnight.startDate)}
-                  </Text>
-                  <Text style={styles.label}>End Date:</Text>
-                  <Text style={styles.value}>
-                    {formatDate(overtimeResult.secondFortnight.endDate)}
-                  </Text>
-                </View>
-              </View>
-            )}
-          </View>
-        )}
       </ScrollView>
     </View>
   );

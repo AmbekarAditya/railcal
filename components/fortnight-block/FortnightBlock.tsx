@@ -184,54 +184,48 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Fortnights in {selectedMonth}</Text>
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>Past Fortnight Duration</Text>
-        <View style={styles.durationInputContainer}>
-          <TextInput
-            style={styles.durationInput}
-            value={pastFortnightHours.toString()}
-            keyboardType="numeric"
-            onChangeText={handlePastFortnightHoursChange}
-            maxLength={3}
-          />
-          <Text style={styles.durationSeparator}>:</Text>
-          <TextInput
-            style={styles.durationInput}
-            value={pastFortnightMinutes.toString()}
-            keyboardType="numeric"
-            onChangeText={handlePastFortnightMinutesChange}
-            maxLength={2}
-          />
-        </View>
-      </View>
-      <ScrollView horizontal contentContainerStyle={styles.fortnightsContainer}>
-        {fortnights.map((fortnight, index) => (
-          <View key={index} style={styles.fortnight}>
-            <Text style={styles.fortnightText}>
-              {format(fortnight.startDate, "dd MMM")} -{" "}
-              {format(fortnight.endDate, "dd MMM")}
-            </Text>
-            <Text style={styles.fortnightText}>
-              Total Hours:{" "}
-              {fortnight.totalForthnightDuration
-                ? fortnight.totalForthnightDuration.toFixed(2)
-                : "0.00"}
-            </Text>
-            <Text style={styles.fortnightText}>
-              Overtime Hours: {fortnight.totalOvertimeHours.toFixed(2)}
-            </Text>
-            <Text style={styles.fortnightText}>
-              Overtime Allowance:{" "}
-              {fortnight.overtimeAllowance
-                ? fortnight.overtimeAllowance.toFixed(2)
-                : "0.00"}
-            </Text>
+      <View style={styles.contentContainer}>
+        <View style={styles.inputSection}>
+          <Text style={styles.inputLabel}>Past Fortnight Duration</Text>
+          <View style={styles.durationInputContainer}>
+            <TextInput
+              style={styles.durationInput}
+              value={pastFortnightHours.toString()}
+              keyboardType="numeric"
+              onChangeText={handlePastFortnightHoursChange}
+              maxLength={3}
+            />
+            <Text style={styles.durationSeparator}>:</Text>
+            <TextInput
+              style={styles.durationInput}
+              value={pastFortnightMinutes.toString()}
+              keyboardType="numeric"
+              onChangeText={handlePastFortnightMinutesChange}
+              maxLength={2}
+            />
           </View>
-        ))}
-      </ScrollView>
+        </View>
+        <ScrollView horizontal contentContainerStyle={styles.fortnightsContainer}>
+          {fortnights.map((fortnight, index) => (
+            <View key={index} style={styles.fortnight}>
+              <Text style={styles.fortnightDate}>
+                {format(fortnight.startDate, "dd MMM")} - {format(fortnight.endDate, "dd MMM")}
+              </Text>
+              <Text style={styles.fortnightText}>
+                Total: {fortnight.totalForthnightDuration.toFixed(2)}
+              </Text>
+              <Text style={styles.fortnightText}>
+                OT: {fortnight.totalOvertimeHours.toFixed(2)}
+              </Text>
+              <Text style={styles.fortnightText}>
+                Allow: {fortnight.overtimeAllowance.toFixed(2)}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
       <Text style={styles.totalText}>
-        Total Overtime Allowance:{" "}
-        {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : "0.00"}
+        Total Overtime Allowance: {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : "0.00"}
       </Text>
     </View>
   );
@@ -248,43 +242,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 8,
+    textAlign: 'left',  // Changed to left alignment
   },
-  fortnightText: {
-    fontSize: 14,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+  contentContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     marginBottom: 16,
+  },
+  inputSection: {
+    marginRight: 16,
   },
   inputLabel: {
     fontSize: 14,
-    marginRight: 8,
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 8,
-    marginRight: 8,
-  },
-  totalText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginTop: 16,
-  },
-  fortnightsContainer: {
-    flexDirection: "row",
-    paddingHorizontal: 8,
-    marginBottom: 16,
-  },
-  fortnight: {
-    minWidth: 120,
-    padding: 8,
-    backgroundColor: "#ffffff",
-    borderRadius: 4,
-    marginRight: 8,
+    marginBottom: 4,
   },
   durationInputContainer: {
     flexDirection: "row",
@@ -303,6 +274,29 @@ const styles = StyleSheet.create({
   durationSeparator: {
     fontSize: 18,
     marginHorizontal: 4,
+  },
+  fortnightsContainer: {
+    flexDirection: "row",
+  },
+  fortnight: {
+    width: 120,
+    padding: 8,
+    backgroundColor: "#ffffff",
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  fortnightDate: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  fortnightText: {
+    fontSize: 12,
+  },
+  totalText: {
+    fontSize: 14,
+    fontWeight: "bold",
+    textAlign: 'left',  // Changed to left alignment
   },
 });
 
