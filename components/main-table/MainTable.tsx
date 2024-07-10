@@ -54,7 +54,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     showModal: false,
     selectedDuty: null,
     totalLeaves: 0,
-    overtimeResult: 0,
+    overtimeResult: null,
     progressiveDutyHours: 0,
     fortnights: [],
   };
@@ -78,6 +78,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       allowance: 1,
       remarks: "",
       dutyHours: "",
+      totalLeaves: 0,
+      overtimeResult: null,
+      progressiveDutyHours: 0,
+      fortnights: [],
     };
 
     const duty: Duty = new Duty(1, [trip]);
@@ -88,6 +92,22 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       selectedDuty: null,
       totalLeaves: 0,
     };
+  }
+
+  async componentDidMount() {
+    const userId = getCurrentUserId();
+    const { selectedMonth } = this.props;
+
+    if (userId) {
+      try {
+        const loadedDuties = await loadDuties(userId, selectedMonth);
+        if (loadedDuties.length > 0) {
+          this.setState({ duties: loadedDuties });
+        }
+      } catch (error) {
+        console.error("Error loading duties:", error);
+      }
+    }
   }
 
   async componentDidMount() {
