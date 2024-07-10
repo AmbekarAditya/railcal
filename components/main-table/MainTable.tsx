@@ -83,6 +83,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       progressiveDutyHours: 0,
       fortnights: [],
     };
+  }
 
     const duty: Duty = new Duty(1, [trip]);
 
@@ -93,7 +94,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       totalLeaves: 0,
     };
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     const userId = getCurrentUserId();
     const { selectedMonth } = this.props;
 
