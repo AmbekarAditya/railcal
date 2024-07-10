@@ -92,7 +92,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       showModal: false,
       selectedDuty: null,
       totalLeaves: 0,
+      overtimeResult: null,
+      progressiveDutyHours: 0,
+      fortnights: [],
     };
+  }
 
   async componentDidMount(): Promise<void> {
     const userId = getCurrentUserId();
@@ -597,7 +601,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             />
           </View>
           <View style={styles.addDuty}>
-            {Platform.OS === "web" && (
+            {Platform.OS === "web" && PDFGenerator && (
               <PDFGenerator
                 duties={duties}
                 designation={designation}
@@ -684,7 +688,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 }
 
-const colors = {
+const colors: { [key: string]: string } = {
   primary: "#007AFF",
   border: "#CCCCCC",
   // Add more colors as needed
