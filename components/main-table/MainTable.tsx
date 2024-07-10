@@ -83,8 +83,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       progressiveDutyHours: 0,
       fortnights: [],
     };
-  }
-
     const duty: Duty = new Duty(1, [trip]);
 
     this.state = {
@@ -96,6 +94,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       progressiveDutyHours: 0,
       fortnights: [],
     };
+  }
   }
 
   async componentDidMount(): Promise<void> {
