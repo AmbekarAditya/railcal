@@ -15,6 +15,7 @@ import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
+import { loadDuties, getCurrentUserId } from "../../firebase/firebaseDataManagement";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
@@ -87,6 +88,22 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       selectedDuty: null,
       totalLeaves: 0,
     };
+  }
+
+  async componentDidMount() {
+    const userId = getCurrentUserId();
+    const { selectedMonth } = this.props;
+
+    if (userId) {
+      try {
+        const loadedDuties = await loadDuties(userId, selectedMonth);
+        if (loadedDuties.length > 0) {
+          this.setState({ duties: loadedDuties });
+        }
+      } catch (error) {
+        console.error("Error loading duties:", error);
+      }
+    }
   }
 
   addDuty = () => {
