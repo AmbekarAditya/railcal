@@ -92,8 +92,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       selectedDuty: null,
       totalLeaves: 0,
     };
-  }
 
+  async componentDidMount(): Promise<void> {
     const userId = getCurrentUserId();
     const { selectedMonth } = this.props;
 
