@@ -94,23 +94,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     };
   }
 
-  async componentDidMount(): Promise<void> {
-    const userId = getCurrentUserId();
-    const { selectedMonth } = this.props;
-
-    if (userId) {
-      try {
-        const loadedDuties = await loadDuties(userId, selectedMonth);
-        if (loadedDuties.length > 0) {
-          this.setState({ duties: loadedDuties });
-        }
-      } catch (error) {
-        console.error("Error loading duties:", error);
-      }
-    }
-  }
-
-  async componentDidMount() {
     const userId = getCurrentUserId();
     const { selectedMonth } = this.props;
 
