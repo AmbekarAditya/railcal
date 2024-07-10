@@ -43,7 +43,7 @@ interface MainTableState {
   showModal: boolean;
   selectedDuty: Duty | null;
   totalLeaves: number;
-  overtimeResult: OverTimeCalculationResult | null;
+  overtimeResult: number | null;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
 }
@@ -94,7 +94,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     };
   }
 
-  async componentDidMount() {
+  async componentDidMount(): Promise<void> {
     const userId = getCurrentUserId();
     const { selectedMonth } = this.props;
 
