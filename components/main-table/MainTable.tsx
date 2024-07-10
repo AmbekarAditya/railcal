@@ -95,7 +95,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       fortnights: [],
     };
   }
-  }
 
   async componentDidMount(): Promise<void> {
     const userId = getCurrentUserId();
