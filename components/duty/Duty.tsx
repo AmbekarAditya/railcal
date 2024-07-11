@@ -34,9 +34,9 @@ class Duty {
     this.isLeave = false;
   }
 
-  setSignInAndSignOff(signIn: Date, signOff: Date) {
-    this.signIn = signIn;
-    this.signOff = signOff;
+  setSignInAndSignOff(signIn: Date | null, signOff: Date | null) {
+    this.signIn = signIn && !isNaN(signIn.getTime()) ? signIn : null;
+    this.signOff = signOff && !isNaN(signOff.getTime()) ? signOff : null;
     this.calculateDutyHoursAndNightDutyHours();
   }
 
@@ -46,6 +46,10 @@ class Duty {
       this.nightDutyHours = this.calculateNightDutyHours();
     // this.progressiveNightDutyHours += this.nightDutyHours;
     }
+  }
+
+  private isValidDate(date: any): boolean {
+    return date instanceof Date && !isNaN(date.getTime());
   }
 
   calculateTotalAllowance() {

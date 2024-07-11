@@ -15,7 +15,11 @@ import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
-import { loadDuties, getCurrentUserId , saveDuties} from "../../firebase/firebaseDataManagement";
+import {
+  loadDuties,
+  getCurrentUserId,
+  saveDuties,
+} from "../../firebase/firebaseDataManagement";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
@@ -47,7 +51,7 @@ interface MainTableState {
   overtimeResult: number | null;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
-  isLoading: boolean,
+  isLoading: boolean;
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -118,7 +122,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         this.setState({ isLoading: true });
         const loadedDuties = await loadDuties(userId, selectedMonth);
         if (loadedDuties.length > 0) {
-          this.setState({ duties: loadedDuties });
+          console.log('Loaded duties:', loadedDuties);
+          const validatedDuties = loadedDuties.map(duty => {
+            duty.setSignInAndSignOff(duty.signIn, duty.signOff);
+            return duty;
+          });
+          this.setState({ duties: validatedDuties }, () => {
+            console.log('State after setting duties:', this.state.duties);
+          });
         } else {
           const defaultDuty = this.createDefaultDuty();
           this.setState({ duties: [defaultDuty] });
@@ -134,7 +145,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   createDefaultDuty = (): Duty => {
     const monthNumber = monthNames[this.props.selectedMonth];
     const paddedMonth = String(monthNumber).padStart(2, "0");
-    
+
     const trip: Trip = {
       id: 1,
       date: `${new Date().getFullYear()}-${paddedMonth}-01`,
@@ -157,48 +168,54 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return new Duty(1, [trip]);
   };
 
-    // Add a method to save duties to Firestore
-    saveDutiesToFirestore = async () => {
-      const userId = getCurrentUserId();
-      const { selectedMonth } = this.props;
-      const { duties } = this.state;
-  
-      if (userId) {
-        try {
-          await saveDuties(userId, selectedMonth, duties);
-          console.log('Duties saved successfully');
-        } catch (error) {
-          console.error('Error saving duties:', error);
-        }
-      }
-    };
+  // Add a method to save duties to Firestore
+  saveDutiesToFirestore = async () => {
+    const userId = getCurrentUserId();
+    const { selectedMonth } = this.props;
+    const { duties } = this.state;
 
-    addDuty = () => {
-      this.setState((prevState) => {
+    if (userId) {
+      try {
+        const validDuties = duties.filter(duty => duty !== undefined && duty !== null);
+        await saveDuties(userId, selectedMonth, validDuties);
+        console.log('Duties saved successfully');
+      } catch (error) {
+        console.error('Error saving duties:', error);
+      }
+    }
+  };
+
+  addDuty = () => {
+    this.setState(
+      (prevState) => {
         const monthNumber = monthNames[this.props.selectedMonth];
         const paddedMonth = String(monthNumber).padStart(2, "0");
-        
+
         let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
         let newSourceStation = "";
-    
+
         const setNextDayDate = (currentDate) => {
           const nextDay = new Date(currentDate);
           nextDay.setDate(nextDay.getDate() + 1);
-          return nextDay.toISOString().split('T')[0];
+          return nextDay.toISOString().split("T")[0];
         };
-    
+
         if (prevState.duties.length > 0) {
           const lastDuty = prevState.duties[prevState.duties.length - 1];
           if (lastDuty.trips.length > 0) {
             const lastTrip = lastDuty.trips[lastDuty.trips.length - 1];
-    
+
             if (leaveTypes.includes(lastTrip.typeOfWork)) {
               // If the last trip is a leave type, set the new trip date to the next day
               newTripDate = setNextDayDate(lastTrip.date);
             } else if (lastTrip.departureTime && lastTrip.arrivalTime) {
-              const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
-              const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
-              
+              const lastDepartureTime = new Date(
+                `2000-01-01T${lastTrip.departureTime}`
+              );
+              const lastArrivalTime = new Date(
+                `2000-01-01T${lastTrip.arrivalTime}`
+              );
+
               if (lastDepartureTime < lastArrivalTime) {
                 newTripDate = setNextDayDate(lastTrip.date);
               } else {
@@ -207,11 +224,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             } else {
               newTripDate = lastTrip.date;
             }
-    
+
             newSourceStation = lastTrip.destinationStation;
           }
         }
-    
+
         const newTrip: Trip = {
           id: 1,
           date: newTripDate,
@@ -227,18 +244,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           trainNumber: "",
           dutyHours: "",
         };
-    
+
         const newDuty = new Duty(prevState.duties.length + 1, [newTrip]);
-    
+
         return {
           duties: [...prevState.duties, newDuty],
         };
-      }, () => {
+      },
+      () => {
         // Save duties to Firestore after state update
         this.saveDutiesToFirestore();
-      });
-    };
-    
+      }
+    );
+  };
 
   addTrip = (dutyId: number) => {
     this.setState((prevState) => {
@@ -246,22 +264,26 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         if (duty.id === dutyId) {
           const monthNumber = monthNames[this.props.selectedMonth];
           const paddedMonth = String(monthNumber).padStart(2, "0");
-          
+
           let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
           let newSourceStation = "";
-          
+
           if (duty.trips.length > 0) {
             // There are existing trips in this duty
             const lastTrip = duty.trips[duty.trips.length - 1];
             if (lastTrip.departureTime && lastTrip.arrivalTime) {
-              const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
-              const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
-              
+              const lastDepartureTime = new Date(
+                `2000-01-01T${lastTrip.departureTime}`
+              );
+              const lastArrivalTime = new Date(
+                `2000-01-01T${lastTrip.arrivalTime}`
+              );
+
               if (lastDepartureTime < lastArrivalTime) {
                 // If departure time is less than arrival time, add one day
                 const nextDay = new Date(lastTrip.date);
                 nextDay.setDate(nextDay.getDate() + 1);
-                newTripDate = nextDay.toISOString().split('T')[0];
+                newTripDate = nextDay.toISOString().split("T")[0];
               } else {
                 newTripDate = lastTrip.date;
               }
@@ -271,18 +293,28 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             newSourceStation = lastTrip.destinationStation;
           } else if (dutyId > 1) {
             // This is the first trip of a duty, but not the first duty
-            const previousDuty = prevState.duties.find(d => d.id === dutyId - 1);
+            const previousDuty = prevState.duties.find(
+              (d) => d.id === dutyId - 1
+            );
             if (previousDuty && previousDuty.trips.length > 0) {
-              const lastTripOfPreviousDuty = previousDuty.trips[previousDuty.trips.length - 1];
-              if (lastTripOfPreviousDuty.departureTime && lastTripOfPreviousDuty.arrivalTime) {
-                const lastDepartureTime = new Date(`2000-01-01T${lastTripOfPreviousDuty.departureTime}`);
-                const lastArrivalTime = new Date(`2000-01-01T${lastTripOfPreviousDuty.arrivalTime}`);
-                
+              const lastTripOfPreviousDuty =
+                previousDuty.trips[previousDuty.trips.length - 1];
+              if (
+                lastTripOfPreviousDuty.departureTime &&
+                lastTripOfPreviousDuty.arrivalTime
+              ) {
+                const lastDepartureTime = new Date(
+                  `2000-01-01T${lastTripOfPreviousDuty.departureTime}`
+                );
+                const lastArrivalTime = new Date(
+                  `2000-01-01T${lastTripOfPreviousDuty.arrivalTime}`
+                );
+
                 if (lastDepartureTime < lastArrivalTime) {
                   // If departure time is less than arrival time, add one day
                   const nextDay = new Date(lastTripOfPreviousDuty.date);
                   nextDay.setDate(nextDay.getDate() + 1);
-                  newTripDate = nextDay.toISOString().split('T')[0];
+                  newTripDate = nextDay.toISOString().split("T")[0];
                 } else {
                   newTripDate = lastTripOfPreviousDuty.date;
                 }
@@ -292,7 +324,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               newSourceStation = lastTripOfPreviousDuty.destinationStation;
             }
           }
-  
+
           const newTrip: Trip = {
             id: duty.trips.length + 1,
             date: newTripDate,
@@ -312,7 +344,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         }
         return duty;
       });
-  
+
       return { duties: updatedDuties };
     });
   };
@@ -346,7 +378,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         selectedDuty: duty,
         showModal: true,
       };
-    }), this.saveDutiesToFirestore;
+    }),
+      this.saveDutiesToFirestore;
   };
 
   updateProgressiveNightDutyHours = () => {
@@ -395,7 +428,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           this.updateProgressiveNightDutyHours();
         }
       }
-    ), this.saveDutiesToFirestore;
+    ),
+      this.saveDutiesToFirestore;
   };
 
   updateTripData = (
@@ -432,7 +466,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   }));
                 }
               }
-  
+
               duty.updateTrip(tripId, updatedTrip);
             }
           }
@@ -467,15 +501,20 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   deleteTrip = (dutyId: number, tripId: number) => {
-    this.setState((prevState) => ({
-      duties: prevState.duties.map((duty) => {
-        if (duty.id === dutyId) {
-          const updatedTrips = duty.trips.filter((trip) => trip.id !== tripId);
-          return new Duty(duty.id, updatedTrips);
-        }
-        return duty;
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === dutyId) {
+            const updatedTrips = duty.trips.filter(
+              (trip) => trip.id !== tripId
+            );
+            return new Duty(duty.id, updatedTrips);
+          }
+          return duty;
+        }),
       }),
-    }), this.saveDutiesToFirestore);
+      this.saveDutiesToFirestore
+    );
   };
 
   calculateTotalNightDutyHours = (): number => {
@@ -521,7 +560,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       }
 
       return { duties: updatedDuties };
-    }), this.saveDutiesToFirestore;
+    }),
+      this.saveDutiesToFirestore;
   };
 
   setTotalLeaves = (newTotalLeaves: number) => {
@@ -547,12 +587,23 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
-    const { duties, showModal, selectedDuty, totalLeaves, isLoading, overtimeResult, fortnights } = this.state;
-    const { rateOfPay, selectedMonth, designation, payBand, level } = this.props;
+    const {
+      duties,
+      showModal,
+      selectedDuty,
+      totalLeaves,
+      isLoading,
+      overtimeResult,
+      fortnights,
+    } = this.state;
+    const { rateOfPay, selectedMonth, designation, payBand, level } =
+      this.props;
 
     if (isLoading) {
       return <LoadingIndicator />;
     }
+
+    console.log("Rendering duties:", duties);
 
     let startDate = ""; // Default to an empty string
 
@@ -655,6 +706,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 deleteDuty={this.deleteDuty}
               />
             )}
+            keyExtractor={(item) => item.id.toString()}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -796,8 +848,8 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
