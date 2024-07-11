@@ -15,7 +15,7 @@ import Modal from "../modal/Modal";
 import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
-import { loadDuties, getCurrentUserId } from "../../firebase/firebaseDataManagement";
+import { loadDuties, getCurrentUserId , saveDuties} from "../../firebase/firebaseDataManagement";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
 import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
@@ -25,6 +25,7 @@ import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
 import Fortnight from "../fortnight-block/Fortnight";
+import LoadingIndicator from "./LoadingIndicator";
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -46,6 +47,7 @@ interface MainTableState {
   overtimeResult: number | null;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
+  isLoading: boolean,
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -93,87 +95,150 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       overtimeResult: null,
       progressiveDutyHours: 0,
       fortnights: [],
+      isLoading: true,
     };
   }
 
-  async componentDidMount(): Promise<void> {
+  async componentDidMount() {
+    await this.loadDutiesFromFirestore();
+  }
+
+  async componentDidUpdate(prevProps: MainTableProps) {
+    if (prevProps.selectedMonth !== this.props.selectedMonth) {
+      await this.loadDutiesFromFirestore();
+    }
+  }
+
+  loadDutiesFromFirestore = async () => {
     const userId = getCurrentUserId();
     const { selectedMonth } = this.props;
 
     if (userId) {
       try {
+        this.setState({ isLoading: true });
         const loadedDuties = await loadDuties(userId, selectedMonth);
         if (loadedDuties.length > 0) {
           this.setState({ duties: loadedDuties });
+        } else {
+          const defaultDuty = this.createDefaultDuty();
+          this.setState({ duties: [defaultDuty] });
         }
       } catch (error) {
         console.error("Error loading duties:", error);
+      } finally {
+        this.setState({ isLoading: false });
       }
     }
-  }
+  };
 
-  addDuty = () => {
-    this.setState((prevState) => {
-      const monthNumber = monthNames[this.props.selectedMonth];
-      const paddedMonth = String(monthNumber).padStart(2, "0");
-      
-      let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
-      let newSourceStation = "";
+  createDefaultDuty = (): Duty => {
+    const monthNumber = monthNames[this.props.selectedMonth];
+    const paddedMonth = String(monthNumber).padStart(2, "0");
+    
+    const trip: Trip = {
+      id: 1,
+      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+      typeOfWork: "",
+      arrivalTime: "",
+      departureTime: "",
+      timeDifference: 0,
+      sourceStation: "",
+      destinationStation: "",
+      trainNumber: "",
+      distance: 0,
+      allowance: 1,
+      remarks: "",
+      dutyHours: "",
+      totalLeaves: 0,
+      overtimeResult: null,
+      progressiveDutyHours: 0,
+      fortnights: [],
+    };
+    return new Duty(1, [trip]);
+  };
+
+    // Add a method to save duties to Firestore
+    saveDutiesToFirestore = async () => {
+      const userId = getCurrentUserId();
+      const { selectedMonth } = this.props;
+      const { duties } = this.state;
   
-      const setNextDayDate = (currentDate) => {
-        const nextDay = new Date(currentDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-        return nextDay.toISOString().split('T')[0];
-      };
-  
-      if (prevState.duties.length > 0) {
-        const lastDuty = prevState.duties[prevState.duties.length - 1];
-        if (lastDuty.trips.length > 0) {
-          const lastTrip = lastDuty.trips[lastDuty.trips.length - 1];
-  
-          if (leaveTypes.includes(lastTrip.typeOfWork)) {
-            // If the last trip is a leave type, set the new trip date to the next day
-            newTripDate = setNextDayDate(lastTrip.date);
-          } else if (lastTrip.departureTime && lastTrip.arrivalTime) {
-            const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
-            const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
-            
-            if (lastDepartureTime < lastArrivalTime) {
+      if (userId) {
+        try {
+          await saveDuties(userId, selectedMonth, duties);
+          console.log('Duties saved successfully');
+        } catch (error) {
+          console.error('Error saving duties:', error);
+        }
+      }
+    };
+
+    addDuty = () => {
+      this.setState((prevState) => {
+        const monthNumber = monthNames[this.props.selectedMonth];
+        const paddedMonth = String(monthNumber).padStart(2, "0");
+        
+        let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
+        let newSourceStation = "";
+    
+        const setNextDayDate = (currentDate) => {
+          const nextDay = new Date(currentDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          return nextDay.toISOString().split('T')[0];
+        };
+    
+        if (prevState.duties.length > 0) {
+          const lastDuty = prevState.duties[prevState.duties.length - 1];
+          if (lastDuty.trips.length > 0) {
+            const lastTrip = lastDuty.trips[lastDuty.trips.length - 1];
+    
+            if (leaveTypes.includes(lastTrip.typeOfWork)) {
+              // If the last trip is a leave type, set the new trip date to the next day
               newTripDate = setNextDayDate(lastTrip.date);
+            } else if (lastTrip.departureTime && lastTrip.arrivalTime) {
+              const lastDepartureTime = new Date(`2000-01-01T${lastTrip.departureTime}`);
+              const lastArrivalTime = new Date(`2000-01-01T${lastTrip.arrivalTime}`);
+              
+              if (lastDepartureTime < lastArrivalTime) {
+                newTripDate = setNextDayDate(lastTrip.date);
+              } else {
+                newTripDate = lastTrip.date;
+              }
             } else {
               newTripDate = lastTrip.date;
             }
-          } else {
-            newTripDate = lastTrip.date;
+    
+            newSourceStation = lastTrip.destinationStation;
           }
-  
-          newSourceStation = lastTrip.destinationStation;
         }
-      }
-  
-      const newTrip: Trip = {
-        id: 1,
-        date: newTripDate,
-        typeOfWork: "",
-        arrivalTime: "",
-        departureTime: "",
-        timeDifference: 0,
-        sourceStation: newSourceStation,
-        destinationStation: "",
-        distance: 0,
-        allowance: 0,
-        remarks: "",
-        trainNumber: "",
-        dutyHours: "",
-      };
-  
-      const newDuty = new Duty(prevState.duties.length + 1, [newTrip]);
-  
-      return {
-        duties: [...prevState.duties, newDuty],
-      };
-    });
-  };
+    
+        const newTrip: Trip = {
+          id: 1,
+          date: newTripDate,
+          typeOfWork: "",
+          arrivalTime: "",
+          departureTime: "",
+          timeDifference: 0,
+          sourceStation: newSourceStation,
+          destinationStation: "",
+          distance: 0,
+          allowance: 0,
+          remarks: "",
+          trainNumber: "",
+          dutyHours: "",
+        };
+    
+        const newDuty = new Duty(prevState.duties.length + 1, [newTrip]);
+    
+        return {
+          duties: [...prevState.duties, newDuty],
+        };
+      }, () => {
+        // Save duties to Firestore after state update
+        this.saveDutiesToFirestore();
+      });
+    };
+    
 
   addTrip = (dutyId: number) => {
     this.setState((prevState) => {
@@ -281,7 +346,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         selectedDuty: duty,
         showModal: true,
       };
-    });
+    }), this.saveDutiesToFirestore;
   };
 
   updateProgressiveNightDutyHours = () => {
@@ -330,7 +395,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           this.updateProgressiveNightDutyHours();
         }
       }
-    );
+    ), this.saveDutiesToFirestore;
   };
 
   updateTripData = (
@@ -367,7 +432,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   }));
                 }
               }
-
+  
               duty.updateTrip(tripId, updatedTrip);
             }
           }
@@ -377,6 +442,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       () => {
         // Call handleDutiesChange after state is updated
         this.handleDutiesChange(this.state.duties);
+        // Save duties to Firestore after state update
+        this.saveDutiesToFirestore();
       }
     );
   };
@@ -408,7 +475,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         }
         return duty;
       }),
-    }));
+    }), this.saveDutiesToFirestore);
   };
 
   calculateTotalNightDutyHours = (): number => {
@@ -454,7 +521,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       }
 
       return { duties: updatedDuties };
-    });
+    }), this.saveDutiesToFirestore;
   };
 
   setTotalLeaves = (newTotalLeaves: number) => {
@@ -480,11 +547,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   };
 
   render() {
-    const { overtimeResult, fortnights } = this.state;
+    const { duties, showModal, selectedDuty, totalLeaves, isLoading, overtimeResult, fortnights } = this.state;
+    const { rateOfPay, selectedMonth, designation, payBand, level } = this.props;
 
-    const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { rateOfPay, selectedMonth, designation, payBand, level } =
-      this.props;
+    if (isLoading) {
+      return <LoadingIndicator />;
+    }
 
     let startDate = ""; // Default to an empty string
 
@@ -725,6 +793,11 @@ const styles = StyleSheet.create({
   addDuty: {
     flex: 1,
     marginLeft: 8,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
