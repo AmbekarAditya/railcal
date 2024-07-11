@@ -456,6 +456,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ fortnights });
   };
 
+  saveDuties = () => {
+    // Implement the save functionality here
+    console.log("Duties saved!");
+  };
+
   render() {
     const { overtimeResult, fortnights } = this.state;
 
@@ -572,6 +577,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               title="Add Duty"
               onPress={this.addDuty}
               disabled={!this.isPreviousDutyEnded()}
+              color={colors.primary}
+            />
+          </View>
+          <View style={styles.addDuty}>
+            <Button
+              title="Save"
+              onPress={this.saveDuties}
               color={colors.primary}
             />
           </View>
