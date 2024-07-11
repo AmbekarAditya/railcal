@@ -8,6 +8,7 @@ import {
   Platform,
 } from "react-native";
 import Duty from "../duty/Duty";
+import saveDutiesToFirestore from "./saveDutiesToFirestore";
 import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -458,7 +459,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   saveDuties = () => {
     // Implement the save functionality here
-    console.log("Duties saved!");
+    saveDutiesToFirestore(this.state.duties, this.props.selectedMonth);
   };
 
   render() {
