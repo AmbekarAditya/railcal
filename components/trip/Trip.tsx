@@ -33,6 +33,7 @@ class Trip {
     };
   }
 
+
   toJSON() {
     return {
       id: this.id,

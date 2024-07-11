@@ -11,6 +11,20 @@ class Duty {
   isOSDA: boolean;
   isRRA: boolean;
   dutyAllowance: number;
+
+  toJSON() {
+    return {
+      id: this.id,
+      trips: this.trips.map(trip => trip.toJSON()),
+      signIn: this.signIn,
+      signOff: this.signOff,
+      dutyHours: this.dutyHours,
+      nightDutyHours: this.nightDutyHours,
+      isOSDA: this.isOSDA,
+      isRRA: this.isRRA,
+      dutyAllowance: this.dutyAllowance,
+    };
+  }
   dutyDistance: number;
   progressiveDutyHours:number;
   progressiveNightDutyHours: number;
