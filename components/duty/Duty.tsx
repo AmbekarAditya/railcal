@@ -30,6 +30,25 @@ class Duty {
       isLeave: this.isLeave,
     };
   }
+
+  toJSON() {
+    return {
+      id: this.id,
+      trips: this.trips.map((trip) => trip.toJSON()),
+      signIn: this.signIn,
+      signOff: this.signOff,
+      dutyHours: this.dutyHours,
+      nightDutyHours: this.nightDutyHours,
+      isOSDA: this.isOSDA,
+      isRRA: this.isRRA,
+      dutyAllowance: this.dutyAllowance,
+      dutyDistance: this.dutyDistance,
+      progressiveDutyHours: this.progressiveDutyHours,
+      progressiveNightDutyHours: this.progressiveNightDutyHours,
+      hasEnded: this.hasEnded,
+      isLeave: this.isLeave,
+    };
+  }
   dutyDistance: number;
   progressiveDutyHours:number;
   progressiveNightDutyHours: number;
