@@ -8,7 +8,7 @@ import {
   Platform,
 } from "react-native";
 import Duty from "../duty/Duty";
-import saveDutiesToFirestore from "./saveDutiesToFirestore";
+import { saveDutiesToFirestore } from "./saveDutiesToFirestore"; // Update this import
 import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";

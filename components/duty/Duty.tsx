@@ -11,44 +11,6 @@ class Duty {
   isOSDA: boolean;
   isRRA: boolean;
   dutyAllowance: number;
-
-  toJSON() {
-    return {
-      id: this.id,
-      trips: this.trips.map((trip) => trip.toJSON()),
-      signIn: this.signIn,
-      signOff: this.signOff,
-      dutyHours: this.dutyHours,
-      nightDutyHours: this.nightDutyHours,
-      isOSDA: this.isOSDA,
-      isRRA: this.isRRA,
-      dutyAllowance: this.dutyAllowance,
-      dutyDistance: this.dutyDistance,
-      progressiveDutyHours: this.progressiveDutyHours,
-      progressiveNightDutyHours: this.progressiveNightDutyHours,
-      hasEnded: this.hasEnded,
-      isLeave: this.isLeave,
-    };
-  }
-
-  toJSON() {
-    return {
-      id: this.id,
-      trips: this.trips.map((trip) => trip.toJSON()),
-      signIn: this.signIn,
-      signOff: this.signOff,
-      dutyHours: this.dutyHours,
-      nightDutyHours: this.nightDutyHours,
-      isOSDA: this.isOSDA,
-      isRRA: this.isRRA,
-      dutyAllowance: this.dutyAllowance,
-      dutyDistance: this.dutyDistance,
-      progressiveDutyHours: this.progressiveDutyHours,
-      progressiveNightDutyHours: this.progressiveNightDutyHours,
-      hasEnded: this.hasEnded,
-      isLeave: this.isLeave,
-    };
-  }
   dutyDistance: number;
   progressiveDutyHours:number;
   progressiveNightDutyHours: number;
@@ -70,6 +32,32 @@ class Duty {
     this.progressiveNightDutyHours=0;
     this.hasEnded = false; // Initialize hasEnded
     this.isLeave = false;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      trips: this.trips.map(trip => {
+        if (typeof trip.toJSON === 'function') {
+          return trip.toJSON();
+        } else {
+          // If toJSON is not a function, return the trip object as is
+          return { ...trip };
+        }
+      }),
+      signIn: this.signIn,
+      signOff: this.signOff,
+      dutyHours: this.dutyHours,
+      nightDutyHours: this.nightDutyHours,
+      isOSDA: this.isOSDA,
+      isRRA: this.isRRA,
+      dutyAllowance: this.dutyAllowance,
+      dutyDistance: this.dutyDistance,
+      progressiveDutyHours: this.progressiveDutyHours,
+      progressiveNightDutyHours: this.progressiveNightDutyHours,
+      hasEnded: this.hasEnded,
+      isLeave: this.isLeave,
+    };
   }
 
   setSignInAndSignOff(signIn: Date, signOff: Date) {
