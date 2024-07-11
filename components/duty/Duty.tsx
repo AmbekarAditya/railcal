@@ -15,7 +15,7 @@ class Duty {
   toJSON() {
     return {
       id: this.id,
-      trips: this.trips.map(trip => trip.toJSON()),
+      trips: this.trips.map((trip) => trip.toJSON()),
       signIn: this.signIn,
       signOff: this.signOff,
       dutyHours: this.dutyHours,
@@ -23,6 +23,11 @@ class Duty {
       isOSDA: this.isOSDA,
       isRRA: this.isRRA,
       dutyAllowance: this.dutyAllowance,
+      dutyDistance: this.dutyDistance,
+      progressiveDutyHours: this.progressiveDutyHours,
+      progressiveNightDutyHours: this.progressiveNightDutyHours,
+      hasEnded: this.hasEnded,
+      isLeave: this.isLeave,
     };
   }
   dutyDistance: number;

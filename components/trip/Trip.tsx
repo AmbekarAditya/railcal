@@ -14,43 +14,6 @@ class Trip {
   remarks: string;
 
   constructor(id: number) {
-
-  toJSON() {
-    return {
-      id: this.id,
-      date: this.date,
-      typeOfWork: this.typeOfWork,
-      arrivalTime: this.arrivalTime,
-      departureTime: this.departureTime,
-      timeDifference: this.timeDifference,
-      sourceStation: this.sourceStation,
-      destinationStation: this.destinationStation,
-      distance: this.distance,
-      allowance: this.allowance,
-      remarks: this.remarks,
-      trainNumber: this.trainNumber,
-      dutyHours: this.dutyHours,
-    };
-  }
-
-
-  toJSON() {
-    return {
-      id: this.id,
-      date: this.date,
-      typeOfWork: this.typeOfWork,
-      arrivalTime: this.arrivalTime,
-      departureTime: this.departureTime,
-      timeDifference: this.timeDifference,
-      sourceStation: this.sourceStation,
-      destinationStation: this.destinationStation,
-      distance: this.distance,
-      allowance: this.allowance,
-      remarks: this.remarks,
-      trainNumber: this.trainNumber,
-      dutyHours: this.dutyHours,
-    };
-  }
     this.id = id;
     this.date = "";
     this.typeOfWork = "";
@@ -61,9 +24,27 @@ class Trip {
     this.destinationStation = "";
     this.distance = 0;
     this.allowance = 0;
-    this.trainNumber="";
+    this.trainNumber = "";
     this.remarks = "";
-    this.dutyHours="";
+    this.dutyHours = "";
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      date: this.date,
+      typeOfWork: this.typeOfWork,
+      arrivalTime: this.arrivalTime,
+      departureTime: this.departureTime,
+      timeDifference: this.timeDifference,
+      sourceStation: this.sourceStation,
+      destinationStation: this.destinationStation,
+      distance: this.distance,
+      allowance: this.allowance,
+      remarks: this.remarks,
+      trainNumber: this.trainNumber,
+      dutyHours: this.dutyHours,
+    };
   }
 }
 
