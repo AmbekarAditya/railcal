@@ -25,6 +25,7 @@ import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
 import Fortnight from "../fortnight-block/Fortnight";
+import firebase from "firebase/compat/app";
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -96,23 +97,66 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.loadSavedDuties();
   }
 
+  parseFirestoreTimestamp(timestamp: any): Date | null {
+    if (timestamp instanceof firebase.firestore.Timestamp) {
+      return timestamp.toDate();
+    } else if (typeof timestamp === 'string') {
+      const date = new Date(timestamp);
+      return isNaN(date.getTime()) ? null : date;
+    } else if (timestamp && timestamp.seconds) {
+      // Handle the case where the timestamp is stored as an object with seconds and nanoseconds
+      return new Date(timestamp.seconds * 1000);
+    }
+    return null;
+  }
+
   loadSavedDuties = async () => {
     if (this.state.dutiesLoaded) {
-      return; // Duties have already been loaded, skip loading again
+      return;
     }
 
     try {
       const savedDuties = await loadDutiesFromFirestore(this.props.selectedMonth);
       if (savedDuties && savedDuties.length > 0) {
         const loadedDuties = savedDuties.map(dutyData => {
-          const duty = new Duty(dutyData.id, dutyData.trips);
-          Object.assign(duty, dutyData);
+          const duty = new Duty(dutyData.id, []);
+          
+          // Parse dates using the custom method
+          duty.signIn = this.parseFirestoreTimestamp(dutyData.signIn);
+          duty.signOff = this.parseFirestoreTimestamp(dutyData.signOff);
+
+          // Safely assign other properties
+          duty.dutyHours = Number(dutyData.dutyHours) || 0;
+          duty.nightDutyHours = Number(dutyData.nightDutyHours) || 0;
+          duty.isOSDA = Boolean(dutyData.isOSDA);
+          duty.isRRA = Boolean(dutyData.isRRA);
+          duty.dutyAllowance = Number(dutyData.dutyAllowance) || 0;
+          duty.dutyDistance = Number(dutyData.dutyDistance) || 0;
+          duty.progressiveDutyHours = Number(dutyData.progressiveDutyHours) || 0;
+          duty.progressiveNightDutyHours = Number(dutyData.progressiveNightDutyHours) || 0;
+          duty.hasEnded = Boolean(dutyData.hasEnded);
+          duty.isLeave = Boolean(dutyData.isLeave);
+
+          // Reconstruct trips
+          duty.trips = (dutyData.trips || []).map(tripData => {
+            const trip = new Trip(tripData.id);
+            Object.assign(trip, {
+              ...tripData,
+              date: tripData.date ? new Date(tripData.date).toISOString().split('T')[0] : '',
+              departureTime: tripData.departureTime || '',
+              arrivalTime: tripData.arrivalTime || '',
+              distance: Number(tripData.distance) || 0,
+              allowance: Number(tripData.allowance) || 0,
+            });
+            return trip;
+          });
+
           return duty;
         });
+        
         this.setState({ duties: loadedDuties, dutiesLoaded: true });
       } else {
         console.log("No duties loaded from Firestore or permission denied. Using default duty.");
-        // Ensure there's at least one default duty
         if (this.state.duties.length === 0) {
           this.addDuty();
         }
@@ -120,7 +164,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       }
     } catch (error) {
       console.error("Error in loadSavedDuties:", error);
-      // If there's an error, ensure there's at least one default duty
       if (this.state.duties.length === 0) {
         this.addDuty();
       }

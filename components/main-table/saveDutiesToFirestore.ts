@@ -1,4 +1,5 @@
 import { db, auth } from "../../firebase/firebaseConfig";
+import firebase from 'firebase/compat/app';
 
 export const saveDutiesToFirestore = async (duties, selectedMonth) => {
   try {
@@ -7,7 +8,20 @@ export const saveDutiesToFirestore = async (duties, selectedMonth) => {
       throw new Error("User is not authenticated");
     }
 
-    const dutiesData = duties.map(duty => duty.toJSON());
+    const dutiesData = duties.map(duty => ({
+      ...duty.toJSON(),
+      signIn: duty.signIn ? firebase.firestore.Timestamp.fromDate(duty.signIn) : null,
+      signOff: duty.signOff ? firebase.firestore.Timestamp.fromDate(duty.signOff) : null,
+      trips: duty.trips.map(trip => ({
+        ...trip,
+        date: trip.date || null,
+        departureTime: trip.departureTime || '',
+        arrivalTime: trip.arrivalTime || '',
+        distance: Number(trip.distance) || 0,
+        allowance: Number(trip.allowance) || 0,
+      })),
+    }));
+
     await db.collection("duties").doc(selectedMonth).set({
       duties: dutiesData,
       userId: user.uid
