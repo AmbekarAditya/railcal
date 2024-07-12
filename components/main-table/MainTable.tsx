@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -8,7 +8,7 @@ import {
   Platform,
 } from "react-native";
 import Duty from "../duty/Duty";
-import { saveDutiesToFirestore } from "./saveDutiesToFirestore"; // Update this import
+import { saveDutiesToFirestore, loadDutiesFromFirestore } from "./saveDutiesToFirestore"; // Update this import
 import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -88,6 +88,26 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       selectedDuty: null,
       totalLeaves: 0,
     };
+  }
+
+  componentDidMount() {
+    this.loadSavedDuties();
+  }
+
+  loadSavedDuties = async () => {
+    try {
+      const savedDuties = await loadDutiesFromFirestore(this.props.selectedMonth);
+      if (savedDuties && savedDuties.length > 0) {
+        const loadedDuties = savedDuties.map(dutyData => {
+          const duty = new Duty(dutyData.id, dutyData.trips);
+          Object.assign(duty, dutyData);
+          return duty;
+        });
+        this.setState({ duties: loadedDuties });
+      }
+    } catch (error) {
+      console.error("Error loading duties from Firestore:", error);
+    }
   }
 
   addDuty = () => {
