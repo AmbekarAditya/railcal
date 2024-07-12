@@ -11,10 +11,13 @@ export const saveDutiesToFirestore = async (duties, selectedMonth) => {
     await db.collection("duties").doc(selectedMonth).set({
       duties: dutiesData,
       userId: user.uid
-    });
+    }, { merge: true });
     console.log("Duties successfully saved to Firestore!");
   } catch (error) {
     console.error("Error saving duties to Firestore: ", error);
+    if (error.code === 'permission-denied') {
+      console.error("Permission denied. Please check Firestore rules.");
+    }
     throw error;
   }
 };
@@ -33,12 +36,19 @@ export const loadDutiesFromFirestore = async (selectedMonth) => {
       const data = doc.data();
       if (data && data.userId === user.uid) {
         return data.duties;
+      } else {
+        console.log("No duties found for the current user in this month");
+        return null;
       }
+    } else {
+      console.log("No document found for the selected month");
+      return null;
     }
-
-    return null;
   } catch (error) {
     console.error("Error loading duties from Firestore: ", error);
+    if (error.code === 'permission-denied') {
+      console.error("Permission denied. Please check Firestore rules.");
+    }
     throw error;
   }
 };
