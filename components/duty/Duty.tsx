@@ -60,9 +60,9 @@ class Duty {
     };
   }
 
-  setSignInAndSignOff(signIn: Date, signOff: Date) {
-    this.signIn = signIn;
-    this.signOff = signOff;
+  setSignInAndSignOff(signIn: string | Date, signOff: string | Date) {
+    this.signIn = typeof signIn === 'string' ? new Date(signIn) : signIn;
+    this.signOff = typeof signOff === 'string' ? new Date(signOff) : signOff;
     this.calculateDutyHoursAndNightDutyHours();
   }
 

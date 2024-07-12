@@ -24,32 +24,34 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign In</Text>
               <Text style={styles.value}>
-              {duty.signIn && !isNaN(new Date(duty.signIn).getTime())
-                  ? new Date(duty.signIn).toLocaleString('en-NZ', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })
-                  : '-'}
+              {duty.signIn
+                ? new Date(duty.signIn).toLocaleString('en-NZ', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'Asia/Kolkata',
+                  })
+                : '-'}
               </Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign Off</Text>
 
               <Text style={styles.value}>
-              {duty.signOff && !isNaN(new Date(duty.signOff).getTime())
-                  ? new Date(duty.signOff).toLocaleString('en-NZ', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })
-                  : '-'}
+              {duty.signOff
+                ? new Date(duty.signOff).toLocaleString('en-NZ', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false,
+                    timeZone: 'Asia/Kolkata',
+                  })
+                : '-'}
               </Text>
             </View>
             <View style={styles.infoBlock}>
