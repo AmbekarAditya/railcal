@@ -284,6 +284,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 TypeofWork={(newValue) =>
                   handleTripDataChange(trip.id, "typeOfWork", newValue)
                 }
+                initialValue={trip.typeOfWork}
               />
             </View>
             <View style={styles.trainNoContainer}>
@@ -293,6 +294,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={7}
+                initialValue={trip.trainNumber}
               />
             </View>
             <View style={styles.stationsContainer}>
@@ -303,6 +305,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={5}
                 duty={duty}
+                initialSourceStation={trip.sourceStation}
+                initialDestinationStation={trip.destinationStation}
+                initialDistance={trip.distance}
               />
             </View>
             <View style={styles.timePickerContainer}>
@@ -316,6 +321,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
                   )
                 }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
+                initialArrivalTime={trip.arrivalTime}
+                initialDepartureTime={trip.departureTime}
               />
             </View>
             <View style={styles.durationContainer}>
