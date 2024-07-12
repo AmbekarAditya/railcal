@@ -284,7 +284,7 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 TypeofWork={(newValue) =>
                   handleTripDataChange(trip.id, "typeOfWork", newValue)
                 }
-                initialValue={trip.typeOfWork}
+                initialValue={trip.typeOfWork || ""}
               />
             </View>
             <View style={styles.trainNoContainer}>

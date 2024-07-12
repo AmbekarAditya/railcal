@@ -15,6 +15,13 @@ const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({
 }) => {
   const [ChoosenItem, setChoosenItem] = useState(initialValue);
 
+  useEffect(() => {
+    if (initialValue && initialValue !== ChoosenItem) {
+      setChoosenItem(initialValue);
+      TypeofWork(initialValue);
+    }
+  }, [initialValue, TypeofWork]);
+
   const commonPickerStyle = {
     height: 40,
     width: "100%",
