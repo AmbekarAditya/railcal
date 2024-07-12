@@ -1,38 +1,20 @@
-import { db } from "../../firebase/firebaseConfig";
+import { db, auth } from "../../firebase/firebaseConfig";
 
-const queue: (() => Promise<void>)[] = [];
-let isProcessing = false;
-
-const processQueue = async () => {
-  if (isProcessing || queue.length === 0) return;
-  
-  isProcessing = true;
-  const operation = queue.shift();
-  
-  if (operation) {
-    try {
-      await operation();
-    } catch (error) {
-      console.error("Error processing operation:", error);
+export const saveDutiesToFirestore = async (duties, selectedMonth) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      throw new Error("User is not authenticated");
     }
-  }
-  
-  isProcessing = false;
-  setTimeout(processQueue, 1000); // Wait 1 second before next operation
-};
 
-const addToQueue = (operation: () => Promise<void>) => {
-  queue.push(operation);
-  if (!isProcessing) processQueue();
-};
-
-// Example usage
-const saveDutiesToFirestore = (duties: any[], selectedMonth: string) => {
-  addToQueue(async () => {
     const dutiesData = duties.map(duty => duty.toJSON());
-    await db.collection("duties").doc(selectedMonth).set({ duties: dutiesData });
+    await db.collection("duties").doc(selectedMonth).set({
+      duties: dutiesData,
+      userId: user.uid
+    });
     console.log("Duties successfully saved to Firestore!");
-  });
+  } catch (error) {
+    console.error("Error saving duties to Firestore: ", error);
+    throw error;
+  }
 };
-
-export { saveDutiesToFirestore };
