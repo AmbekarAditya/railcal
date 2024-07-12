@@ -305,9 +305,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 maxLength={5}
                 duty={duty}
-                initialSourceStation={trip.sourceStation}
-                initialDestinationStation={trip.destinationStation}
-                initialDistance={trip.distance}
+                initialSourceStation={trip.sourceStation || ""}
+                initialDestinationStation={trip.destinationStation || ""}
+                initialDistance={trip.distance || 0}
               />
             </View>
             <View style={styles.timePickerContainer}>
@@ -321,8 +321,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
                   )
                 }
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
-                initialArrivalTime={trip.arrivalTime}
-                initialDepartureTime={trip.departureTime}
+                initialArrivalTime={trip.arrivalTime || ""}
+                initialDepartureTime={trip.departureTime || ""}
               />
             </View>
             <View style={styles.durationContainer}>

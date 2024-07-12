@@ -25,7 +25,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
               <Text style={styles.label}>Sign In</Text>
               <Text style={styles.value}>
               {duty.signIn
-                  ? duty.signIn.toLocaleString('en-NZ', {
+                  ? new Date(duty.signIn).toLocaleString('en-NZ', {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
@@ -41,7 +41,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
 
               <Text style={styles.value}>
               {duty.signOff
-                  ? duty.signOff.toLocaleString('en-NZ', {
+                  ? new Date(duty.signOff).toLocaleString('en-NZ', {
                       day: '2-digit',
                       month: '2-digit',
                       year: 'numeric',
