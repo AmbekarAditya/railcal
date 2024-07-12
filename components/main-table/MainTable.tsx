@@ -105,8 +105,8 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         });
         this.setState({ duties: loadedDuties });
       } else {
-        console.log("No duties loaded from Firestore. Using default duty.");
-        // If no duties are loaded, keep the default duty
+        console.log("No duties loaded from Firestore or permission denied. Using default duty.");
+        // Ensure there's at least one default duty
         if (this.state.duties.length === 0) {
           this.addDuty();
         }

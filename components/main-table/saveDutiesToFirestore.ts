@@ -30,12 +30,16 @@ export const loadDutiesFromFirestore = async (selectedMonth) => {
       return null;
     }
 
+    console.log("Attempting to load duties for user:", user.uid);
+    console.log("Selected month:", selectedMonth);
+
     const docRef = db.collection("duties").doc(selectedMonth);
     const doc = await docRef.get();
 
     if (doc.exists) {
       const data = doc.data();
       if (data && data.userId === user.uid) {
+        console.log("Duties loaded successfully");
         return data.duties;
       } else {
         console.log("No duties found for the current user in this month");
@@ -51,7 +55,8 @@ export const loadDutiesFromFirestore = async (selectedMonth) => {
       console.error("Permission denied. Please check Firestore rules.");
       console.error("Current user UID:", auth.currentUser?.uid);
       console.error("Attempted to access document:", selectedMonth);
+      console.error("Firestore rules might be incorrect. Please review them.");
     }
-    return null; // Return null instead of throwing the error
+    return null;
   }
 };
