@@ -46,6 +46,7 @@ interface MainTableState {
   overtimeResult: OverTimeCalculationResult | null;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
+  dutiesLoaded: boolean;
 }
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
@@ -87,6 +88,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       showModal: false,
       selectedDuty: null,
       totalLeaves: 0,
+      dutiesLoaded: false,
     };
   }
 
@@ -95,6 +97,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 
   loadSavedDuties = async () => {
+    if (this.state.dutiesLoaded) {
+      return; // Duties have already been loaded, skip loading again
+    }
+
     try {
       const savedDuties = await loadDutiesFromFirestore(this.props.selectedMonth);
       if (savedDuties && savedDuties.length > 0) {
@@ -103,13 +109,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           Object.assign(duty, dutyData);
           return duty;
         });
-        this.setState({ duties: loadedDuties });
+        this.setState({ duties: loadedDuties, dutiesLoaded: true });
       } else {
         console.log("No duties loaded from Firestore or permission denied. Using default duty.");
         // Ensure there's at least one default duty
         if (this.state.duties.length === 0) {
           this.addDuty();
         }
+        this.setState({ dutiesLoaded: true });
       }
     } catch (error) {
       console.error("Error in loadSavedDuties:", error);
@@ -117,6 +124,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       if (this.state.duties.length === 0) {
         this.addDuty();
       }
+      this.setState({ dutiesLoaded: true });
     }
   }
 
