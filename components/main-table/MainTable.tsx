@@ -104,9 +104,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           return duty;
         });
         this.setState({ duties: loadedDuties });
+      } else {
+        console.log("No duties loaded from Firestore. Using default duty.");
+        // If no duties are loaded, keep the default duty
+        if (this.state.duties.length === 0) {
+          this.addDuty();
+        }
       }
     } catch (error) {
-      console.error("Error loading duties from Firestore:", error);
+      console.error("Error in loadSavedDuties:", error);
+      // If there's an error, ensure there's at least one default duty
+      if (this.state.duties.length === 0) {
+        this.addDuty();
+      }
     }
   }
 

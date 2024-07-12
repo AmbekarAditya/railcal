@@ -26,7 +26,8 @@ export const loadDutiesFromFirestore = async (selectedMonth) => {
   try {
     const user = auth.currentUser;
     if (!user) {
-      throw new Error("User is not authenticated");
+      console.log("User is not authenticated");
+      return null;
     }
 
     const docRef = db.collection("duties").doc(selectedMonth);
@@ -48,7 +49,9 @@ export const loadDutiesFromFirestore = async (selectedMonth) => {
     console.error("Error loading duties from Firestore: ", error);
     if (error.code === 'permission-denied') {
       console.error("Permission denied. Please check Firestore rules.");
+      console.error("Current user UID:", auth.currentUser?.uid);
+      console.error("Attempted to access document:", selectedMonth);
     }
-    throw error;
+    return null; // Return null instead of throwing the error
   }
 };
