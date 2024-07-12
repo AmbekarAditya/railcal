@@ -24,7 +24,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign In</Text>
               <Text style={styles.value}>
-              {duty.signIn
+              {duty.signIn && !isNaN(new Date(duty.signIn).getTime())
                   ? new Date(duty.signIn).toLocaleString('en-NZ', {
                       day: '2-digit',
                       month: '2-digit',
@@ -40,7 +40,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
               <Text style={styles.label}>Sign Off</Text>
 
               <Text style={styles.value}>
-              {duty.signOff
+              {duty.signOff && !isNaN(new Date(duty.signOff).getTime())
                   ? new Date(duty.signOff).toLocaleString('en-NZ', {
                       day: '2-digit',
                       month: '2-digit',
