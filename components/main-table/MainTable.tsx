@@ -3,7 +3,7 @@ import { ScrollView, View, FlatList, Button, Platform } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
 import { styles, colors } from "./styles";
 import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
-import { monthNames } from "../../utils/constants";
+import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
@@ -17,6 +17,8 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
+import Duty from "../duty/Duty";
+import Trip from "../trip/Trip";
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -44,7 +46,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       let newTripDate = `${new Date().getFullYear()}-${paddedMonth}-01`;
       let newSourceStation = "";
   
-      const setNextDayDate = (currentDate) => {
+      const setNextDayDate = (currentDate: string | number | Date) => {
         const nextDay = new Date(currentDate);
         nextDay.setDate(nextDay.getDate() + 1);
         return nextDay.toISOString().split('T')[0];
