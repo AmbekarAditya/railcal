@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, View, FlatList, Button, Platform } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
-import { styles } from "./styles";
+import { styles, colors } from "./styles";
 import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -621,40 +621,5 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  horizontalContent: {
-    flexDirection: "column",
-    flexGrow: 1,
-    padding: 16,
-  },
-  summaryBlockContainer: {
-    height: "15%",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: 16,
-  },
-  tableContainer: {
-    maxHeight: "70%",
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-  },
-  buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "20%",
-    // marginBottom: 16,
-  },
-  addDuty: {
-    flex: 1,
-    marginLeft: 8,
-  },
-});
 
 export default MainTable;
