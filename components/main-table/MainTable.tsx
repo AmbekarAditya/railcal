@@ -1,19 +1,14 @@
 import React from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  View,
-  FlatList,
-  Button,
-  Platform,
-} from "react-native";
-import Duty from "../duty/Duty";
-import { leaveTypes, monthNames } from "../../utils/constants";
+import { ScrollView, View, FlatList, Button, Platform } from "react-native";
+import { MainTableProps, MainTableState } from "./types";
+import { styles, colors } from "./styles";
+import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
-import { NavigationProp } from "@react-navigation/native";
 import SummaryBlock from "../summary-block/SummaryBlock";
+import FortnightBlock from "../fortnight-block/FortnightBlock";
+import { saveDutiesToFirestore } from "./saveDutiesToFirestore";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
@@ -21,36 +16,17 @@ import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
 import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
 import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
-import Trip from "../trip/Trip";
-import FortnightBlock from "../fortnight-block/FortnightBlock";
-import Fortnight from "../fortnight-block/Fortnight";
-import { saveDutiesToFirestore, loadDutiesFromFirestore } from "./saveDutiesToFirestore"; // Update this import
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
   PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
 }
 
-interface MainTableProps {
-  navigation: NavigationProp<any>;
-  selectedMonth: string;
-  rateOfPay: Number;
-  designation: string;
-}
-
-interface MainTableState {
-  duties: Duty[];
-  showModal: boolean;
-  selectedDuty: Duty | null;
-  totalLeaves: number;
-  overtimeResult: OverTimeCalculationResult | null;
-  progressiveDutyHours: number;
-  fortnights: Fortnight[];
-}
+// Interfaces moved to types.ts
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
   state: MainTableState = {
-    duties: [],
+    duties: [createDefaultDuty(1, this.props.selectedMonth)],
     showModal: false,
     selectedDuty: null,
     totalLeaves: 0,
@@ -58,37 +34,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     progressiveDutyHours: 0,
     fortnights: [],
   };
-
-  constructor(props: MainTableProps) {
-    super(props);
-    const monthNumber = monthNames[this.props.selectedMonth];
-    const paddedMonth = String(monthNumber).padStart(2, "0");
-
-    const trip: Trip = {
-      id: 1,
-      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
-      typeOfWork: "",
-      arrivalTime: "",
-      departureTime: "",
-      timeDifference: 0,
-      sourceStation: "",
-      destinationStation: "",
-      trainNumber: "",
-      distance: 0,
-      allowance: 1,
-      remarks: "",
-      dutyHours: "",
-    };
-
-    const duty: Duty = new Duty(1, [trip]);
-
-    this.state = {
-      duties: [duty],
-      showModal: false,
-      selectedDuty: null,
-      totalLeaves: 0,
-    };
-  }
 
   addDuty = () => {
     this.setState((prevState) => {
