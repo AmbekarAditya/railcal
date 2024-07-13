@@ -1,7 +1,7 @@
 import React from "react";
 import { ScrollView, View, FlatList, Button, Platform } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
-import { styles, colors } from "./styles";
+import { styles } from "./styles";
 import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -620,12 +620,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
   }
 }
-
-const colors = {
-  primary: "#007AFF",
-  border: "#CCCCCC",
-  // Add more colors as needed
-};
 
 const styles = StyleSheet.create({
   container: {
