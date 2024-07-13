@@ -24,6 +24,7 @@ import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Trip from "../trip/Trip";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
 import Fortnight from "../fortnight-block/Fortnight";
+import { saveDutiesToFirestore, loadDutiesFromFirestore } from "./saveDutiesToFirestore"; // Update this import
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -398,6 +399,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     return totalNightDutyHours;
   };
 
+  saveDuties = () => {
+    // Implement the save functionality here
+    saveDutiesToFirestore(this.state.duties, this.props.selectedMonth);
+  };
+
   deleteDuty = (dutyId: number) => {
     this.setState((prevState) => {
       const updatedDuties = prevState.duties.filter(
@@ -572,6 +578,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               title="Add Duty"
               onPress={this.addDuty}
               disabled={!this.isPreviousDutyEnded()}
+              color={colors.primary}
+            />
+          </View>
+          <View style={styles.addDuty}>
+            <Button
+              title="Save"
+              onPress={this.saveDuties}
               color={colors.primary}
             />
           </View>
