@@ -3,6 +3,7 @@ import { ScrollView, View, FlatList, Button, Platform } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
 import { styles, colors } from "./styles";
 import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
+import { monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
