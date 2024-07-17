@@ -2,31 +2,31 @@ class Trip {
   id: number;
   date: string;
   typeOfWork: string;
-  trainNumber:string;
+  trainNumber: string;
   departureTime: string;
   arrivalTime: string;
   timeDifference: number;
   sourceStation: string;
   destinationStation: string;
   distance: number;
-  dutyHours:string;
   allowance: number;
   remarks: string;
+  dutyHours: string;
 
-  constructor(id: number) {
+  constructor(id: number, data?: Partial<Trip>) {
     this.id = id;
-    this.date = "";
-    this.typeOfWork = "";
-    this.departureTime = "";
-    this.arrivalTime = "";
-    this.timeDifference = 0;
-    this.sourceStation = "";
-    this.destinationStation = "";
-    this.distance = 0;
-    this.allowance = 0;
-    this.trainNumber="";
-    this.remarks = "";
-    this.dutyHours="";
+    this.date = data?.date || "";
+    this.typeOfWork = data?.typeOfWork || "";
+    this.trainNumber = data?.trainNumber || "";
+    this.departureTime = data?.departureTime || "";
+    this.arrivalTime = data?.arrivalTime || "";
+    this.timeDifference = data?.timeDifference || 0;
+    this.sourceStation = data?.sourceStation || "";
+    this.destinationStation = data?.destinationStation || "";
+    this.distance = data?.distance || 0;
+    this.allowance = data?.allowance || 0;
+    this.remarks = data?.remarks || "";
+    this.dutyHours = data?.dutyHours || "";
   }
 
   toJSON() {
@@ -34,15 +34,15 @@ class Trip {
       id: this.id,
       date: this.date,
       typeOfWork: this.typeOfWork,
-      arrivalTime: this.arrivalTime,
+      trainNumber: this.trainNumber,
       departureTime: this.departureTime,
+      arrivalTime: this.arrivalTime,
       timeDifference: this.timeDifference,
       sourceStation: this.sourceStation,
       destinationStation: this.destinationStation,
       distance: this.distance,
       allowance: this.allowance,
       remarks: this.remarks,
-      trainNumber: this.trainNumber,
       dutyHours: this.dutyHours,
     };
   }

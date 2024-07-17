@@ -12,9 +12,9 @@ class Duty {
   isRRA: boolean;
   dutyAllowance: number;
   dutyDistance: number;
-  progressiveDutyHours:number;
+  progressiveDutyHours: number;
   progressiveNightDutyHours: number;
-  hasEnded: boolean; // Add this line
+  hasEnded: boolean;
   isLeave: boolean;
 
   constructor(id: number, trips: Trip[] = []) {
@@ -28,23 +28,16 @@ class Duty {
     this.isRRA = false;
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
-    this.progressiveDutyHours=0;
-    this.progressiveNightDutyHours=0;
-    this.hasEnded = false; // Initialize hasEnded
+    this.progressiveDutyHours = 0;
+    this.progressiveNightDutyHours = 0;
+    this.hasEnded = false;
     this.isLeave = false;
   }
 
   toJSON() {
     return {
       id: this.id,
-      trips: this.trips.map(trip => {
-        if (typeof trip.toJSON === 'function') {
-          return trip.toJSON();
-        } else {
-          // If toJSON is not a function, return the trip object as is
-          return { ...trip };
-        }
-      }),
+      trips: this.trips.map(trip => trip.toJSON()),
       signIn: this.signIn,
       signOff: this.signOff,
       dutyHours: this.dutyHours,
@@ -59,7 +52,6 @@ class Duty {
       isLeave: this.isLeave,
     };
   }
-
   setSignInAndSignOff(signIn: Date, signOff: Date) {
     this.signIn = signIn;
     this.signOff = signOff;

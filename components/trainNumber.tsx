@@ -4,10 +4,11 @@ import { View, TextInput, StyleSheet } from 'react-native';
 interface TrainNumberInputProps {
   onChange: (trainNumber: string) => void;
   disabled: boolean;
+  initialValue: string;
 }
 
-const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange,disabled }) => {
-  const [trainNumber, setTrainNumber] = useState('');
+const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange, disabled, initialValue }) => {
+  const [trainNumber, setTrainNumber] = useState(initialValue || '');
 
   const handleInputChange = (text: string) => {
     setTrainNumber(text);

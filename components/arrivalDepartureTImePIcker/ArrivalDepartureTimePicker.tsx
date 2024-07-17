@@ -13,17 +13,21 @@ interface ArrivalDepartureTimePickerProps {
   onTimesChange: (
     arrival: string,
     departure: string,
-    dutyHours: string
+    dutyHours: string,
   ) => void;
   disabled: boolean;
+  initialArrivalTime: string,
+  initialDepartureTime: string
 }
 
 const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
   onTimesChange,
   disabled,
+  initialArrivalTime,
+  initialDepartureTime,
 }) => {
-  const [arrivalTime, setArrivalTime] = useState("");
-  const [departureTime, setDepartureTime] = useState("");
+  const [arrivalTime, setArrivalTime] = useState(initialArrivalTime || "");
+  const [departureTime, setDepartureTime] = useState(initialDepartureTime || "");
   const [showArrivalPicker, setShowArrivalPicker] = useState(false);
   const [showDeparturePicker, setShowDeparturePicker] = useState(false);
 

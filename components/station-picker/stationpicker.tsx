@@ -16,6 +16,8 @@ interface PickerComponentStationProps {
   tripId: number;
   disabled: boolean;
   duty: Duty;
+  initialSourceStation: string;
+  initialDestinationStation: string;
 }
 
 const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
@@ -24,32 +26,28 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
   tripId,
   disabled,
   duty,
+  initialSourceStation,
+  initialDestinationStation,
 }) => {
-  const [fromStation, setFromStation] = useState("");
-  const [toStation, setToStation] = useState("");
-
-  const currentTripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
-  const previousTrip =
-    currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
-  const previousTripDestinationStation = previousTrip
-    ? previousTrip.destinationStation
-    : "";
+  const [fromStation, setFromStation] = useState(initialSourceStation || "");
+  const [toStation, setToStation] = useState(initialDestinationStation || "");
 
   useEffect(() => {
-    setFromStation(previousTripDestinationStation || "");
-  }, [previousTripDestinationStation]);
+    setFromStation(initialSourceStation || "");
+    setToStation(initialDestinationStation || "");
+  }, [initialSourceStation, initialDestinationStation]);
 
   const handleFromStationChange = (selectedStation: string) => {
     setFromStation(selectedStation);
-    updateToStationAndDistance(selectedStation, toStation);
+    updateStationAndDistance(selectedStation, toStation);
   };
 
   const handleToStationChange = (selectedStation: string) => {
     setToStation(selectedStation);
-    updateToStationAndDistance(fromStation, selectedStation);
+    updateStationAndDistance(fromStation, selectedStation);
   };
 
-  const updateToStationAndDistance = (from: string, to: string) => {
+  const updateStationAndDistance = (from: string, to: string) => {
     const combo = combinations.find(
       (c) => c.from_station === from && c.to_station === to
     );

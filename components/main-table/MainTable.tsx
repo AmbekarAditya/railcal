@@ -9,7 +9,7 @@ import EndDutyModal from "../end-duty-modal/EndDutyModal";
 import Modal from "../modal/Modal";
 import SummaryBlock from "../summary-block/SummaryBlock";
 import FortnightBlock from "../fortnight-block/FortnightBlock";
-import { saveDutiesToFirestore } from "./saveDutiesToFirestore";
+import { loadMainTableStateFromFirestore, saveMainTableStateToFirestore } from "./saveMainTableStateToFirestore";
 import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
 import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
 import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
@@ -29,13 +29,47 @@ if (Platform.OS === "web") {
 
 class MainTable extends React.Component<MainTableProps, MainTableState> {
   state: MainTableState = {
-    duties: [createDefaultDuty(1, this.props.selectedMonth)],
+    duties: [],
     showModal: false,
     selectedDuty: null,
     totalLeaves: 0,
     overtimeResult: 0,
     progressiveDutyHours: 0,
     fortnights: [],
+  };
+
+  async componentDidMount() {
+    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
+    if (loadedState) {
+      this.setState(loadedState);
+    } else {
+      this.setState({
+        duties: [createDefaultDuty(1, this.props.selectedMonth)],
+      });
+    }
+  }
+
+  initializeState = async () => {
+    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
+    if (loadedState && loadedState.duties.length > 0) {
+      this.setState(loadedState);
+    } else {
+      // If no state was loaded, create a default duty
+      const defaultDuty = createDefaultDuty(1, this.props.selectedMonth);
+      this.setState({ duties: [defaultDuty] });
+    }
+  };
+
+  loadState = async () => {
+    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
+    if (loadedState) {
+      this.setState(loadedState);
+    }
+  };
+
+  saveDuties = () => {
+    console.log('Saving state:', this.state);
+    saveMainTableStateToFirestore(this.state, this.props.selectedMonth);
   };
 
   addDuty = () => {
@@ -182,7 +216,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState((prevState) => {
       const updatedDuties = prevState.duties.map((d) => {
         if (d.id === duty.id) {
-          return duty;
+          return { ...duty, hasEnded: true };
         }
         return d;
       });
@@ -204,7 +238,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
       return {
         duties: updatedDuties,
-        selectedDuty: duty,
+        selectedDuty: { ...duty, hasEnded: true },
         showModal: true,
       };
     });
@@ -244,14 +278,13 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (prevState) => ({
         duties: prevState.duties.map((duty) => {
           if (duty.id === updatedDuty.id) {
-            return updatedDuty;
+            return { ...updatedDuty, hasEnded: true };
           }
           return duty;
         }),
         showModal: false,
       }),
       () => {
-        // Call updateProgressiveNightDutyHours after the state is updated
         if (updatedDuty.signIn && updatedDuty.signOff) {
           this.updateProgressiveNightDutyHours();
         }
@@ -263,48 +296,25 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     dutyId: number,
     tripId: number,
     field: keyof Trip,
-    value: string | number
+    value: any
   ) => {
-    this.setState(
-      (prevState) => ({
-        duties: prevState.duties.map((duty) => {
-          if (duty.id === dutyId) {
-            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
-            if (tripToUpdate) {
-              const updatedTrip = { ...tripToUpdate, [field]: value };
-              if (field === "typeOfWork") {
-                const isLeave = leaveTypes.includes(value as string);
-                const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
-                if (isLeave && !wasLeave) {
-                  this.setState((prevState) => ({
-                    totalLeaves: prevState.totalLeaves + 1,
-                  }));
-                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
-                  updatedTrip.arrivalTime = "";
-                  updatedTrip.departureTime = "";
-                  updatedTrip.sourceStation = "";
-                  updatedTrip.destinationStation = "";
-                  duty.signIn = null;
-                  duty.signOff = null;
-                  duty.isLeave = true;
-                } else if (!isLeave && wasLeave) {
-                  this.setState((prevState) => ({
-                    totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
-                  }));
-                }
-              }
-
-              duty.updateTrip(tripId, updatedTrip);
+    this.setState(prevState => ({
+      duties: prevState.duties.map(duty => {
+        if (duty.id === dutyId) {
+          const updatedTrips = duty.trips.map(trip => {
+            if (trip.id === tripId) {
+              return { ...trip, [field]: value };
             }
-          }
-          return duty;
-        }),
-      }),
-      () => {
-        // Call handleDutiesChange after state is updated
-        this.handleDutiesChange(this.state.duties);
-      }
-    );
+            return trip;
+          });
+          return new Duty(duty.id, updatedTrips);
+        }
+        return duty;
+      })
+    }), () => {
+      // After state update, you might want to trigger any necessary recalculations
+      this.handleDutiesChange(this.state.duties);
+    });
   };
 
   calculateTotalDutyAllowance = () => {
@@ -345,11 +355,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     );
 
     return totalNightDutyHours;
-  };
-
-  saveDuties = () => {
-    // Implement the save functionality here
-    saveDutiesToFirestore(this.state.duties, this.props.selectedMonth);
   };
 
   deleteDuty = (dutyId: number) => {

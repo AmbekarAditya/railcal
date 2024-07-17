@@ -6,12 +6,15 @@ import { pickerItems } from "../../utils/constants";
 
 interface TypeofWorkPickerComponentProps {
   TypeofWork: (newValue: string) => void;
+  initialValue: string;
 }
+
 
 const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({
   TypeofWork,
+  initialValue,
 }) => {
-  const [ChoosenItem, setChoosenItem] = useState("");
+  const [ChoosenItem, setChoosenItem] = useState(initialValue || "");
 
   const commonPickerStyle = {
     height: 40,

@@ -2,12 +2,18 @@ import Duty from "../duty/Duty";
 import Trip from "../trip/Trip";
 import { monthNames } from "../../utils/constants";
 
+export const createDefaultDuty = (id: number, selectedMonth: string): Duty => {
+  const trip = createDefaultTrip(selectedMonth);
+  const duty = new Duty(id, [trip]);
+  duty.hasEnded = false;  // Ensure this is set
+  return duty;
+};
+
 export const createDefaultTrip = (selectedMonth: string): Trip => {
   const monthNumber = monthNames[selectedMonth];
   const paddedMonth = String(monthNumber).padStart(2, "0");
 
-  return {
-    id: 1,
+  return new Trip(1, {
     date: `${new Date().getFullYear()}-${paddedMonth}-01`,
     typeOfWork: "",
     arrivalTime: "",
@@ -20,12 +26,7 @@ export const createDefaultTrip = (selectedMonth: string): Trip => {
     allowance: 1,
     remarks: "",
     dutyHours: "",
-  };
-};
-
-export const createDefaultDuty = (id: number, selectedMonth: string): Duty => {
-  const trip = createDefaultTrip(selectedMonth);
-  return new Duty(id, [trip]);
+  });
 };
 
 export const calculateTotalDutyHours = (duties: Duty[]): number => {

@@ -7,6 +7,7 @@ interface DutyInfoProps {
 }
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
+  console.log('DutyInfo rendering:', duty);
   const totalDistance = 0 || duty.calculateTotalDistance();
  
   const formatHoursToHHMM = (hours: number) => {
@@ -16,53 +17,41 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
     return `${wholeHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
+  const formatDate = (date: Date | null) => {
+    if (!date) return '-';
+    return date.toLocaleString('en-NZ', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
+
   return (
     <View style={styles.main}>
       <View style={styles.dutyInfoContainer}>
         <View style={styles.dutyContent}>
           <View style={styles.infoRow}>
-            <View style={styles.infoBlock}>
+          <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign In</Text>
-              <Text style={styles.value}>
-              {duty.signIn
-                  ? duty.signIn.toLocaleString('en-NZ', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })
-                  : '-'}
-              </Text>
+              <Text style={styles.value}>{formatDate(duty.signIn)}</Text>
             </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Sign Off</Text>
-
-              <Text style={styles.value}>
-              {duty.signOff
-                  ? duty.signOff.toLocaleString('en-NZ', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false,
-                    })
-                  : '-'}
-              </Text>
+              <Text style={styles.value}>{formatDate(duty.signOff)}</Text>
             </View>
             <View style={styles.infoBlock}>
-              <Text style={styles.label}>Total Km Earned:</Text>
-              <Text style={styles.value}>
-                {duty.calculateTotalAllowance().toFixed(2)}km
-              </Text>
-            </View>
-
-            <View style={styles.infoBlock}>
-              <Text style={styles.label}>Total Distance:</Text>
-              <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
-            </View>
+            <Text style={styles.label}>Total Km Earned:</Text>
+            <Text style={styles.value}>
+              {duty.dutyAllowance.toFixed(2)}km
+            </Text>
+          </View>
+          <View style={styles.infoBlock}>
+            <Text style={styles.label}>Total Distance:</Text>
+            <Text style={styles.value}>{duty.dutyDistance.toFixed(2)} km</Text>
+          </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Duty Hours</Text>
               <Text style={styles.value}>

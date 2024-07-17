@@ -176,22 +176,24 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
-
+  
     // Recalculate the allowance based on the new distance
-    duty.trips.forEach((trip) => {
-      if (trip.id === tripId) {
-        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
-
+    const updatedDuty = duties.find(d => d.id === dutyId);
+    if (updatedDuty) {
+      const updatedTrip = updatedDuty.trips.find(t => t.id === tripId);
+      if (updatedTrip) {
+        const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
+  
         const { allowance, remarks } = calculateAllowanceAndRemarks(
           distance,
-          trip.typeOfWork,
+          updatedTrip.typeOfWork,
           dutyHoursAsNumber * 60
         );
-
+  
         updateTripData(dutyId, tripId, "allowance", allowance);
         updateTripData(dutyId, tripId, "remarks", remarks);
       }
-    });
+    }
   };
 
   const handleTrainNumberChange = (
@@ -280,43 +282,39 @@ const DutyRow: React.FC<DutyRowProps> = ({
               )}
             </View>
             <View style={styles.dutyTypeContainer}>
-              <TypeofWorkPickerComponent
-                TypeofWork={(newValue) =>
-                  handleTripDataChange(trip.id, "typeOfWork", newValue)
-                }
-              />
+            <TypeofWorkPickerComponent
+            TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
+            initialValue={trip.typeOfWork}
+          />
+
             </View>
             <View style={styles.trainNoContainer}>
-              <TrainNumberInput
-                onChange={(trainNumber) =>
-                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
-                }
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-                maxLength={7}
-              />
+            <TrainNumberInput
+              onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
+              initialValue={trip.trainNumber}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+            />
             </View>
             <View style={styles.stationsContainer}>
-              <PickerComponentStation
-                onStationChange={handleStationChange}
-                dutyId={duty.id}
-                tripId={trip.id}
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-                maxLength={5}
-                duty={duty}
-              />
+            <PickerComponentStation
+              onStationChange={handleStationChange}
+              dutyId={duty.id}
+              tripId={trip.id}
+              initialSourceStation={trip.sourceStation}
+              initialDestinationStation={trip.destinationStation}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+              duty={duty}
+            />
             </View>
             <View style={styles.timePickerContainer}>
-              <ArrivalDepartureTimePicker
-                onTimesChange={(arrivalTime, departureTime, dutyHours) =>
-                  handleTimesChange(
-                    trip.id,
-                    arrivalTime,
-                    departureTime,
-                    dutyHours
-                  )
-                }
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-              />
+            <ArrivalDepartureTimePicker
+              onTimesChange={(arrivalTime, departureTime, dutyHours) =>
+                handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
+              }
+              initialArrivalTime={trip.arrivalTime}
+              initialDepartureTime={trip.departureTime}
+              disabled={shouldDisableInputFields(trip.typeOfWork)}
+            />
             </View>
             <View style={styles.durationContainer}>
               <Text style={styles.durationText}>{trip.dutyHours}</Text>
