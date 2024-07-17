@@ -77,30 +77,23 @@ class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState>
     const { duty, updateDutyDetails } = this.props;
     const { dutyStartDate, dutyStartTime, dutyEndDate, dutyEndTime, isOSDAApplicable, isRRAApplicable } = this.state;
   
-    const signInDateTime = new Date(
-      dutyStartDate.getFullYear(),
-      dutyStartDate.getMonth(),
-      dutyStartDate.getDate(),
-      dutyStartTime.getHours(),
-      dutyStartTime.getMinutes()
-    );
-    const signOffDateTime = new Date(
-      dutyEndDate.getFullYear(),
-      dutyEndDate.getMonth(),
-      dutyEndDate.getDate(),
-      dutyEndTime.getHours(),
-      dutyEndTime.getMinutes()
-    );
-  
+    const signInDateTime = new Date(dutyStartDate.getFullYear(), dutyStartDate.getMonth(), dutyStartDate.getDate(), dutyStartTime.getHours(), dutyStartTime.getMinutes());
+    const signOffDateTime = new Date(dutyEndDate.getFullYear(), dutyEndDate.getMonth(), dutyEndDate.getDate(), dutyEndTime.getHours(), dutyEndTime.getMinutes());
+
+    const timeDiffInMinutes = Math.round((signOffDateTime.getTime() - signInDateTime.getTime()) / 60000);
+    const dutyHours = timeDiffInMinutes / 60; // Convert minutes to hours
+
     const updatedDuty = new Duty(duty.id, duty.trips);
-    updatedDuty.signIn = signInDateTime;
-    updatedDuty.signOff = signOffDateTime;
+    updatedDuty.setSignInAndSignOff(signInDateTime, signOffDateTime);
     updatedDuty.isOSDA = isOSDAApplicable;
     updatedDuty.isRRA = isRRAApplicable;
-    updatedDuty.hasEnded = true;
-  
+    updatedDuty.dutyHours = dutyHours;
+    updatedDuty.hasEnded = true; // Set hasEnded to true
+
     updateDutyDetails(updatedDuty);
   };
+
+
   handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const date = new Date(event.target.value);
     if (!isNaN(date.getTime())) { // Check if the date is valid

@@ -5,7 +5,6 @@ import { monthNames } from "../../utils/constants";
 export const createDefaultDuty = (id: number, selectedMonth: string): Duty => {
   const trip = createDefaultTrip(selectedMonth);
   const duty = new Duty(id, [trip]);
-  duty.hasEnded = false;  // Ensure this is set
   return duty;
 };
 

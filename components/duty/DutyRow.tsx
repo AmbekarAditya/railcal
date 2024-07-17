@@ -374,7 +374,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text style={styles.buttonText}>Edit Duty</Text>
         </TouchableOpacity>
       </View>
-      {duty.hasEnded && <DutyInfo duty={duty} />}
+      <View style={[styles.dutyInfoContainer, { display: duty.hasEnded ? 'flex' : 'none' }]}>
+      <DutyInfo duty={duty} />
+    </View>
     </View>
   );
 };

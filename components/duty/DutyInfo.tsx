@@ -8,7 +8,6 @@ interface DutyInfoProps {
 
 const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
   console.log('DutyInfo rendering:', duty);
-  const totalDistance = 0 || duty.calculateTotalDistance();
  
   const formatHoursToHHMM = (hours: number) => {
     const wholeHours = Math.floor(hours);
@@ -28,6 +27,8 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
       hour12: false,
     });
   };
+
+  const totalDistance = duty.calculateTotalDistance ? duty.calculateTotalDistance() : 0;
 
   return (
     <View style={styles.main}>
@@ -50,7 +51,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
           </View>
           <View style={styles.infoBlock}>
             <Text style={styles.label}>Total Distance:</Text>
-            <Text style={styles.value}>{duty.dutyDistance.toFixed(2)} km</Text>
+            <Text style={styles.value}>{totalDistance} km</Text>
           </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Duty Hours</Text>

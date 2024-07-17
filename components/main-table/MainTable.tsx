@@ -2,7 +2,7 @@ import React from "react";
 import { ScrollView, View, FlatList, Button, Platform } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
 import { styles, colors } from "./styles";
-import { createDefaultDuty, calculateTotalDutyHours, calculateTotalKilometers } from "./utils";
+import { createDefaultDuty } from "./utils";
 import { leaveTypes, monthNames } from "../../utils/constants";
 import DutyRow from "../duty/DutyRow";
 import EndDutyModal from "../end-duty-modal/EndDutyModal";
@@ -273,12 +273,15 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     });
   };
 
+  // In MainTable.tsx or wherever you're creating/updating duties
   updateDutyDetails = (updatedDuty: Duty) => {
     this.setState(
       (prevState) => ({
         duties: prevState.duties.map((duty) => {
           if (duty.id === updatedDuty.id) {
-            return { ...updatedDuty, hasEnded: true };
+            const newDuty = new Duty(updatedDuty.id, updatedDuty.trips);
+            Object.assign(newDuty, updatedDuty);
+            return newDuty;
           }
           return duty;
         }),
@@ -296,25 +299,48 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     dutyId: number,
     tripId: number,
     field: keyof Trip,
-    value: any
+    value: string | number
   ) => {
-    this.setState(prevState => ({
-      duties: prevState.duties.map(duty => {
-        if (duty.id === dutyId) {
-          const updatedTrips = duty.trips.map(trip => {
-            if (trip.id === tripId) {
-              return { ...trip, [field]: value };
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === dutyId) {
+            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+            if (tripToUpdate) {
+              const updatedTrip = { ...tripToUpdate, [field]: value };
+              if (field === "typeOfWork") {
+                const isLeave = leaveTypes.includes(value as string);
+                const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
+                if (isLeave && !wasLeave) {
+                  this.setState((prevState) => ({
+                    totalLeaves: prevState.totalLeaves + 1,
+                  }));
+                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
+                  updatedTrip.arrivalTime = "";
+                  updatedTrip.departureTime = "";
+                  updatedTrip.sourceStation = "";
+                  updatedTrip.destinationStation = "";
+                  duty.signIn = null;
+                  duty.signOff = null;
+                  duty.isLeave = true;
+                } else if (!isLeave && wasLeave) {
+                  this.setState((prevState) => ({
+                    totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
+                  }));
+                }
+              }
+
+              duty.updateTrip(tripId, updatedTrip);
             }
-            return trip;
-          });
-          return new Duty(duty.id, updatedTrips);
-        }
-        return duty;
-      })
-    }), () => {
-      // After state update, you might want to trigger any necessary recalculations
-      this.handleDutiesChange(this.state.duties);
-    });
+          }
+          return duty;
+        }),
+      }),
+      () => {
+        // Call handleDutiesChange after state is updated
+        this.handleDutiesChange(this.state.duties);
+      }
+    );
   };
 
   calculateTotalDutyAllowance = () => {

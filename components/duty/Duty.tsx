@@ -58,6 +58,8 @@ class Duty {
     this.calculateDutyHoursAndNightDutyHours();
   }
 
+  
+
   private calculateDutyHoursAndNightDutyHours() {
     if (this.signIn && this.signOff) {
       this.dutyHours = this.calculateDutyHours();
