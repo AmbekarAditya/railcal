@@ -305,7 +305,11 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
       (prevState) => ({
         duties: prevState.duties.map((duty) => {
           if (duty.id === dutyId) {
-            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+            // Create a new Duty instance
+            const newDuty = new Duty(duty.id, duty.trips);
+            Object.assign(newDuty, duty);
+  
+            const tripToUpdate = newDuty.trips.find((trip) => trip.id === tripId);
             if (tripToUpdate) {
               const updatedTrip = { ...tripToUpdate, [field]: value };
               if (field === "typeOfWork") {
@@ -320,18 +324,19 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                   updatedTrip.departureTime = "";
                   updatedTrip.sourceStation = "";
                   updatedTrip.destinationStation = "";
-                  duty.signIn = null;
-                  duty.signOff = null;
-                  duty.isLeave = true;
+                  newDuty.signIn = null;
+                  newDuty.signOff = null;
+                  newDuty.isLeave = true;
                 } else if (!isLeave && wasLeave) {
                   this.setState((prevState) => ({
                     totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
                   }));
                 }
               }
-
-              duty.updateTrip(tripId, updatedTrip);
+  
+              newDuty.updateTrip(tripId, updatedTrip);
             }
+            return newDuty;
           }
           return duty;
         }),

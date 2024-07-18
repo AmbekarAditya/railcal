@@ -91,19 +91,6 @@ class Duty {
     return totalDistance;
   }
 
-  // calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
-  //   if (dutyIndex === 0) {
-  //     // For the first duty, the progressiveDutyHours is the same as dutyHours
-  //     this.progressiveDutyHours = this.dutyHours;
-  //   } else {
-  //     // Calculate the progressive duty hours based on the previous duty's progressiveDutyHours
-  //     const previousDuty = totalDuties[dutyIndex - 1];
-  //     this.progressiveDutyHours = previousDuty.progressiveDutyHours + this.dutyHours;
-  //   }
-  
-  //   return this.progressiveDutyHours;
-  // }
-
   calculateProgressiveNightDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
     if (dutyIndex === 0) {
       // For the first duty, the progressiveNightDutyHours is the same as nightDutyHours
