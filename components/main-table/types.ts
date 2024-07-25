@@ -20,6 +20,11 @@ export interface MainTableState {
   overtimeResult: number;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
+  notification: {
+    message: string;
+    type: 'success' | 'error' | 'info';
+    isVisible: boolean;
+  } | null;
 }
 
 export interface OverTimeCalculationResult {

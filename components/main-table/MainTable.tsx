@@ -19,6 +19,7 @@ import mileageCalculation from "../allowancecalculation/mileageCalculation";
 import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
 import Duty from "../duty/Duty";
 import Trip from "../trip/Trip";
+import PopupNotification from "./Notification";
 
 let PDFGenerator: JSX.IntrinsicAttributes | null = null;
 if (Platform.OS === "web") {
@@ -36,6 +37,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     overtimeResult: 0,
     progressiveDutyHours: 0,
     fortnights: [],
+    notification: null,  // Add this new state property
   };
 
   async componentDidMount() {
@@ -67,9 +69,31 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     }
   };
 
-  saveDuties = () => {
-    console.log('Saving state:', this.state);
-    saveMainTableStateToFirestore(this.state, this.props.selectedMonth);
+  saveDuties = async () => {
+    try {
+      await saveMainTableStateToFirestore(this.state, this.props.selectedMonth);
+      this.setState({
+        notification: {
+          message: 'Duties saved successfully',
+          type: 'success',
+          isVisible: true,
+        },
+      });
+    } catch (error) {
+      this.setState({
+        notification: {
+          message: 'Error saving duties',
+          type: 'error',
+          isVisible: true,
+        },
+      });
+    }
+  };
+
+  closeNotification = () => {
+    this.setState(prevState => ({
+      notification: prevState.notification ? { ...prevState.notification, isVisible: false } : null
+    }));
   };
 
   addDuty = () => {
@@ -538,6 +562,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         style={styles.container}
         contentContainerStyle={styles.horizontalContent}
       >
+        {this.state.notification && (
+          <PopupNotification
+            message={this.state.notification.message}
+            type={this.state.notification.type}
+            isVisible={this.state.notification.isVisible}
+            onClose={this.closeNotification}
+          />
+        )}
         <View style={styles.tableContainer}>
           <FlatList
             data={duties}
