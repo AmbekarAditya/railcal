@@ -104,6 +104,15 @@ class Duty {
     return this.progressiveNightDutyHours;
 }
 
+resetLeaveStatus() {
+  this.isLeave = false;
+  this.dutyHours = 0;
+  this.dutyAllowance = 0;
+  this.dutyDistance = 0;
+  this.hasEnded = false;
+}
+
+
 updateDutyHoursForLeaveTypes(typeOfWork: string) {
   const endedTypes = ["Periodic rest", "Waiting for duty"];
 
@@ -112,16 +121,21 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
     this.isLeave = true;
+    this.hasEnded = true;
   } else if (endedTypes.includes(typeOfWork)) {
-    this.dutyHours = 0; // Set dutyHours to 0 for "Periodic Rest" and "Waiting for duty"
+    this.dutyHours = 0;
     this.dutyAllowance = 0;
     this.dutyDistance = 0;
+    this.hasEnded = true;
   } else {
+    this.isLeave = false;
+    this.hasEnded = false;
     this.dutyHours = this.calculateDutyHours();
     this.dutyAllowance = this.calculateTotalAllowance();
     this.dutyDistance = this.calculateTotalDistance();
   }
 }
+
 updateTrip(tripId: number, updatedTrip: Trip | Partial<Trip>) {
   const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
   if (tripIndex !== -1) {

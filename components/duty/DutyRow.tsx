@@ -176,20 +176,20 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
-  
+
     // Recalculate the allowance based on the new distance
-    const updatedDuty = duties.find(d => d.id === dutyId);
+    const updatedDuty = duties.find((d) => d.id === dutyId);
     if (updatedDuty) {
-      const updatedTrip = updatedDuty.trips.find(t => t.id === tripId);
+      const updatedTrip = updatedDuty.trips.find((t) => t.id === tripId);
       if (updatedTrip) {
         const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
-  
+
         const { allowance, remarks } = calculateAllowanceAndRemarks(
           distance,
           updatedTrip.typeOfWork,
           dutyHoursAsNumber * 60
         );
-  
+
         updateTripData(dutyId, tripId, "allowance", allowance);
         updateTripData(dutyId, tripId, "remarks", remarks);
       }
@@ -205,10 +205,49 @@ const DutyRow: React.FC<DutyRowProps> = ({
   };
 
   const handleEditDuty = () => {
+    // Reset hasEnded state
     setHasEnded(false);
-    duty.hasEnded = false; // Directly modify the duty object
-  };
+    duty.hasEnded = false;
 
+    // If the duty is a leave type, we need to reset some fields
+    if (duty.isLeave) {
+      duty.isLeave = false;
+      duty.dutyHours = 0;
+      duty.dutyAllowance = 0;
+      duty.dutyDistance = 0;
+
+      // Reset the first trip (assuming leave duties only have one trip)
+      if (duty.trips.length > 0) {
+        const updatedTrip = {
+          ...duty.trips[0],
+          typeOfWork: "",
+          sourceStation: "",
+          destinationStation: "",
+          distance: 0,
+          trainNumber: "",
+          arrivalTime: "",
+          departureTime: "",
+          dutyHours: "",
+          allowance: 0,
+          remarks: "",
+        };
+        updateTripData(duty.id, updatedTrip.id, "typeOfWork", "");
+        updateTripData(duty.id, updatedTrip.id, "sourceStation", "");
+        updateTripData(duty.id, updatedTrip.id, "destinationStation", "");
+        updateTripData(duty.id, updatedTrip.id, "distance", 0);
+        updateTripData(duty.id, updatedTrip.id, "trainNumber", "");
+        updateTripData(duty.id, updatedTrip.id, "arrivalTime", "");
+        updateTripData(duty.id, updatedTrip.id, "departureTime", "");
+        updateTripData(duty.id, updatedTrip.id, "dutyHours", "");
+        updateTripData(duty.id, updatedTrip.id, "allowance", 0);
+        updateTripData(duty.id, updatedTrip.id, "remarks", "");
+      }
+    }
+
+    // Force a re-render
+    setHasEnded(prevState => !prevState);
+  };
+  
   useEffect(() => {
     duty.trips.forEach((trip) => {
       const dutyHoursInMinutes = calculateDutyHoursFromTimes(
@@ -236,6 +275,11 @@ const DutyRow: React.FC<DutyRowProps> = ({
   const shouldDisableInputFields = (typeOfWork: string) => {
     return disabledTypes.includes(typeOfWork);
   };
+
+  const isAddTripDisabled =
+    duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork);
+  const isEndDutyDisabled =
+    duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork);
 
   return (
     <View style={styles.container}>
@@ -282,39 +326,47 @@ const DutyRow: React.FC<DutyRowProps> = ({
               )}
             </View>
             <View style={styles.dutyTypeContainer}>
-            <TypeofWorkPickerComponent
-            TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
-            initialValue={trip.typeOfWork}
-          />
-
+              <TypeofWorkPickerComponent
+                TypeofWork={(newValue) =>
+                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+                }
+                initialValue={trip.typeOfWork}
+              />
             </View>
             <View style={styles.trainNoContainer}>
-            <TrainNumberInput
-              onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
-              initialValue={trip.trainNumber}
-              disabled={shouldDisableInputFields(trip.typeOfWork)}
-            />
+              <TrainNumberInput
+                onChange={(trainNumber) =>
+                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
+                }
+                initialValue={trip.trainNumber}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+              />
             </View>
             <View style={styles.stationsContainer}>
-            <PickerComponentStation
-              onStationChange={handleStationChange}
-              dutyId={duty.id}
-              tripId={trip.id}
-              initialSourceStation={trip.sourceStation}
-              initialDestinationStation={trip.destinationStation}
-              disabled={shouldDisableInputFields(trip.typeOfWork)}
-              duty={duty}
-            />
+              <PickerComponentStation
+                onStationChange={handleStationChange}
+                dutyId={duty.id}
+                tripId={trip.id}
+                initialSourceStation={trip.sourceStation}
+                initialDestinationStation={trip.destinationStation}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+                duty={duty}
+              />
             </View>
             <View style={styles.timePickerContainer}>
-            <ArrivalDepartureTimePicker
-              onTimesChange={(arrivalTime, departureTime, dutyHours) =>
-                handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
-              }
-              initialArrivalTime={trip.arrivalTime}
-              initialDepartureTime={trip.departureTime}
-              disabled={shouldDisableInputFields(trip.typeOfWork)}
-            />
+              <ArrivalDepartureTimePicker
+                onTimesChange={(arrivalTime, departureTime, dutyHours) =>
+                  handleTimesChange(
+                    trip.id,
+                    arrivalTime,
+                    departureTime,
+                    dutyHours
+                  )
+                }
+                initialArrivalTime={trip.arrivalTime}
+                initialDepartureTime={trip.departureTime}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+              />
             </View>
             <View style={styles.durationContainer}>
               <Text style={styles.durationText}>{trip.dutyHours}</Text>
@@ -343,24 +395,22 @@ const DutyRow: React.FC<DutyRowProps> = ({
         ))}
       </ScrollView>
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity
-          style={[styles.commonButtonStyle, styles.addTripButton]}
-          onPress={() => addTrip(duty.id)}
-          disabled={
-            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
-          }
-        >
-          <Text style={styles.buttonText}>Add Trip</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.commonButtonStyle, styles.endDutyButton]}
-          onPress={() => handleEndDuty(duty)}
-          disabled={
-            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
-          }
-        >
-          <Text style={styles.buttonText}>End Duty</Text>
-        </TouchableOpacity>
+      {!duty.hasEnded && !duty.isLeave && (
+          <TouchableOpacity
+            style={[styles.commonButtonStyle, styles.addTripButton]}
+            onPress={() => addTrip(duty.id)}
+          >
+            <Text style={styles.buttonText}>Add Trip</Text>
+          </TouchableOpacity>
+        )}
+        {!duty.hasEnded && !duty.isLeave && (
+          <TouchableOpacity
+            style={[styles.commonButtonStyle, styles.endDutyButton]}
+            onPress={() => handleEndDuty(duty)}
+          >
+            <Text style={styles.buttonText}>End Duty</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[styles.commonButtonStyle, styles.deleteDutyButton]}
           onPress={() => deleteDuty(duty.id)}
@@ -374,9 +424,14 @@ const DutyRow: React.FC<DutyRowProps> = ({
           <Text style={styles.buttonText}>Edit Duty</Text>
         </TouchableOpacity>
       </View>
-      <View style={[styles.dutyInfoContainer, { display: duty.hasEnded ? 'flex' : 'none' }]}>
-      <DutyInfo duty={duty} />
-    </View>
+      <View
+        style={[
+          styles.dutyInfoContainer,
+          { display: duty.hasEnded ? "flex" : "none" },
+        ]}
+      >
+        <DutyInfo duty={duty} />
+      </View>
     </View>
   );
 };
