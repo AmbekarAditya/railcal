@@ -3,17 +3,7 @@ import firebase from 'firebase/compat/app';
 import { MainTableState } from "./types";
 import Duty from "../duty/Duty";
 import Fortnight from "../fortnight-block/Fortnight";
-import Trip from '../trip/Trip';  // Adjust the import path as necessary
-
-
-
-const fortnightToPlainObject = (fortnight: Fortnight) => ({
-  startDate: fortnight.startDate instanceof Date ? fortnight.startDate.toISOString() : fortnight.startDate,
-  endDate: fortnight.endDate instanceof Date ? fortnight.endDate.toISOString() : fortnight.endDate,
-  totalForthnightDuration: fortnight.totalForthnightDuration,
-  overtimeAllowance: fortnight.overtimeAllowance,
-  totalOvertimeHours: fortnight.totalOvertimeHours,
-});
+import Trip from '../trip/Trip';
 
 export const saveMainTableStateToFirestore = async (state: MainTableState, selectedMonth: string) => {
   try {
@@ -42,7 +32,7 @@ export const saveMainTableStateToFirestore = async (state: MainTableState, selec
       })),
     };
 
-    await db.collection("mainTableStates").doc(`${user.uid}_${selectedMonth}`).set(stateToSave);
+    await db.collection("users").doc(user.uid).collection("mainTableStates").doc(selectedMonth).set(stateToSave);
     console.log("MainTable state successfully saved to Firestore!");
   } catch (error) {
     console.error("Error saving MainTable state to Firestore: ", error);
@@ -58,7 +48,7 @@ export const loadMainTableStateFromFirestore = async (selectedMonth: string): Pr
       return null;
     }
 
-    const docRef = db.collection("mainTableStates").doc(`${user.uid}_${selectedMonth}`);
+    const docRef = db.collection("users").doc(user.uid).collection("mainTableStates").doc(selectedMonth);
     const doc = await docRef.get();
 
     if (doc.exists) {

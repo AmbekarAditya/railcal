@@ -17,9 +17,9 @@ class Duty {
   hasEnded: boolean;
   isLeave: boolean;
 
-  constructor(id: number, trips: Trip[] = []) {
+  constructor(id: number, trips: Trip[] | any[] = []) {
     this.id = id;
-    this.trips = trips;
+    this.trips = trips.map(trip => trip instanceof Trip ? trip : new Trip(trip.id, trip));
     this.signIn = null;
     this.signOff = null;
     this.dutyHours = 0;
@@ -122,12 +122,16 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     this.dutyDistance = this.calculateTotalDistance();
   }
 }
-  updateTrip(tripId: number, updatedTrip: Trip) {
-    const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
-    if (tripIndex !== -1) {
+updateTrip(tripId: number, updatedTrip: Trip | Partial<Trip>) {
+  const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
+  if (tripIndex !== -1) {
+    if (updatedTrip instanceof Trip) {
       this.trips[tripIndex] = updatedTrip;
+    } else {
+      this.trips[tripIndex] = new Trip(tripId, { ...this.trips[tripIndex], ...updatedTrip });
     }
   }
+}
 
   private calculateDutyHours(): number {
     if (this.signIn && this.signOff) {
