@@ -485,8 +485,12 @@ export const pickerItems = [
     value: "Crane Specials",
   },
   {
-    label: "Stationary Duty",
-    value: "Stationary Duty",
+    label: "Stationary Duty(HQ)",
+    value: "Stationary Duty(HQ)",
+  },
+  {
+    label: "Stationary Duty(Out of HQ)",
+    value: "Stationary Duty(Out of HQ)",
   },
   {
     label: "Medical Relief Trains",
@@ -495,6 +499,14 @@ export const pickerItems = [
   {
     label: "Officating",
     value: "Officating",
+  },
+  {
+    label: "Passanger Train",
+    value: "Passanger Train",
+  },
+  {
+    label: "Mail Express",
+    value: "Mail Express",
   },
   {
     label: "Spare by Goods",

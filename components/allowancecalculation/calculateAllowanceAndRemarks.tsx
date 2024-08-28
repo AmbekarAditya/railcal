@@ -14,6 +14,20 @@ const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
     { max: 200, factor: 1.3, remark: "+30%" },
     { max: Infinity, factor: 1.4, remark: "+40%" },
   ],
+  "Passanger Train": [
+    { max: 120, factor: 1, remark: "considered actual value" },
+    { max: 175, factor: 1.2, remark: "+20%" },
+    { max: 200, factor: 1.3, remark: "+30%" },
+    { max: Infinity, factor: 1.4, remark: "+40%" },
+  ],
+  "Mail Express": [
+    { max: 120, factor: 1, remark: "considered actual value" },
+    { max: 175, factor: 1.2, remark: "+20%" },
+    { max: 200, factor: 1.3, remark: "+30%" },
+    { max: Infinity, factor: 1.4, remark: "+40%" },
+  ],
+  "Stationary Duty(HQ)": { factor: 1, remark: "120" },
+  "Stationary Duty(Out of HQ)": { factor: 1, remark: "160" },
   "Light Engine/Multi": { factor: 1, remark: "cosidered actual value" },
   "Spare by Goods": { factor: 1, remark: "cosidered actual value" },
   "Sick leave": { factor: 1, remark: "+ 07:25" },
@@ -72,6 +86,10 @@ function calculateAllowanceAndRemarks(
       const timeBasedConstant = getTimeBasedConstant(typeOfWork, timeInMinutes);
       const distance = (timeInMinutes / 60) * timeBasedConstant;
       allowance = parseFloat(distance.toFixed(2));
+    } else if (typeOfWork === "Stationary Duty(HQ)") {
+      allowance = 120;
+    } else if (typeOfWork === "Stationary Duty(Out of HQ)") {
+      allowance = 160;
     } else {
       allowance = params.factor
         ? parseFloat((distance * params.factor).toFixed(2))
