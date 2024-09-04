@@ -1,0 +1,1303 @@
+
+# 2024-07-10 20:19:56.359487
++/add components/main-table/MainTable.tsx
+
+# 2024-07-10 20:21:25.422986
++/add /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/firebase/firebaseDataManagement.tsx
+
+# 2024-07-10 20:26:40.350764
++Cloud firestore has user data for the Month of July, when I select the month in the previous screen, the duties data saved in firestore should be loaded for that user for that month.
+
+# 2024-07-10 20:59:55.281665
++/quit
+
+# 2024-07-10 21:42:08.857345
++/add components/main-table/MainTable.tsx /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/firebase/firebaseDataManagement.tsx components/duty/DutyRow.tsx
+
+# 2024-07-10 21:43:16.440902
++I want to load the duty data for the user that is in the firestore, I can see that its updating to the firestore, but now I want to add a feature so that it will also load in the main table the duties of that month from firestore, if it exists once the user logs in and goes to the main page.
+
+# 2024-07-10 21:45:50.549475
++Firestore document retrieved
++firebaseDataManagement.tsx:45 Raw Firestore data: {
++  "July": {
++    "duties": [
++      {
++        "id": 1,
++        "trips": [
++          {
++            "id": 1,
++            "date": "2024-07-01",
++            "typeOfWork": "",
++            "arrivalTime": "",
++            "departureTime": "",
++            "timeDifference": 0,
++            "sourceStation": "",
++            "destinationStation": "",
++            "trainNumber": "",
++            "distance": 0,
++            "allowance": 0,
++            "remarks": "",
++            "dutyHours": ""
++          }
++        ],
++        "signIn": null,
++        "signOff": null,
++        "isLeave": false,
++        "isOSDA": false,
++        "isRRA": false,
++        "nightDutyHours": 0,
++        "progressiveNightDutyHours": 0,
++        "dutyAllowance": 0
++      }
++    ]
++  },
++  "March": {
++    "duties": [
++      {
++        "signOff": null,
++        "dutyAllowance": 0,
++        "signIn": null,
++        "isOSDA": false,
++        "progressiveNightDutyHours": 0,
++        "trips": [
++          {
++            "typeOfWork": "",
++            "sourceStation": "",
++            "arrivalTime": "",
++            "timeDifference": 0,
++            "dutyHours": "",
++            "id": 1,
++            "date": "2024-03-01",
++            "remarks": "",
++            "distance": 0,
++            "trainNumber": "",
++            "allowance": 0,
++            "destinationStation": "",
++            "departureTime": ""
++          }
++        ],
++        "nightDutyHours": 0,
++        "isRRA": false,
++        "isLeave": false,
++        "id": 1
++      }
++    ]
++  }
++}
++firebaseDataManagement.tsx:48 Found 1 duties for July
++firebaseDataManagement.tsx:57 First converted duty: {
++  "id": 1,
++  "trips": [
++    {
++      "id": 1,
++      "date": "2024-07-01",
++      "typeOfWork": "",
++      "arrivalTime": "",
++      "departureTime": "",
++      "timeDifference": 0,
++      "sourceStation": "",
++      "destinationStation": "",
++      "trainNumber": "",
++      "distance": 0,
++      "allowance": 0,
++      "remarks": "",
++      "dutyHours": ""
++    }
++  ],
++  "signIn": null,
++  "signOff": null,
++  "dutyHours": 0,
++  "nightDutyHours": 0,
++  "isOSDA": false,
++  "isRRA": false,
++  "dutyAllowance": 0,
++  "dutyDistance": 0,
++  "progressiveDutyHours": 0,
++  "progressiveNightDutyHours": 0,
++  "hasEnded": false,
++  "isLeave": false
++}
++36MainTable.tsx:356 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
++    at DutyRow (http://localhost:19006/static/js/bundle.js:1999:19)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at VirtualizedListCellContextProvider (http://localhost:19006/static/js/bundle.js:71769:23)
++    at CellRenderer (http://localhost:19006/static/js/bundle.js:71584:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at http://localhost:19006/static/js/bundle.js:56477:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56623:86)
++    at ScrollView
++    at VirtualizedListContextProvider (http://localhost:19006/static/js/bundle.js:71752:24)
++    at VirtualizedList (http://localhost:19006/static/js/bundle.js:71897:86)
++    at FlatList (http://localhost:19006/static/js/bundle.js:69980:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at http://localhost:19006/static/js/bundle.js:56477:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56623:86)
++    at ScrollView
++    at MainTable (http://localhost:19006/static/js/bundle.js:3552:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at http://localhost:19006/static/js/bundle.js:56477:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56623:86)
++    at ScrollView
++    at CalculationPage (http://localhost:19006/static/js/bundle.js:1286:20)
++    at StaticContainer (http://localhost:19006/static/js/bundle.js:7672:16)
++    at EnsureSingleNavigator (http://localhost:19006/static/js/bundle.js:7228:23)
++    at SceneView (http://localhost:19006/static/js/bundle.js:7562:21)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at Background (http://localhost:19006/static/js/bundle.js:13165:20)
++    at Screen (http://localhost:19006/static/js/bundle.js:14029:100)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at NativeScreen (http://localhost:19006/static/js/bundle.js:53242:86)
++    at http://localhost:19006/static/js/bundle.js:67072:90
++    at MaybeScreen (http://localhost:19006/static/js/bundle.js:11969:23)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at MaybeScreenContainer (http://localhost:19006/static/js/bundle.js:11958:22)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at AnimatedComponent (http://localhost:19006/static/js/bundle.js:31368:88)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at AnimatedComponent (http://localhost:19006/static/js/bundle.js:31368:88)
++    at Handler (http://localhost:19006/static/js/bundle.js:19706:88)
++    at Drawer (http://localhost:19006/static/js/bundle.js:12631:25)
++    at DrawerViewBase (http://localhost:19006/static/js/bundle.js:11674:21)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at SafeAreaFrameProvider (http://localhost:19006/static/js/bundle.js:13933:30)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at NativeSafeAreaProvider (http://localhost:19006/static/js/bundle.js:52883:23)
++    at SafeAreaProvider (http://localhost:19006/static/js/bundle.js:53041:23)
++    at SafeAreaProviderCompat (http://localhost:19006/static/js/bundle.js:13914:23)
++    at DrawerView (http://localhost:19006/static/js/bundle.js:11862:26)
++    at PreventRemoveProvider (http://localhost:19006/static/js/bundle.js:7472:24)
++    at NavigationContent (http://localhost:19006/static/js/bundle.js:8900:21)
++    at http://localhost:19006/static/js/bundle.js:8911:26
++    at DrawerNavigator (http://localhost:19006/static/js/bundle.js:10950:17)
++    at EnsureSingleNavigator (http://localhost:19006/static/js/bundle.js:7228:23)
++    at BaseNavigationContainer (http://localhost:19006/static/js/bundle.js:6892:27)
++    at ThemeProvider (http://localhost:19006/static/js/bundle.js:14586:20)
++    at NavigationContainerInner (http://localhost:19006/static/js/bundle.js:14253:25)
++    at App
++    at withDevTools(App)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60450:25
++    at http://localhost:19006/static/js/bundle.js:53618:24
+
+# 2024-07-10 21:47:05.958690
++Can you resolve this error"""
+
+# 2024-07-10 21:49:07.928187
++ncaught Error: Module build failed (from ./node_modules/babel-loader/lib/index.js):
++SyntaxError: /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/components/main-table/MainTable.tsx: Unexpected token (97:10) (at calculationPageStyles.tsx:23:1)
++
++[0m [90m  95 |[39m   }
++ [90m  96 |[39m
++[31m[1m>[22m[39m[90m  97 |[39m     [36mconst[39m userId [33m=[39m getCurrentUserId()[33m;[39m
++ [90m     |[39m           [31m[1m^[22m[39m
++ [90m  98 |[39m     [36mconst[39m { selectedMonth } [33m=[39m [36mthis[39m[33m.[39mprops[33m;[39m
++ [90m  99 |[39m
++ [90m 100 |[39m     [36mif[39m (userId) {[0m
+
+# 2024-07-10 21:53:44.533506
++calculationPageStyles.tsx:23 Uncaught Error: Module build failed (from ./node_modules/babel-loader/lib/index.js):
++SyntaxError: /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/components/main-table/MainTable.tsx: Unexpected token (97:10) (at calculationPageStyles.tsx:23:1)
++
++[0m [90m  95 |[39m   }
++ [90m  96 |[39m
++[31m[1m>[22m[39m[90m  97 |[39m     [36mconst[39m userId [33m=[39m getCurrentUserId()[33m;[39m
++ [90m     |[39m           [31m[1m^[22m[39m
++ [90m  98 |[39m     [36mconst[39m { selectedMonth } [33m=[39m [36mthis[39m[33m.[39mprops[33m;[39m
++ [90m  99 |[39m
++ [90m 100 |[39m     [36mif[39m (userId) {[0m
++    at toParseError (:19006/Users/atul/Do…arse-error.ts:74:19)
++    at TypeScriptParserMixin.raise (:19006/Users/atul/Do…er/index.ts:1490:19)
++    at TypeScriptParserMixin.unexpected (:19006/Users/atul/Do…er/index.ts:1530:16)
++    at TypeScriptParserMixin.parseClassMemberWithIsStatic (:19006/Users/atul/Do…tatement.ts:2054:12)
++    at TypeScriptParserMixin.parseClassMemberWithIsStatic (:19006/Users/atul/Do…pt/index.ts:3012:13)
++    at callParseClassMemberWithIsStatic (:19006/Users/atul/Do…pt/index.ts:2955:16)
++    at TypeScriptParserMixin.parseClassMember (:19006/Users/atul/Do…ipt/index.ts:2966:9)
++    at callback (:19006/Users/atul/Do…tatement.ts:1786:14)
++    at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (:19006/Users/atul/Do…pression.ts:3105:14)
++    at TypeScriptParserMixin.parseClassBody (:19006/Users/atul/Do…tatement.ts:1758:10)
++    at TypeScriptParserMixin.parseClass (:19006/Users/atul/Do…tatement.ts:1709:22)
++    at TypeScriptParserMixin.parseClass (:19006/Users/atul/Do…pt/index.ts:3924:22)
++    at TypeScriptParserMixin.parseStatementContent (:19006/Users/atul/Do…statement.ts:471:21)
++    at TypeScriptParserMixin.parseStatementContent (:19006/Users/atul/Do…pt/index.ts:2895:20)
++    at TypeScriptParserMixin.parseStatementLike (:19006/Users/atul/Do…statement.ts:421:17)
++    at TypeScriptParserMixin.parseModuleItem (:19006/Users/atul/Do…statement.ts:358:17)
++    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (:19006/Users/atul/Do…tatement.ts:1388:16)
++    at TypeScriptParserMixin.parseBlockBody (:19006/Users/atul/Do…tatement.ts:1362:10)
++    at TypeScriptParserMixin.parseProgram (:19006/Users/atul/Do…statement.ts:217:10)
++    at TypeScriptParserMixin.parseTopLevel (:19006/Users/atul/Do…statement.ts:199:25)
++    at TypeScriptParserMixin.parse (:19006/Users/atul/Do…rser/index.ts:45:10)
++    at TypeScriptParserMixin.parse (:19006/Users/atul/Do…pt/index.ts:4014:20)
++    at parse (:19006/Users/atul/Do…/src/index.ts:34:26)
++    at parser (:19006/Users/atul/Do…rser/index.ts:28:19)
++    at parser.next (<anonymous>)
++    at normalizeFile (:19006/Users/atul/Do…alize-file.ts:50:24)
++    at normalizeFile.next (<anonymous>)
++    at run (:19006/Users/atul/Do…tion/index.ts:39:36)
++    at run.next (<anonymous>)
++    at transform (:19006/Users/atul/Do…/transform.ts:29:20)
++    at transform.next (<anonymous>)
++    at step (:19006/Users/atul/Do…ync/index.js:261:32)
++    at :19006/Users/atul/Do…ync/index.js:273:13
++    at async.call.result.err.err (:19006/Users/atul/Do…ync/index.js:223:11)
++    at ./components/main-table/MainTable.tsx (calculationPageStyles.tsx:23:1)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./components/calcualtionPage/CalculationPage.tsx (InterdependentPicker.tsx:119:1)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./App.tsx (bundle.js:21:101)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./index.js (firebaseConfig.js:38:1)
+
+# 2024-07-10 21:54:24.586895
++calculationPageStyles.tsx:23 Uncaught Error: Module build failed (from ./node_modules/babel-loader/lib/index.js):
++SyntaxError: /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/components/main-table/MainTable.tsx: Unexpected token (97:10) (at calculationPageStyles.tsx:23:1)
++
++[0m [90m  95 |[39m   }
++ [90m  96 |[39m
++[31m[1m>[22m[39m[90m  97 |[39m     [36mconst[39m userId [33m=[39m getCurrentUserId()[33m;[39m
++ [90m     |[39m           [31m[1m^[22m[39m
++ [90m  98 |[39m     [36mconst[39m { selectedMonth } [33m=[39m [36mthis[39m[33m.[39mprops[33m;[39m
++ [90m  99 |[39m
++ [90m 100 |[39m     [36mif[39m (userId) {[0m
++    at toParseError (:19006/Users/atul/Do…arse-error.ts:74:19)
++    at TypeScriptParserMixin.raise (:19006/Users/atul/Do…er/index.ts:1490:19)
++    at TypeScriptParserMixin.unexpected (:19006/Users/atul/Do…er/index.ts:1530:16)
++    at TypeScriptParserMixin.parseClassMemberWithIsStatic (:19006/Users/atul/Do…tatement.ts:2054:12)
++    at TypeScriptParserMixin.parseClassMemberWithIsStatic (:19006/Users/atul/Do…pt/index.ts:3012:13)
++    at callParseClassMemberWithIsStatic (:19006/Users/atul/Do…pt/index.ts:2955:16)
++    at TypeScriptParserMixin.parseClassMember (:19006/Users/atul/Do…ipt/index.ts:2966:9)
++    at callback (:19006/Users/atul/Do…tatement.ts:1786:14)
++    at TypeScriptParserMixin.withSmartMixTopicForbiddingContext (:19006/Users/atul/Do…pression.ts:3105:14)
++    at TypeScriptParserMixin.parseClassBody (:19006/Users/atul/Do…tatement.ts:1758:10)
++    at TypeScriptParserMixin.parseClass (:19006/Users/atul/Do…tatement.ts:1709:22)
++    at TypeScriptParserMixin.parseClass (:19006/Users/atul/Do…pt/index.ts:3924:22)
++    at TypeScriptParserMixin.parseStatementContent (:19006/Users/atul/Do…statement.ts:471:21)
++    at TypeScriptParserMixin.parseStatementContent (:19006/Users/atul/Do…pt/index.ts:2895:20)
++    at TypeScriptParserMixin.parseStatementLike (:19006/Users/atul/Do…statement.ts:421:17)
++    at TypeScriptParserMixin.parseModuleItem (:19006/Users/atul/Do…statement.ts:358:17)
++    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (:19006/Users/atul/Do…tatement.ts:1388:16)
++    at TypeScriptParserMixin.parseBlockBody (:19006/Users/atul/Do…tatement.ts:1362:10)
++    at TypeScriptParserMixin.parseProgram (:19006/Users/atul/Do…statement.ts:217:10)
++    at TypeScriptParserMixin.parseTopLevel (:19006/Users/atul/Do…statement.ts:199:25)
++    at TypeScriptParserMixin.parse (:19006/Users/atul/Do…rser/index.ts:45:10)
++    at TypeScriptParserMixin.parse (:19006/Users/atul/Do…pt/index.ts:4014:20)
++    at parse (:19006/Users/atul/Do…/src/index.ts:34:26)
++    at parser (:19006/Users/atul/Do…rser/index.ts:28:19)
++    at parser.next (<anonymous>)
++    at normalizeFile (:19006/Users/atul/Do…alize-file.ts:50:24)
++    at normalizeFile.next (<anonymous>)
++    at run (:19006/Users/atul/Do…tion/index.ts:39:36)
++    at run.next (<anonymous>)
++    at transform (:19006/Users/atul/Do…/transform.ts:29:20)
++    at transform.next (<anonymous>)
++    at step (:19006/Users/atul/Do…ync/index.js:261:32)
++    at :19006/Users/atul/Do…ync/index.js:273:13
++    at async.call.result.err.err (:19006/Users/atul/Do…ync/index.js:223:11)
++    at ./components/main-table/MainTable.tsx (calculationPageStyles.tsx:23:1)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./components/calcualtionPage/CalculationPage.tsx (InterdependentPicker.tsx:119:1)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./App.tsx (bundle.js:21:101)
++    at __webpack_require__ (bootstrap:22:1)
++    at fn (hot module replacement:61:1)
++    at ./index.js (firebaseConfig.js:38:1)
++﻿
++
++
+
+# 2024-07-10 21:55:43.280105
++MainTable.tsx:342 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
++    at DutyRow (http://localhost:19006/static/js/bundle.js:1999:19)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at VirtualizedListCellContextProvider (http://localhost:19006/static/js/bundle.js:71772:23)
++    at CellRenderer (http://localhost:19006/static/js/bundle.js:71587:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at http://localhost:19006/static/js/bundle.js:56480:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56626:86)
++    at ScrollView
++    at VirtualizedListContextProvider (http://localhost:19006/static/js/bundle.js:71755:24)
++    at VirtualizedList (http://localhost:19006/static/js/bundle.js:71900:86)
++    at FlatList (http://localhost:19006/static/js/bundle.js:69983:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at http://localhost:19006/static/js/bundle.js:56480:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56626:86)
++    at ScrollView
++    at MainTable (http://localhost:19006/static/js/bundle.js:3552:86)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at http://localhost:19006/static/js/bundle.js:56480:24
++    at ScrollView (http://localhost:19006/static/js/bundle.js:56626:86)
++    at ScrollView
++    at CalculationPage (http://localhost:19006/static/js/bundle.js:1286:20)
++    at StaticContainer (http://localhost:19006/static/js/bundle.js:7675:16)
++    at EnsureSingleNavigator (http://localhost:19006/static/js/bundle.js:7231:23)
++    at SceneView (http://localhost:19006/static/js/bundle.js:7565:21)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at Background (http://localhost:19006/static/js/bundle.js:13168:20)
++    at Screen (http://localhost:19006/static/js/bundle.js:14032:100)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at NativeScreen (http://localhost:19006/static/js/bundle.js:53245:86)
++    at http://localhost:19006/static/js/bundle.js:67075:90
++    at MaybeScreen (http://localhost:19006/static/js/bundle.js:11972:23)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at MaybeScreenContainer (http://localhost:19006/static/js/bundle.js:11961:22)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at AnimatedComponent (http://localhost:19006/static/js/bundle.js:31371:88)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at AnimatedComponent (http://localhost:19006/static/js/bundle.js:31371:88)
++    at Handler (http://localhost:19006/static/js/bundle.js:19709:88)
++    at Drawer (http://localhost:19006/static/js/bundle.js:12634:25)
++    at DrawerViewBase (http://localhost:19006/static/js/bundle.js:11677:21)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at SafeAreaFrameProvider (http://localhost:19006/static/js/bundle.js:13936:30)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at NativeSafeAreaProvider (http://localhost:19006/static/js/bundle.js:52886:23)
++    at SafeAreaProvider (http://localhost:19006/static/js/bundle.js:53044:23)
++    at SafeAreaProviderCompat (http://localhost:19006/static/js/bundle.js:13917:23)
++    at DrawerView (http://localhost:19006/static/js/bundle.js:11865:26)
++    at PreventRemoveProvider (http://localhost:19006/static/js/bundle.js:7475:24)
++    at NavigationContent (http://localhost:19006/static/js/bundle.js:8903:21)
++    at http://localhost:19006/static/js/bundle.js:8914:26
++    at DrawerNavigator (http://localhost:19006/static/js/bundle.js:10953:17)
++    at EnsureSingleNavigator (http://localhost:19006/static/js/bundle.js:7231:23)
++    at BaseNavigationContainer (http://localhost:19006/static/js/bundle.js:6895:27)
++    at ThemeProvider (http://localhost:19006/static/js/bundle.js:14589:20)
++    at NavigationContainerInner (http://localhost:19006/static/js/bundle.js:14256:25)
++    at App
++    at withDevTools(App)
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at div
++    at http://localhost:19006/static/js/bundle.js:60453:25
++    at http://localhost:19006/static/js/bundle.js:53621:24
+
+# 2024-07-10 21:56:17.729785
++MainTable.tsx:342 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
++    at DutyRow (http://localhost:19006/static/js/bundle.js:1999:19)
++    at div
+
+# 2024-07-10 21:57:12.105796
++218MainTable.tsx:342 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
++    at DutyRow 
+
+# 2024-07-10 21:57:53.979534
++/add components/duty/DutyRow.tsx
+
+# 2024-07-10 21:58:51.806302
++/add components/duty/Duty.tsx components/duty/DutyInfo.tsx 
+
+# 2024-07-10 21:59:27.505730
++I just added alll the files containing dutyRow components!
+
+# 2024-07-10 22:00:09.212855
++/add components/duty/DutyRow.tsx
+
+# 2024-07-10 22:00:32.713195
++MainTable.tsx:342 Warning: Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render.
++    at DutyRow (http://localhost:19006/static/js/bundle.js:1999:19)
++    at div
+
+# 2024-07-11 23:00:02.946963
++quit
+
+# 2024-07-11 23:00:27.203389
++/quit
+
+# 2024-07-11 23:17:09.370565
++/add components/main-table/MainTable.tsx components/main-table/MainTablestyles.tsx 
+
+# 2024-07-11 23:20:05.900438
++update components/main-table/MainTable.tsx: Add a save button on the right of the ADD DUTY, and PDF button of the same size and colour as the two.
+
+# 2024-07-11 23:23:31.577840
++/add firebase/firebaseConfig.js firebase/firebaseDataManagement.tsx
+
+# 2024-07-11 23:23:52.853708
++/help
+
+# 2024-07-11 23:24:23.325051
++/drop firebase/firebaseDataManagement.tsx
+
+# 2024-07-11 23:26:11.722433
++Connect to firestore db, create a new function in a new file that will persist the data from the duties into the firestore for that month in json. Keep it simple and elegant.
+
+# 2024-07-11 23:29:03.064823
++I am getting the following error:
+
+# 2024-07-11 23:29:20.963000
++saveDutiesToFirestore.ts:10 Error saving duties to Firestore:  TypeError: duty.toJSON is not a function    at saveDutiesToFirestore.ts:6:1    at Array.map (<anonymous>)    at saveDutiesToFirestore.ts:6:1    at Generator.next (<anonymous>)    at asyncGeneratorStep (asyncToGenerator.js:3:1)    at _next (asyncToGenerator.js:22:1)    at asyncToGenerator.js:27:1    at new Promise (<anonymous>)    at asyncToGenerator.js:19:1    at saveDutiesToFirestore (saveDutiesToFirestore.ts:4:1)
+
+# 2024-07-11 23:32:06.765178
++/add components/main-table
+
+# 2024-07-11 23:32:52.299755
++/add firebase/firebaseConfig.js components/duty components/trip
+
+# 2024-07-11 23:34:46.362541
++saveDutiesToFirestore.ts:10 Error saving duties to Firestore:  TypeError: trip.toJSON is not a function. The `toJSON` functions are not implemented properly, please resolve this error to persist data into firestore.
+
+# 2024-07-11 23:42:01.630386
++{saveDutiesToFirestore.ts:10 Error saving duties to Firestore:  TypeError: trip.toJSON is not a function
++    at Duty.tsx:18:1
++    at Array.map (<anonymous>)
++    at Duty.toJSON (Duty.tsx:18:1)
++    at saveDutiesToFirestore.ts:6:1
++    at Array.map (<anonymous>)
++    at saveDutiesToFirestore.ts:6:1
++    at Generator.next (<anonymous>)
++    at asyncGeneratorStep (asyncToGenerator.js:3:1)
++    at _next (asyncToGenerator.js:22:1)
++    at asyncToGenerator.js:27:1}
+
+# 2024-07-11 23:42:17.123136
++}
+
+# 2024-07-11 23:44:46.377848
++/quit
+
+# 2024-07-12 14:39:59.069206
++/add components/trip/ components/duty/ components/main-table/ 
+
+# 2024-07-12 14:41:27.969606
++When the maintable loads, all the saved duties from the firestore db should be loaded if they exist for that month. Every detail should be updates in the UI from the json data which looks like this:
+
+# 2024-07-12 14:41:55.898024
++{When the maintable loads, all the saved duties from the firestore db should be loaded if they exist for that month. Every detail should be upda
++tes in the UI from the json data which looks like this:
+
+# 2024-07-12 14:43:09.585460
++duties
++(array)
++
++
++0
++(map)
++
++dutyAllowance
++0
++(number)
++
++dutyDistance
++0
++(number)
++
++dutyHours
++7.41667
++(number)
++
++hasEnded
++true
++(boolean)
++
++id
++1
++(number)
++
++isLeave
++true
++(boolean)
++
++isOSDA
++false
++(boolean)
++
++isRRA
++false
++(boolean)
++
++nightDutyHours
++0
++(number)
++
++progressiveDutyHours
++7.41667
++(number)
++
++progressiveNightDutyHours
++0
++(number)
++
++signIn
++null
++(null)
++
++signOff
++null
++(null)
++
++
++trips
++(array)
++
++
++0
++(map)
++
++allowance
++0
++(number)
++
++arrivalTime
++""
++(string)
++
++date
++"2024-07-01"
++(string)
++
++departureTime
++""
++(string)
++
++destinationStation
++""
++(string)
++
++distance
++0
++(number)
++
++dutyHours
++""
++(string)
++
++id
++1
++(number)
++
++remarks
++"+ 07:25"
++(string)
++
++sourceStation
++""
++(string)
++
++timeDifference
++0
++(number)
++
++trainNumber
++""
++(string)
++
++typeOfWork
++"Paid leave"
++(string)
++
++
++1
++(map)
++
++dutyAllowance
++0
++(number)
++
++dutyDistance
++0
++(number)
++
++dutyHours
++7.41667
++(number)
++
++hasEnded
++true
++(boolean)
++
++id
++2
++(number)
++
++isLeave
++true
++(boolean)
++
++isOSDA
++false
++(boolean)
++
++isRRA
++false
++(boolean)
++
++nightDutyHours
++0
++(number)
++
++progressiveDutyHours
++14.83334
++(number)
++
++progressiveNightDutyHours
++0
++(number)
++
++signIn
++null
++(null)
++
++signOff
++null
++(null)
++
++
++trips
++(array)
++
++
++0
++(map)
++
++allowance
++0
++(number)
++
++arrivalTime
++""
++(string)
++
++date
++"2024-07-02"
++(string)
++
++departureTime
++""
++(string)
++
++destinationStation
++""
++(string)
++
++distance
++0
++(number)
++
++dutyHours
++""
++(string)
++
++id
++1
++(number)
++
++remarks
++"+ 07:25"
++(string)
++
++sourceStation
++""
++(string)
++
++timeDifference
++0
++(number)
++
++trainNumber
++""
++(string)
++
++typeOfWork
++"Sick leave"
++(string)
++
++userId
++"b4LEXcRfmR
+
+# 2024-07-12 14:43:17.100076
++}
+
+# 2024-07-12 14:47:04.444082
++{
+
+# 2024-07-12 14:47:10.536356
++Getting the following error:
+
+# 2024-07-12 14:47:32.046193
++saveDutiesToFirestore.ts:41 Error loading duties from Firestore:  FirebaseError: Missing or insufficient permissions.
++(anonymous)	@	saveDutiesToFirestore.ts:41
++asyncGeneratorStep	@	asyncToGenerator.js:3
++_throw	@	asyncToGenerator.js:25
++Promise.then (async)		
++asyncGeneratorStep	@	asyncToGenerator.js:12
++_next	@	asyncToGenerator.js:22
++(anonymous)	@	asyncToGenerator.js:27
++(anonymous)	@	asyncToGenerator.js:19
++loadDutiesFromFirestore	@	saveDutiesToFirestore.ts:22
++(anonymous)	@	MainTable.tsx:99
++asyncGeneratorStep	@	asyncToGenerator.js:3
++_next	@	asyncToGenerator.js:22
++(anonymous)	@	asyncToGenerator.js:27
++(anonymous)	@	asyncToGenerator.js:19
++componentDidMount	@	MainTable.tsx:94
++commitLayoutEffectOnFiber	@	react-dom.development.js:23310
++commitLayoutMountEffects_complete	@	react-dom.development.js:24688
++commitLayoutEffects_begin	@	react-dom.development.js:24674
++commitLayoutEffects	@	react-dom.development.js:24612
++commitRootImpl	@	react-dom.development.js:26823
++commitRoot	@	react-dom.development.js:26682
++performSyncWorkOnRoot	@	react-dom.development.js:26117
++flushSyncCallbacks	@	react-dom.development.js:12042
++(anonymous)	@	react-dom.development.js:25651
+
+# 2024-07-12 14:47:44.494106
++Also the rules for firestore cloud db are this:
+
+# 2024-07-12 14:48:07.349253
++rules_version = '2';
++service cloud.firestore {
++  match /databases/{database}/documents {
++    match /users/{userId} {
++      allow read, write: if request.auth != null && request.auth.uid == userId;
++    }
++    
++    match /duties/{month} {
++      allow read, write: if request.auth != null && request.resource.data.userId == request.auth.uid;
++    }
++  }
++}
+
+# 2024-07-12 14:48:45.818504
++}
+
+# 2024-07-12 14:50:04.056755
++{saveDutiesToFirestore.ts:48 Error loading duties from Firestore:  FirebaseError: Missing or insufficient permissions.
++(anonymous) @ saveDutiesToFirestore.ts:48
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++saveDutiesToFirestore.ts:50 Permission denied. Please check Firestore rules.
++(anonymous) @ saveDutiesToFirestore.ts:50
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++MainTable.tsx:109 Error loading duties from Firestore: FirebaseError: Missing or insufficient permissions.}
+
+# 2024-07-12 14:50:06.883057
++}
+
+# 2024-07-12 14:52:44.002948
++{
+
+# 2024-07-12 14:52:46.441298
++saveDutiesToFirestore.ts:49 Error loading duties from Firestore:  FirebaseError: Missing or insufficient permissions.
++(anonymous) @ saveDutiesToFirestore.ts:49
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++saveDutiesToFirestore.ts:51 Permission denied. Please check Firestore rules.
++(anonymous) @ saveDutiesToFirestore.ts:51
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++saveDutiesToFirestore.ts:52 Current user UID: b4LEXcRfmRZfnWkdip7CZaIoUMi2
++(anonymous) @ saveDutiesToFirestore.ts:52
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++saveDutiesToFirestore.ts:53 Attempted to access document: July
++(anonymous) @ saveDutiesToFirestore.ts:53
++asyncGeneratorStep @ asyncToGenerator.js:3
++_throw @ asyncToGenerator.js:25
++Promise.then (async)
++asyncGeneratorStep @ asyncToGenerator.js:12
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++loadDutiesFromFirestore @ saveDutiesToFirestore.ts:25
++(anonymous) @ MainTable.tsx:99
++asyncGeneratorStep @ asyncToGenerator.js:3
++_next @ asyncToGenerator.js:22
++(anonymous) @ asyncToGenerator.js:27
++(anonymous) @ asyncToGenerator.js:19
++componentDidMount @ MainTable.tsx:94
++commitLayoutEffectOnFiber @ react-dom.development.js:23310
++commitLayoutMountEffects_complete @ react-dom.development.js:24688
++commitLayoutEffects_begin @ react-dom.development.js:24674
++commitLayoutEffects @ react-dom.development.js:24612
++commitRootImpl @ react-dom.development.js:26823
++commitRoot @ react-dom.development.js:26682
++performSyncWorkOnRoot @ react-dom.development.js:26117
++flushSyncCallbacks @ react-dom.development.js:12042
++(anonymous) @ react-dom.development.js:25651
++MainTable.tsx:108 No duties loaded from Firestore. Using default duty.
+
+# 2024-07-12 14:52:48.269881
++}
+
+# 2024-07-12 15:00:01.985183
++The feature is working but with an issue, all Duty Types of the trips are not getting loaded in the UI, other data looks good. We need to make sure that all the values of the respective trips including dropdown and time should be loaded.
+
+# 2024-07-12 15:04:03.151957
++{
+
+# 2024-07-12 15:05:01.539242
++Date was correct for both the saved duties, but the type of work / Duty Type was only loaded for the first trip of the secon duty, but did not load for the first trip of the first duty.
+
+# 2024-07-12 15:05:03.143992
++}
+
+# 2024-07-12 15:06:18.373122
++{
+
+# 2024-07-12 15:06:19.898181
++Uncaught ReferenceError: useEffect is not defined
++    at TypeofWorkPickerComponent (typeofwork.tsx:18:1)
++    at renderWithHooks (react-dom.development.js:16305:1)
++    at mountIndeterminateComponent (react-dom.development.js:20074:1)
++    at beginWork (react-dom.development.js:21587:1)
++    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
++    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
++    at invokeGuardedCallback (react-dom.development.js:4277:1)
++    at beginWork$1 (react-dom.development.js:27451:1)
++    at performUnitOfWork (react-dom.development.js:26560:1)
++    at workLoopSync (react-dom.development.js:26466:1)
+
+# 2024-07-12 15:06:21.015194
++}
+
+# 2024-07-12 15:13:28.920060
++{
+
+# 2024-07-12 15:14:06.470251
++The reading should be done only once when the maintable is loaded, it should not keep reading, since there are 62 reads, we want to make sure it only reads once.
+
+# 2024-07-12 15:14:07.625863
++}
+
+# 2024-07-12 15:19:43.566910
++1. Signin and Sign off is showing as Timestamp in duty info 2. From station and to station, and departure and arrival time is not getting loaded in the UI.
+
+# 2024-07-12 15:21:14.715720
++{
+
+# 2024-07-12 15:22:03.967424
++1. Sign in and sign off times are showing invalid date in the UI, and 2. The from station and to station and arrival and departure times are still not loading in the UI properly.
+
+# 2024-07-12 15:22:05.056017
++}
+
+# 2024-07-12 15:23:37.193102
++{
+
+# 2024-07-12 15:23:49.564540
++This is the format the sign in and sign off are currently:
+
+# 2024-07-12 15:24:17.780461
++signIn
++July 4, 2024 at 5:30:00 AM UTC+5:30
++
++
++signOff
++July 4, 2024 at 3:41:00 PM UTC+5:30
++
+
+# 2024-07-12 15:24:29.669266
++in the json in firestore cloud.
+
+# 2024-07-12 15:25:12.235516
++Also neither is the source destination or arrival and departure are getting loaded in the drop down and time select:
+
+# 2024-07-12 15:25:15.803645
++allowance
++147.98
++(number)
++
++arrivalTime
++"03:11"
++(string)
++
++date
++"2024-07-04"
++(string)
++
++departureTime
++"15:11"
++(string)
++
++destinationStation
++"ANO"
++(string)
++
++distance
++123.32
++(number)
++
++dutyHours
++"12h 0m"
++(string)
++
++id
++1
++(number)
++
++remarks
++"+20%"
++(string)
++
++sourceStation
++"ADVl"
++(string)
++
++timeDifference
++0
++(number)
++
++trainNumber
++""
++(string)
++
++typeOfWork
++"Through"
+
+# 2024-07-12 15:25:16.992599
++}
+
+# 2024-07-12 15:27:40.756177
++/add components/time-picker/TimePicker.tsx components/station-picker/stationpicker.tsx 
+
+# 2024-07-12 15:28:14.417248
++Still not working, its showing invalid date in the dutySummary for the sign in and sign off, and time and stations are not getting loaded"
+
+# 2024-07-12 15:30:43.082723
++/quit
+
+# 2024-07-13 20:16:08.012735
++In the last few commits, remove all the changes done for loading the data into the UI for maintable, but keep all tha changes for the save-button to push data to firestore.
+
+# 2024-07-13 20:18:09.467108
++In the last few commits, remove all the changes done for loading the data into the UI for maintable, but keep all tha changes for the save-button to push data to firestore.
+
+# 2024-07-13 20:22:11.913015
++Also revert back all the changed made in time and station picker.
+
+# 2024-07-13 20:24:56.894236
++REvert back everything to main, but keep only the feature of save duties button.
+
+# 2024-07-13 20:27:02.148723
++n
+
+# 2024-07-13 20:51:10.564110
++/add components/main-table/MainTable.tsx
+
+# 2024-07-13 20:53:10.691749
++Refactor main table into multiple files in the same folder (components/main-table) making sure all the tsx style is followed to make it easier to work with.
+
+# 2024-07-13 21:10:16.110178
++{
+
+# 2024-07-13 21:10:19.991098
++ERROR in ./components/main-table/MainTable.tsx
++Module build failed (from ./node_modules/babel-loader/lib/index.js):
++TypeError: Duplicate declaration "colors"
++  622 | }
++  623 |
++> 624 | const colors = {
++      |       ^^^^^^
++  625 |   primary: "#007AFF",
++  626 |   border: "#CCCCCC",
++  627 |   // Add more colors as needed
++    at File.buildError [as buildCodeFrameError] (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/file/file.ts:249:12)
++    at Scope.checkBlockScopedCollisions (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:619:22)
++    at Scope.registerBinding (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:830:16)
++    at Scope.registerDeclaration (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:754:14)
++    at Object.apply (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:332:12)
++    at Object.call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/visitors.ts:339:17)
++    at NodePath._call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:35:20)
++    at NodePath.call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:16:14)
++    at NodePath.visit (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:94:31)
++    at TraversalContext.visitQueue (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:147:16)
++    at TraversalContext.visitMultiple (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:98:17)
++    at TraversalContext.visit (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:177:19)
++    at traverseNode (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/traverse-node.ts:40:17)
++    at traverse (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/index.ts:82:15)
++    at NodePath.traverse (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/index.ts:140:13)
++    at Scope.crawl (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:1041:10)
++    at Scope.init (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:1005:12)
++    at NodePath.setScope (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:157:15)
++    at NodePath.setContext (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:177:8)
++    at new File (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/file/file.ts:55:8)
++    at normalizeFile (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/normalize-file.ts:102:10)
++    at normalizeFile.next (<anonymous>)
++    at run (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/index.ts:39:36)
++    at run.next (<anonymous>)
++    at transform (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transform.ts:29:20)
++    at transform.next (<anonymous>)
++    at step (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:261:32)
++    at /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:273:13
++    at async.call.result.err.err (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:223:11)
++    at cb (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:189:28)
++    at /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/gensync-utils/async.ts:90:7
++    at /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:113:33
++    at step (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:287:14)
++    at /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:273:13
++    at async.call.result.err.err (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:223:11)
++
+
+# 2024-07-13 21:10:23.160005
++}
+
+# 2024-07-13 21:11:51.886798
++{
+
+# 2024-07-13 21:11:54.918887
++ERROR in ./components/main-table/MainTable.tsx
++Module build failed (from ./node_modules/babel-loader/lib/index.js):
++TypeError: Duplicate declaration "styles"
++  622 | }
++  623 |
++> 624 | const styles = StyleSheet.create({
++      |       ^^^^^^
++  625 |   container: {
++  626 |     flex: 1,
++  627 |   },
++    at File.buildError [as buildCodeFrameError] (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/file/file.ts:249:12)
++    at Scope.checkBlockScopedCollisions (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:619:22)
++    at Scope.registerBinding (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:830:16)
++    at Scope.registerDeclaration (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:754:14)
++    at Object.apply (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:332:12)
++    at Object.call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/visitors.ts:339:17)
++    at NodePath._call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:35:20)
++    at NodePath.call (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:16:14)
++    at NodePath.visit (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:94:31)
++    at TraversalContext.visitQueue (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:147:16)
++    at TraversalContext.visitMultiple (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:98:17)
++    at TraversalContext.visit (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/context.ts:177:19)
++    at traverseNode (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/traverse-node.ts:40:17)
++    at traverse (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/index.ts:82:15)
++    at NodePath.traverse (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/index.ts:140:13)
++    at Scope.crawl (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:1041:10)
++    at Scope.init (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/scope/index.ts:1005:12)
++    at NodePath.setScope (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:157:15)
++    at NodePath.setContext (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/traverse/src/path/context.ts:177:8)
++    at new File (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/file/file.ts:55:8)
++    at normalizeFile (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/normalize-file.ts:102:10)
++    at normalizeFile.next (<anonymous>)
++    at run (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transformation/index.ts:39:36)
++    at run.next (<anonymous>)
++    at transform (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/@babel/core/src/transform.ts:29:20)
++    at transform.next (<anonymous>)
++    at step (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:261:32)
++    at /Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:273:13
++    at async.call.result.err.err (/Users/atul/Documents/repository/feyntech/railway-allowance-calculator/node_modules/gensync/index.js:223:11)
++
++web compiled with 1 error and 1 warning
+
+# 2024-07-13 21:11:57.127596
++}
+
+# 2024-07-13 21:13:14.190594
++{
+
+# 2024-07-13 21:13:15.788284
++2MainTable.tsx:427 Uncaught ReferenceError: monthNames is not defined
++    at MainTable.render (MainTable.tsx:427:1)
++    at finishClassComponent (react-dom.development.js:19752:1)
++    at updateClassComponent (react-dom.development.js:19698:1)
++    at beginWork (react-dom.development.js:21611:1)
++    at HTMLUnknownElement.callCallback (react-dom.development.js:4164:1)
++    at Object.invokeGuardedCallbackDev (react-dom.development.js:4213:1)
++    at invokeGuardedCallback (react-dom.development.js:4277:1)
++    at beginWork$1 (react-dom.development.js:27451:1)
++    at performUnitOfWork (react-dom.development.js:26560:1)
++    at workLoopSync (react-dom.development.js:26466:1)
+
+# 2024-07-13 21:13:16.520851
++}
+
+# 2024-07-13 21:14:09.523876
++{
+
+# 2024-07-13 21:14:11.143019
++HomeScreen.tsx:72 Uncaught TypeError: Cannot read properties of undefined (reading 'map')
++    at EmployeeInfo.render (HomeScreen.tsx:72:1)
++    at finishClassComponent (react-dom.development.js:19752:1)
++    at updateClassComponent (react-dom.development.js:19698:1)
++    at beginWork (react-dom.development.js:21611:1)
++    at beginWork$1 (react-dom.development.js:27426:1)
++    at performUnitOfWork (react-dom.development.js:26560:1)
++    at workLoopSync (react-dom.development.js:26466:1)
++    at renderRootSync (react-dom.development.js:26434:1)
++    at recoverFromConcurrentError (react-dom.development.js:25850:1)
++    at performConcurrentWorkOnRoot (react-dom.development.js:25750:1)
+
+# 2024-07-13 21:14:12.344904
++}
+
+# 2024-07-13 21:16:27.337410
++{
+
+# 2024-07-13 21:16:34.199681
++HomeScreen.tsx:72 Uncaught TypeError: Cannot read properties of undefined (reading 'map')
++    at EmployeeInfo.render (HomeScreen.tsx:72:1)
++    at finishClassComponent (react-dom.development.js:19752:1)
++    at updateClassComponent (react-dom.development.js:19698:1)
++    at beginWork (react-dom.development.js:21611:1)
++    at beginWork$1 (react-dom.development.js:27426:1)
++    at performUnitOfWork (react-dom.development.js:26560:1)
++    at workLoopSync (react-dom.development.js:26466:1)
++    at renderRootSync (react-dom.development.js:26434:1)
++    at recoverFromConcurrentError (react-dom.development.js:25850:1)
++    at performConcurrentWorkOnRoot (react-dom.development.js:25750:1)
+
+# 2024-07-13 21:16:35.187263
++}
+
+# 2024-07-13 21:27:53.997298
++/quit

@@ -80,9 +80,10 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         },
       });
     } catch (error) {
+      console.error("Error saving duties:", error);
       this.setState({
         notification: {
-          message: 'Error saving duties',
+          message: 'Error saving duties: ' + (error instanceof Error ? error.message : String(error)),
           type: 'error',
           isVisible: true,
         },

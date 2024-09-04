@@ -1,0 +1,644 @@
+diff --git a/components/arrivalDepartureTImePIcker/ArrivalDepartureTimePicker.tsx b/components/arrivalDepartureTImePIcker/ArrivalDepartureTimePicker.tsx
+index 536af0b..a8f33f3 100644
+--- a/components/arrivalDepartureTImePIcker/ArrivalDepartureTimePicker.tsx
++++ b/components/arrivalDepartureTImePIcker/ArrivalDepartureTimePicker.tsx
+@@ -13,17 +13,21 @@ interface ArrivalDepartureTimePickerProps {
+   onTimesChange: (
+     arrival: string,
+     departure: string,
+-    dutyHours: string
++    dutyHours: string,
+   ) => void;
+   disabled: boolean;
++  initialArrivalTime: string,
++  initialDepartureTime: string
+ }
+ 
+ const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
+   onTimesChange,
+   disabled,
++  initialArrivalTime,
++  initialDepartureTime,
+ }) => {
+-  const [arrivalTime, setArrivalTime] = useState("");
+-  const [departureTime, setDepartureTime] = useState("");
++  const [arrivalTime, setArrivalTime] = useState(initialArrivalTime || "");
++  const [departureTime, setDepartureTime] = useState(initialDepartureTime || "");
+   const [showArrivalPicker, setShowArrivalPicker] = useState(false);
+   const [showDeparturePicker, setShowDeparturePicker] = useState(false);
+ 
+diff --git a/components/duty/Duty.tsx b/components/duty/Duty.tsx
+index 5bd8eeb..f104112 100644
+--- a/components/duty/Duty.tsx
++++ b/components/duty/Duty.tsx
+@@ -12,9 +12,9 @@ class Duty {
+   isRRA: boolean;
+   dutyAllowance: number;
+   dutyDistance: number;
+-  progressiveDutyHours:number;
++  progressiveDutyHours: number;
+   progressiveNightDutyHours: number;
+-  hasEnded: boolean; // Add this line
++  hasEnded: boolean;
+   isLeave: boolean;
+ 
+   constructor(id: number, trips: Trip[] = []) {
+@@ -28,23 +28,16 @@ class Duty {
+     this.isRRA = false;
+     this.dutyAllowance = 0;
+     this.dutyDistance = 0;
+-    this.progressiveDutyHours=0;
+-    this.progressiveNightDutyHours=0;
+-    this.hasEnded = false; // Initialize hasEnded
++    this.progressiveDutyHours = 0;
++    this.progressiveNightDutyHours = 0;
++    this.hasEnded = false;
+     this.isLeave = false;
+   }
+ 
+   toJSON() {
+     return {
+       id: this.id,
+-      trips: this.trips.map(trip => {
+-        if (typeof trip.toJSON === 'function') {
+-          return trip.toJSON();
+-        } else {
+-          // If toJSON is not a function, return the trip object as is
+-          return { ...trip };
+-        }
+-      }),
++      trips: this.trips.map(trip => trip.toJSON()),
+       signIn: this.signIn,
+       signOff: this.signOff,
+       dutyHours: this.dutyHours,
+@@ -59,7 +52,6 @@ class Duty {
+       isLeave: this.isLeave,
+     };
+   }
+-
+   setSignInAndSignOff(signIn: Date, signOff: Date) {
+     this.signIn = signIn;
+     this.signOff = signOff;
+diff --git a/components/duty/DutyInfo.tsx b/components/duty/DutyInfo.tsx
+index 0be234f..120f362 100644
+--- a/components/duty/DutyInfo.tsx
++++ b/components/duty/DutyInfo.tsx
+@@ -53,16 +53,15 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
+               </Text>
+             </View>
+             <View style={styles.infoBlock}>
+-              <Text style={styles.label}>Total Km Earned:</Text>
+-              <Text style={styles.value}>
+-                {duty.calculateTotalAllowance().toFixed(2)}km
+-              </Text>
+-            </View>
+-
+-            <View style={styles.infoBlock}>
+-              <Text style={styles.label}>Total Distance:</Text>
+-              <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
+-            </View>
++            <Text style={styles.label}>Total Km Earned:</Text>
++            <Text style={styles.value}>
++              {duty.dutyAllowance.toFixed(2)}km
++            </Text>
++          </View>
++          <View style={styles.infoBlock}>
++            <Text style={styles.label}>Total Distance:</Text>
++            <Text style={styles.value}>{duty.dutyDistance.toFixed(2)} km</Text>
++          </View>
+             <View style={styles.infoBlock}>
+               <Text style={styles.label}>Duty Hours</Text>
+               <Text style={styles.value}>
+diff --git a/components/duty/DutyRow.tsx b/components/duty/DutyRow.tsx
+index 72077f7..ce78614 100644
+--- a/components/duty/DutyRow.tsx
++++ b/components/duty/DutyRow.tsx
+@@ -176,22 +176,24 @@ const DutyRow: React.FC<DutyRowProps> = ({
+     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
+     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
+     updateTripData(dutyId, tripId, "distance", distance);
+-
++  
+     // Recalculate the allowance based on the new distance
+-    duty.trips.forEach((trip) => {
+-      if (trip.id === tripId) {
+-        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
+-
++    const updatedDuty = duties.find(d => d.id === dutyId);
++    if (updatedDuty) {
++      const updatedTrip = updatedDuty.trips.find(t => t.id === tripId);
++      if (updatedTrip) {
++        const dutyHoursAsNumber = parseFloat(updatedTrip.dutyHours) || 0;
++  
+         const { allowance, remarks } = calculateAllowanceAndRemarks(
+           distance,
+-          trip.typeOfWork,
++          updatedTrip.typeOfWork,
+           dutyHoursAsNumber * 60
+         );
+-
++  
+         updateTripData(dutyId, tripId, "allowance", allowance);
+         updateTripData(dutyId, tripId, "remarks", remarks);
+       }
+-    });
++    }
+   };
+ 
+   const handleTrainNumberChange = (
+@@ -280,43 +282,39 @@ const DutyRow: React.FC<DutyRowProps> = ({
+               )}
+             </View>
+             <View style={styles.dutyTypeContainer}>
+-              <TypeofWorkPickerComponent
+-                TypeofWork={(newValue) =>
+-                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+-                }
+-              />
++            <TypeofWorkPickerComponent
++            TypeofWork={(newValue) => handleTripDataChange(trip.id, "typeOfWork", newValue)}
++            initialValue={trip.typeOfWork}
++          />
++
+             </View>
+             <View style={styles.trainNoContainer}>
+-              <TrainNumberInput
+-                onChange={(trainNumber) =>
+-                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
+-                }
+-                disabled={shouldDisableInputFields(trip.typeOfWork)}
+-                maxLength={7}
+-              />
++            <TrainNumberInput
++              onChange={(trainNumber) => handleTrainNumberChange(trainNumber, duty.id, trip.id)}
++              initialValue={trip.trainNumber}
++              disabled={shouldDisableInputFields(trip.typeOfWork)}
++            />
+             </View>
+             <View style={styles.stationsContainer}>
+-              <PickerComponentStation
+-                onStationChange={handleStationChange}
+-                dutyId={duty.id}
+-                tripId={trip.id}
+-                disabled={shouldDisableInputFields(trip.typeOfWork)}
+-                maxLength={5}
+-                duty={duty}
+-              />
++            <PickerComponentStation
++              onStationChange={handleStationChange}
++              dutyId={duty.id}
++              tripId={trip.id}
++              initialSourceStation={trip.sourceStation}
++              initialDestinationStation={trip.destinationStation}
++              disabled={shouldDisableInputFields(trip.typeOfWork)}
++              duty={duty}
++            />
+             </View>
+             <View style={styles.timePickerContainer}>
+-              <ArrivalDepartureTimePicker
+-                onTimesChange={(arrivalTime, departureTime, dutyHours) =>
+-                  handleTimesChange(
+-                    trip.id,
+-                    arrivalTime,
+-                    departureTime,
+-                    dutyHours
+-                  )
+-                }
+-                disabled={shouldDisableInputFields(trip.typeOfWork)}
+-              />
++            <ArrivalDepartureTimePicker
++              onTimesChange={(arrivalTime, departureTime, dutyHours) =>
++                handleTimesChange(trip.id, arrivalTime, departureTime, dutyHours)
++              }
++              initialArrivalTime={trip.arrivalTime}
++              initialDepartureTime={trip.departureTime}
++              disabled={shouldDisableInputFields(trip.typeOfWork)}
++            />
+             </View>
+             <View style={styles.durationContainer}>
+               <Text style={styles.durationText}>{trip.dutyHours}</Text>
+diff --git a/components/main-table/MainTable.tsx b/components/main-table/MainTable.tsx
+index aba5a38..021085b 100644
+--- a/components/main-table/MainTable.tsx
++++ b/components/main-table/MainTable.tsx
+@@ -9,7 +9,7 @@ import EndDutyModal from "../end-duty-modal/EndDutyModal";
+ import Modal from "../modal/Modal";
+ import SummaryBlock from "../summary-block/SummaryBlock";
+ import FortnightBlock from "../fortnight-block/FortnightBlock";
+-import { saveDutiesToFirestore } from "./saveDutiesToFirestore";
++import { loadMainTableStateFromFirestore, saveMainTableStateToFirestore } from "./saveMainTableStateToFirestore";
+ import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
+ import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
+ import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
+@@ -29,7 +29,7 @@ if (Platform.OS === "web") {
+ 
+ class MainTable extends React.Component<MainTableProps, MainTableState> {
+   state: MainTableState = {
+-    duties: [createDefaultDuty(1, this.props.selectedMonth)],
++    duties: [],
+     showModal: false,
+     selectedDuty: null,
+     totalLeaves: 0,
+@@ -38,6 +38,39 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
+     fortnights: [],
+   };
+ 
++  async componentDidMount() {
++    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
++    if (loadedState) {
++      this.setState(loadedState);
++    } else {
++      this.setState({
++        duties: [createDefaultDuty(1, this.props.selectedMonth)],
++      });
++    }
++  }
++
++  initializeState = async () => {
++    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
++    if (loadedState && loadedState.duties.length > 0) {
++      this.setState(loadedState);
++    } else {
++      // If no state was loaded, create a default duty
++      const defaultDuty = createDefaultDuty(1, this.props.selectedMonth);
++      this.setState({ duties: [defaultDuty] });
++    }
++  };
++
++  loadState = async () => {
++    const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
++    if (loadedState) {
++      this.setState(loadedState);
++    }
++  };
++
++  saveDuties = () => {
++    saveMainTableStateToFirestore(this.state, this.props.selectedMonth);
++  };
++
+   addDuty = () => {
+     this.setState((prevState) => {
+       const monthNumber = monthNames[this.props.selectedMonth];
+@@ -263,48 +296,25 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
+     dutyId: number,
+     tripId: number,
+     field: keyof Trip,
+-    value: string | number
++    value: any
+   ) => {
+-    this.setState(
+-      (prevState) => ({
+-        duties: prevState.duties.map((duty) => {
+-          if (duty.id === dutyId) {
+-            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+-            if (tripToUpdate) {
+-              const updatedTrip = { ...tripToUpdate, [field]: value };
+-              if (field === "typeOfWork") {
+-                const isLeave = leaveTypes.includes(value as string);
+-                const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
+-                if (isLeave && !wasLeave) {
+-                  this.setState((prevState) => ({
+-                    totalLeaves: prevState.totalLeaves + 1,
+-                  }));
+-                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
+-                  updatedTrip.arrivalTime = "";
+-                  updatedTrip.departureTime = "";
+-                  updatedTrip.sourceStation = "";
+-                  updatedTrip.destinationStation = "";
+-                  duty.signIn = null;
+-                  duty.signOff = null;
+-                  duty.isLeave = true;
+-                } else if (!isLeave && wasLeave) {
+-                  this.setState((prevState) => ({
+-                    totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
+-                  }));
+-                }
+-              }
+-
+-              duty.updateTrip(tripId, updatedTrip);
++    this.setState(prevState => ({
++      duties: prevState.duties.map(duty => {
++        if (duty.id === dutyId) {
++          const updatedTrips = duty.trips.map(trip => {
++            if (trip.id === tripId) {
++              return { ...trip, [field]: value };
+             }
+-          }
+-          return duty;
+-        }),
+-      }),
+-      () => {
+-        // Call handleDutiesChange after state is updated
+-        this.handleDutiesChange(this.state.duties);
+-      }
+-    );
++            return trip;
++          });
++          return new Duty(duty.id, updatedTrips);
++        }
++        return duty;
++      })
++    }), () => {
++      // After state update, you might want to trigger any necessary recalculations
++      this.handleDutiesChange(this.state.duties);
++    });
+   };
+ 
+   calculateTotalDutyAllowance = () => {
+@@ -347,11 +357,6 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
+     return totalNightDutyHours;
+   };
+ 
+-  saveDuties = () => {
+-    // Implement the save functionality here
+-    saveDutiesToFirestore(this.state.duties, this.props.selectedMonth);
+-  };
+-
+   deleteDuty = (dutyId: number) => {
+     this.setState((prevState) => {
+       const updatedDuties = prevState.duties.filter(
+diff --git a/components/main-table/saveDutiesToFirestore.ts b/components/main-table/saveDutiesToFirestore.ts
+deleted file mode 100644
+index 55511a3..0000000
+--- a/components/main-table/saveDutiesToFirestore.ts
++++ /dev/null
+@@ -1,76 +0,0 @@
+-import { db, auth } from "../../firebase/firebaseConfig";
+-import firebase from 'firebase/compat/app';
+-
+-export const saveDutiesToFirestore = async (duties, selectedMonth) => {
+-  try {
+-    const user = auth.currentUser;
+-    if (!user) {
+-      throw new Error("User is not authenticated");
+-    }
+-
+-    const dutiesData = duties.map(duty => ({
+-      ...duty.toJSON(),
+-      signIn: duty.signIn ? firebase.firestore.Timestamp.fromDate(duty.signIn) : null,
+-      signOff: duty.signOff ? firebase.firestore.Timestamp.fromDate(duty.signOff) : null,
+-      trips: duty.trips.map(trip => ({
+-        ...trip,
+-        date: trip.date || null,
+-        departureTime: trip.departureTime || '',
+-        arrivalTime: trip.arrivalTime || '',
+-        distance: Number(trip.distance) || 0,
+-        allowance: Number(trip.allowance) || 0,
+-      })),
+-    }));
+-
+-    await db.collection("duties").doc(selectedMonth).set({
+-      duties: dutiesData,
+-      userId: user.uid
+-    }, { merge: true });
+-    console.log("Duties successfully saved to Firestore!");
+-  } catch (error) {
+-    console.error("Error saving duties to Firestore: ", error);
+-    if (error.code === 'permission-denied') {
+-      console.error("Permission denied. Please check Firestore rules.");
+-    }
+-    throw error;
+-  }
+-};
+-
+-export const loadDutiesFromFirestore = async (selectedMonth) => {
+-  try {
+-    const user = auth.currentUser;
+-    if (!user) {
+-      console.log("User is not authenticated");
+-      return null;
+-    }
+-
+-    console.log("Attempting to load duties for user:", user.uid);
+-    console.log("Selected month:", selectedMonth);
+-
+-    const docRef = db.collection("duties").doc(selectedMonth);
+-    const doc = await docRef.get();
+-
+-    if (doc.exists) {
+-      const data = doc.data();
+-      if (data && data.userId === user.uid) {
+-        console.log("Duties loaded successfully");
+-        return data.duties;
+-      } else {
+-        console.log("No duties found for the current user in this month");
+-        return null;
+-      }
+-    } else {
+-      console.log("No document found for the selected month");
+-      return null;
+-    }
+-  } catch (error) {
+-    console.error("Error loading duties from Firestore: ", error);
+-    if (error.code === 'permission-denied') {
+-      console.error("Permission denied. Please check Firestore rules.");
+-      console.error("Current user UID:", auth.currentUser?.uid);
+-      console.error("Attempted to access document:", selectedMonth);
+-      console.error("Firestore rules might be incorrect. Please review them.");
+-    }
+-    return null;
+-  }
+-};
+diff --git a/components/main-table/utils.ts b/components/main-table/utils.ts
+index b3f48ce..466ee32 100644
+--- a/components/main-table/utils.ts
++++ b/components/main-table/utils.ts
+@@ -2,12 +2,18 @@ import Duty from "../duty/Duty";
+ import Trip from "../trip/Trip";
+ import { monthNames } from "../../utils/constants";
+ 
++export const createDefaultDuty = (id: number, selectedMonth: string): Duty => {
++  const trip = createDefaultTrip(selectedMonth);
++  const duty = new Duty(id, [trip]);
++  duty.hasEnded = false;  // Ensure this is set
++  return duty;
++};
++
+ export const createDefaultTrip = (selectedMonth: string): Trip => {
+   const monthNumber = monthNames[selectedMonth];
+   const paddedMonth = String(monthNumber).padStart(2, "0");
+ 
+-  return {
+-    id: 1,
++  return new Trip(1, {
+     date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+     typeOfWork: "",
+     arrivalTime: "",
+@@ -20,12 +26,7 @@ export const createDefaultTrip = (selectedMonth: string): Trip => {
+     allowance: 1,
+     remarks: "",
+     dutyHours: "",
+-  };
+-};
+-
+-export const createDefaultDuty = (id: number, selectedMonth: string): Duty => {
+-  const trip = createDefaultTrip(selectedMonth);
+-  return new Duty(id, [trip]);
++  });
+ };
+ 
+ export const calculateTotalDutyHours = (duties: Duty[]): number => {
+diff --git a/components/station-picker/stationpicker.tsx b/components/station-picker/stationpicker.tsx
+index a3f407e..5abc6ec 100644
+--- a/components/station-picker/stationpicker.tsx
++++ b/components/station-picker/stationpicker.tsx
+@@ -16,6 +16,8 @@ interface PickerComponentStationProps {
+   tripId: number;
+   disabled: boolean;
+   duty: Duty;
++  initialSourceStation: string;
++  initialDestinationStation: string;
+ }
+ 
+ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
+@@ -24,32 +26,28 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
+   tripId,
+   disabled,
+   duty,
++  initialSourceStation,
++  initialDestinationStation,
+ }) => {
+-  const [fromStation, setFromStation] = useState("");
+-  const [toStation, setToStation] = useState("");
+-
+-  const currentTripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
+-  const previousTrip =
+-    currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
+-  const previousTripDestinationStation = previousTrip
+-    ? previousTrip.destinationStation
+-    : "";
++  const [fromStation, setFromStation] = useState(initialSourceStation || "");
++  const [toStation, setToStation] = useState(initialDestinationStation || "");
+ 
+   useEffect(() => {
+-    setFromStation(previousTripDestinationStation || "");
+-  }, [previousTripDestinationStation]);
++    setFromStation(initialSourceStation || "");
++    setToStation(initialDestinationStation || "");
++  }, [initialSourceStation, initialDestinationStation]);
+ 
+   const handleFromStationChange = (selectedStation: string) => {
+     setFromStation(selectedStation);
+-    updateToStationAndDistance(selectedStation, toStation);
++    updateStationAndDistance(selectedStation, toStation);
+   };
+ 
+   const handleToStationChange = (selectedStation: string) => {
+     setToStation(selectedStation);
+-    updateToStationAndDistance(fromStation, selectedStation);
++    updateStationAndDistance(fromStation, selectedStation);
+   };
+ 
+-  const updateToStationAndDistance = (from: string, to: string) => {
++  const updateStationAndDistance = (from: string, to: string) => {
+     const combo = combinations.find(
+       (c) => c.from_station === from && c.to_station === to
+     );
+diff --git a/components/trainNumber.tsx b/components/trainNumber.tsx
+index 5235a32..136514e 100644
+--- a/components/trainNumber.tsx
++++ b/components/trainNumber.tsx
+@@ -4,10 +4,11 @@ import { View, TextInput, StyleSheet } from 'react-native';
+ interface TrainNumberInputProps {
+   onChange: (trainNumber: string) => void;
+   disabled: boolean;
++  initialValue: string;
+ }
+ 
+-const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange,disabled }) => {
+-  const [trainNumber, setTrainNumber] = useState('');
++const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange, disabled, initialValue }) => {
++  const [trainNumber, setTrainNumber] = useState(initialValue || '');
+ 
+   const handleInputChange = (text: string) => {
+     setTrainNumber(text);
+diff --git a/components/trip/Trip.tsx b/components/trip/Trip.tsx
+index 1620f2b..d4c66c0 100644
+--- a/components/trip/Trip.tsx
++++ b/components/trip/Trip.tsx
+@@ -2,31 +2,31 @@ class Trip {
+   id: number;
+   date: string;
+   typeOfWork: string;
+-  trainNumber:string;
++  trainNumber: string;
+   departureTime: string;
+   arrivalTime: string;
+   timeDifference: number;
+   sourceStation: string;
+   destinationStation: string;
+   distance: number;
+-  dutyHours:string;
+   allowance: number;
+   remarks: string;
++  dutyHours: string;
+ 
+-  constructor(id: number) {
++  constructor(id: number, data?: Partial<Trip>) {
+     this.id = id;
+-    this.date = "";
+-    this.typeOfWork = "";
+-    this.departureTime = "";
+-    this.arrivalTime = "";
+-    this.timeDifference = 0;
+-    this.sourceStation = "";
+-    this.destinationStation = "";
+-    this.distance = 0;
+-    this.allowance = 0;
+-    this.trainNumber="";
+-    this.remarks = "";
+-    this.dutyHours="";
++    this.date = data?.date || "";
++    this.typeOfWork = data?.typeOfWork || "";
++    this.trainNumber = data?.trainNumber || "";
++    this.departureTime = data?.departureTime || "";
++    this.arrivalTime = data?.arrivalTime || "";
++    this.timeDifference = data?.timeDifference || 0;
++    this.sourceStation = data?.sourceStation || "";
++    this.destinationStation = data?.destinationStation || "";
++    this.distance = data?.distance || 0;
++    this.allowance = data?.allowance || 0;
++    this.remarks = data?.remarks || "";
++    this.dutyHours = data?.dutyHours || "";
+   }
+ 
+   toJSON() {
+@@ -34,15 +34,15 @@ class Trip {
+       id: this.id,
+       date: this.date,
+       typeOfWork: this.typeOfWork,
+-      arrivalTime: this.arrivalTime,
++      trainNumber: this.trainNumber,
+       departureTime: this.departureTime,
++      arrivalTime: this.arrivalTime,
+       timeDifference: this.timeDifference,
+       sourceStation: this.sourceStation,
+       destinationStation: this.destinationStation,
+       distance: this.distance,
+       allowance: this.allowance,
+       remarks: this.remarks,
+-      trainNumber: this.trainNumber,
+       dutyHours: this.dutyHours,
+     };
+   }
+diff --git a/components/type-of-work/typeofwork.tsx b/components/type-of-work/typeofwork.tsx
+index 18b3f8c..44412ee 100644
+--- a/components/type-of-work/typeofwork.tsx
++++ b/components/type-of-work/typeofwork.tsx
+@@ -6,12 +6,15 @@ import { pickerItems } from "../../utils/constants";
+ 
+ interface TypeofWorkPickerComponentProps {
+   TypeofWork: (newValue: string) => void;
++  initialValue: string;
+ }
+ 
++
+ const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({
+   TypeofWork,
++  initialValue,
+ }) => {
+-  const [ChoosenItem, setChoosenItem] = useState("");
++  const [ChoosenItem, setChoosenItem] = useState(initialValue || "");
+ 
+   const commonPickerStyle = {
+     height: 40,

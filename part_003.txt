@@ -1,0 +1,2754 @@
+    { from_station: "ZARP", to_station: "UD", distance: 338.6 },
+    { from_station: "ZARP", to_station: "UKC", distance: 169.338 },
+    { from_station: "ZARP", to_station: "VBW", distance: 69.357 },
+    { from_station: "ZARP", to_station: "VEER", distance: 306.415 },
+    { from_station: "ZARP", to_station: "VEN", distance: 76.5 },
+    { from_station: "ZARP", to_station: "VID", distance: 102.582 },
+    { from_station: "ZARP", to_station: "VINH", distance: 280.4 },
+    { from_station: "ZARP", to_station: "VRLI", distance: 108.07 },
+    { from_station: "ZARP", to_station: "VSG", distance: 89.8 },
+    { from_station: "ZARP", to_station: "YDM", distance: 473.394 },
+  ];
+
+export default combinations;
+
+
+File: ./components/main-table/MainTablestyles.tsx
+----------------------------------------
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  dutyTable: {
+    borderCollapse: 'collapse',
+    width: '100%',
+  },
+  dutyTableCell: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    padding: 8,
+    textAlign: 'left',
+  },
+  dutyTableHeader: {
+    backgroundColor: '#f2f2f2',
+    fontWeight: 'bold',
+  },
+  dutySeparator: {
+    borderTopWidth: 2,
+    borderTopColor: '#999',
+    padding: 4,
+  },
+  dutyTableButton: {
+    padding: 6,
+    paddingHorizontal: 12,
+    backgroundColor: '#4caf50',
+    color: 'white',
+  },
+  tableContainer: {
+    overflow: 'scroll',
+    maxHeight: '80vh',
+    width: '100%',
+  },
+  tableContainerScrollBar: {
+    width: 10,
+    height: 10,
+  },
+  tableContainerScrollBarThumb: {
+    backgroundColor: 'darkgrey',
+    borderRadius: 10,
+  },
+  tableContainerScrollBarTrack: {
+    backgroundColor: '#f1f1f1',
+  },
+});
+
+
+File: ./components/main-table/MainTable.tsx
+----------------------------------------
+import React from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+  FlatList,
+  Button,
+  Platform,
+} from "react-native";
+import Duty from "../duty/Duty";
+import { leaveTypes, monthNames } from "../../utils/constants";
+import DutyRow from "../duty/DutyRow";
+import EndDutyModal from "../end-duty-modal/EndDutyModal";
+import Modal from "../modal/Modal";
+import { NavigationProp } from "@react-navigation/native";
+import SummaryBlock from "../summary-block/SummaryBlock";
+import calculateLeaveMileage from "../allowancecalculation/leaveMileage";
+import calculateDearnessAllowance from "../allowancecalculation/dearnessAllowance";
+import calculateTransportationAllowance from "../allowancecalculation/transportationAllowance";
+import calculateOsdaAllowance from "../allowancecalculation/osdaAllowance";
+import computeNightDutyAllowance from "../allowancecalculation/nightDutyAllowance";
+import mileageCalculation from "../allowancecalculation/mileageCalculation";
+import PdfGeneratorMobile from "../pdfGeneration/PdfGenerator.mobile";
+import Trip from "../trip/Trip";
+import FortnightBlock from "../fortnight-block/FortnightBlock";
+import Fortnight from "../fortnight-block/Fortnight";
+
+let PDFGenerator: JSX.IntrinsicAttributes | null = null;
+if (Platform.OS === "web") {
+  PDFGenerator = require("../pdfGeneration/PDFGenerator").default;
+}
+
+interface MainTableProps {
+  navigation: NavigationProp<any>;
+  selectedMonth: string;
+  rateOfPay: Number;
+  designation: string;
+}
+
+interface MainTableState {
+  duties: Duty[];
+  showModal: boolean;
+  selectedDuty: Duty | null;
+  totalLeaves: number;
+  overtimeResult: OverTimeCalculationResult | null;
+  progressiveDutyHours: number;
+  fortnights: Fortnight[];
+}
+
+class MainTable extends React.Component<MainTableProps, MainTableState> {
+  state: MainTableState = {
+    duties: [],
+    showModal: false,
+    selectedDuty: null,
+    totalLeaves: 0,
+    overtimeResult: 0,
+    progressiveDutyHours: 0,
+    fortnights: [],
+  };
+
+  constructor(props: MainTableProps) {
+    super(props);
+    const monthNumber = monthNames[this.props.selectedMonth];
+    const paddedMonth = String(monthNumber).padStart(2, "0");
+
+    const trip: Trip = {
+      id: 1,
+      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+      typeOfWork: "",
+      arrivalTime: "",
+      departureTime: "",
+      timeDifference: 0,
+      sourceStation: "",
+      destinationStation: "",
+      trainNumber: "",
+      distance: 0,
+      allowance: 1,
+      remarks: "",
+      dutyHours: "",
+    };
+
+    const duty: Duty = new Duty(1, [trip]);
+
+    this.state = {
+      duties: [duty],
+      showModal: false,
+      selectedDuty: null,
+      totalLeaves: 0,
+    };
+  }
+
+  addDuty = () => {
+    const monthNumber = monthNames[this.props.selectedMonth];
+    const paddedMonth = String(monthNumber).padStart(2, "0");
+    const newTrip: Trip = {
+      id: 1,
+      date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+      typeOfWork: "",
+      arrivalTime: "",
+      departureTime: "",
+      timeDifference: 0,
+      sourceStation: "",
+      destinationStation: "",
+      distance: 0,
+      allowance: 0,
+      remarks: "",
+      trainNumber: "",
+      dutyHours: "",
+    };
+
+    const newDuty = new Duty(this.state.duties.length + 1, [newTrip]);
+    this.setState((prevState) => ({
+      duties: [...prevState.duties, newDuty],
+    }));
+  };
+
+  addTrip = (dutyId: number) => {
+    this.setState((prevState) => ({
+      duties: prevState.duties.map((duty) => {
+        if (duty.id === dutyId) {
+          const monthNumber = monthNames[this.props.selectedMonth];
+          const paddedMonth = String(monthNumber).padStart(2, "0");
+          const newTrip: Trip = {
+            id: duty.trips.length + 1,
+            date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+            typeOfWork: "",
+            arrivalTime: "",
+            departureTime: "",
+            timeDifference: 0,
+            sourceStation: "",
+            destinationStation: "",
+            distance: 0,
+            allowance: 0,
+            remarks: "",
+            trainNumber: "",
+            dutyHours: "",
+          };
+          return new Duty(duty.id, [...duty.trips, newTrip]);
+        }
+        return duty;
+      }),
+    }));
+  };
+
+  handleEndDuty = (duty: Duty) => {
+    this.setState((prevState) => {
+      const updatedDuties = prevState.duties.map((d) => {
+        if (d.id === duty.id) {
+          return duty;
+        }
+        return d;
+      });
+
+      // Filter non-leave duties
+      const nonLeaveDuties = updatedDuties.filter((d) => !d.isLeave);
+
+      // Sort duties by signIn time
+      const sortedDuties = nonLeaveDuties.sort((a, b) => {
+        return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
+      });
+
+      // Calculate cumulative night duty hours and update progressive night duty
+      let cumulativeNightDutyHours = 0;
+      sortedDuties.forEach((d) => {
+        cumulativeNightDutyHours += d.nightDutyHours;
+        d.progressiveNightDutyHours = cumulativeNightDutyHours;
+      });
+
+      return {
+        duties: updatedDuties,
+        selectedDuty: duty,
+        showModal: true,
+      };
+    });
+  };
+
+  updateProgressiveNightDutyHours = () => {
+    this.setState((prevState) => {
+      const duties = [...prevState.duties];
+
+      // Filter duties with signIn and signOff
+      const completedDuties = duties.filter(
+        (duty) => duty.signIn && duty.signOff
+      );
+
+      // Sort completed duties by signIn time
+      const sortedDuties = completedDuties.sort((a, b) => {
+        return new Date(a.signIn).getTime() - new Date(b.signIn).getTime();
+      });
+
+      // Calculate cumulative night duty hours and update progressive night duty
+      let cumulativeNightDutyHours = 0;
+      sortedDuties.forEach((duty) => {
+        if (!duty.isLeave) {
+          cumulativeNightDutyHours += duty.nightDutyHours;
+          duty.progressiveNightDutyHours = cumulativeNightDutyHours;
+        }
+      });
+
+      return {
+        duties: duties,
+      };
+    });
+  };
+
+  updateDutyDetails = (updatedDuty: Duty) => {
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === updatedDuty.id) {
+            return updatedDuty;
+          }
+          return duty;
+        }),
+        showModal: false,
+      }),
+      () => {
+        // Call updateProgressiveNightDutyHours after the state is updated
+        if (updatedDuty.signIn && updatedDuty.signOff) {
+          this.updateProgressiveNightDutyHours();
+        }
+      }
+    );
+  };
+
+  updateTripData = (
+    dutyId: number,
+    tripId: number,
+    field: keyof Trip,
+    value: string | number
+  ) => {
+    this.setState(
+      (prevState) => ({
+        duties: prevState.duties.map((duty) => {
+          if (duty.id === dutyId) {
+            const tripToUpdate = duty.trips.find((trip) => trip.id === tripId);
+            if (tripToUpdate) {
+              const updatedTrip = { ...tripToUpdate, [field]: value };
+              if (field === "typeOfWork") {
+                const isLeave = leaveTypes.includes(value as string);
+                const wasLeave = leaveTypes.includes(tripToUpdate.typeOfWork);
+                if (isLeave && !wasLeave) {
+                  this.setState((prevState) => ({
+                    totalLeaves: prevState.totalLeaves + 1,
+                  }));
+                  // Reset arrival and departure time, sign-on and sign-off times, and arrival and departure stations
+                  updatedTrip.arrivalTime = "";
+                  updatedTrip.departureTime = "";
+                  updatedTrip.sourceStation = "";
+                  updatedTrip.destinationStation = "";
+                  duty.signIn = null;
+                  duty.signOff = null;
+                  duty.isLeave = true;
+                } else if (!isLeave && wasLeave) {
+                  this.setState((prevState) => ({
+                    totalLeaves: Math.max(prevState.totalLeaves - 1, 0),
+                  }));
+                }
+              }
+
+              duty.updateTrip(tripId, updatedTrip);
+            }
+          }
+          return duty;
+        }),
+      }),
+      () => {
+        // Call handleDutiesChange after state is updated
+        this.handleDutiesChange(this.state.duties);
+      }
+    );
+  };
+
+  calculateTotalDutyAllowance = () => {
+    const { duties } = this.state;
+    const totalAllowance = duties.reduce(
+      (acc, duty) => acc + duty.dutyAllowance,
+      0
+    );
+    return totalAllowance;
+  };
+
+  isPreviousDutyEnded = () => {
+    const { duties } = this.state;
+    const lastDuty = duties[duties.length - 1];
+    if (!lastDuty) {
+      return false;
+    }
+    return lastDuty.hasEnded;
+  };
+
+  deleteTrip = (dutyId: number, tripId: number) => {
+    this.setState((prevState) => ({
+      duties: prevState.duties.map((duty) => {
+        if (duty.id === dutyId) {
+          const updatedTrips = duty.trips.filter((trip) => trip.id !== tripId);
+          return new Duty(duty.id, updatedTrips);
+        }
+        return duty;
+      }),
+    }));
+  };
+
+  calculateTotalNightDutyHours = (): number => {
+    const { duties } = this.state;
+    const totalNightDutyHours = duties.reduce(
+      (acc, duty) => acc + duty.nightDutyHours,
+      0
+    );
+
+    return totalNightDutyHours;
+  };
+
+  deleteDuty = (dutyId: number) => {
+    this.setState((prevState) => {
+      const updatedDuties = prevState.duties.filter(
+        (duty) => duty.id !== dutyId
+      );
+
+      // If all the duties are deleted, there should be a default duty present.
+
+      if (updatedDuties.length === 0) {
+        const monthNumber = monthNames[this.props.selectedMonth];
+        const paddedMonth = String(monthNumber).padStart(2, "0");
+
+        const newTrip: Trip = {
+          id: 1,
+          date: `${new Date().getFullYear()}-${paddedMonth}-01`,
+          typeOfWork: "",
+          arrivalTime: "",
+          departureTime: "",
+          timeDifference: 0,
+          sourceStation: "",
+          destinationStation: "",
+          distance: 0,
+          allowance: 0,
+          remarks: "",
+          trainNumber: "",
+          dutyHours: "",
+        };
+
+        const newDuty = new Duty(1, [newTrip]);
+        return { duties: [newDuty] };
+      }
+
+      return { duties: updatedDuties };
+    });
+  };
+
+  setTotalLeaves = (newTotalLeaves: number) => {
+    this.setState({ totalLeaves: newTotalLeaves });
+  };
+
+  handleDutiesChange = (updatedDuties: Duty[] | any[]) => {
+    let startDate = null;
+    if (updatedDuties.length > 0 && updatedDuties[0].trips.length > 0) {
+      const firstTripDate = updatedDuties[0].trips[0].date;
+      if (firstTripDate) {
+        startDate = new Date(firstTripDate);
+      }
+    }
+  };
+
+  handleOvertimeAllowanceChange = (newAllowance: number) => {
+    this.setState({ overtimeResult: newAllowance });
+  };
+
+  handleFortnightsChange = (fortnights: Fortnight[]) => {
+    this.setState({ fortnights });
+  };
+
+  render() {
+    const { overtimeResult, fortnights } = this.state;
+
+    const { duties, showModal, selectedDuty, totalLeaves } = this.state;
+    const { rateOfPay, selectedMonth, designation, payBand, level } =
+      this.props;
+
+    let startDate = ""; // Default to an empty string
+
+    if (duties.length > 0 && duties[0].trips.length > 0) {
+      startDate = duties[0].trips[0].date;
+    }
+
+    // Calculate the number of days in the month from the first trip date if available// Assuming selectedMonth is passed as a prop and is the full name of the month
+    const year = new Date().getFullYear(); // Use the current year or another relevant year
+
+    let daysInMonth = 1;
+    if (selectedMonth && monthNames[selectedMonth]) {
+      const month = monthNames[selectedMonth];
+      daysInMonth = new Date(year, month, 0).getDate(); // Get the total number of days in the selected month
+    }
+
+    // Calculate leave mileage allowance
+    const { leaveMileageAllowance } = calculateLeaveMileage({
+      rateOfPay,
+      daysInMonth,
+      duties,
+    });
+
+    // Calculate total kilometers from duties
+    let totalKilometers = duties.reduce((acc, duty) => {
+      const dutyDistance = duty.trips.reduce(
+        (tripAcc, trip) =>
+          tripAcc + (typeof trip.distance === "number" ? trip.distance : 0),
+        0
+      );
+      return acc + dutyDistance;
+    }, 0);
+
+    const totalDutyAllowance = this.calculateTotalDutyAllowance();
+    const mileage = mileageCalculation(designation, totalDutyAllowance); // Example mileage rate, replace as needed
+
+    const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
+    const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
+    const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
+    const transportationAllowance =
+      calculateTransportationAllowance(designation);
+    const totalNightDutyHours = this.calculateTotalNightDutyHours();
+    const nightDutyAllowance = computeNightDutyAllowance(
+      rateOfPay,
+      dearnessAllowance,
+      totalNightDutyHours
+    );
+    const osdaCount = this.state.duties.reduce(
+      (count, duty) => (duty.isOSDA ? count + 1 : count),
+      0
+    );
+    const rraCount = this.state.duties.reduce(
+      (count, duty) => (duty.isRRA ? count + 1 : count),
+      0
+    );
+
+    const osdaAllowance = calculateOsdaAllowance(designation, osdaCount);
+
+    const totalAllowance =
+      mileage +
+      nightDutyAllowance +
+      osdaAllowance +
+      leaveMileageAllowance +
+      overtimeResult; // OT to be added
+
+    const lastDuty = duties[duties.length - 1];
+    // const progressiveDutyHours = lastDuty ? lastDuty.progressiveDutyHours : 0;
+    const grandTotalAllowance =
+      (nightDutyAllowance || 0) +
+      (leaveMileageAllowance || 0) +
+      (osdaAllowance || 0);
+
+    const calculateTotalDutyHours = (duties: Duty[]): number => {
+      return duties.reduce((total, duty) => {
+        return (
+          total +
+          duty.trips.reduce((dutyTotal, trip) => {
+            const dutyHours = parseFloat(trip.dutyHours);
+            return dutyTotal + (isNaN(dutyHours) ? 0 : dutyHours);
+          }, 0)
+        );
+      }, 0);
+    };
+
+    const totalDutyHours = calculateTotalDutyHours(duties);
+
+    return (
+      <ScrollView
+        horizontal
+        style={styles.container}
+        contentContainerStyle={styles.horizontalContent}
+      >
+        <View style={styles.tableContainer}>
+          <FlatList
+            data={duties}
+            renderItem={({ item: duty }) => (
+              <DutyRow
+                key={duty.id}
+                duty={duty}
+                addTrip={this.addTrip}
+                handleEndDuty={this.handleEndDuty}
+                updateTripData={this.updateTripData}
+                selectedMonth={selectedMonth}
+                deleteTrip={this.deleteTrip}
+                setTotalLeaves={this.setTotalLeaves}
+                deleteDuty={this.deleteDuty}
+              />
+            )}
+          />
+        </View>
+        <View style={styles.buttonContainer}>
+          <View style={styles.addDuty}>
+            <Button
+              title="Add Duty"
+              onPress={this.addDuty}
+              disabled={!this.isPreviousDutyEnded()}
+              color={colors.primary}
+            />
+          </View>
+          <View style={styles.addDuty}>
+            {Platform.OS === "web" && (
+              <PDFGenerator
+                duties={duties}
+                designation={designation}
+                payBand={payBand}
+                level={level}
+                rateOfPay={rateOfPay}
+                selectedMonth={selectedMonth}
+                totalAllowance={totalDutyAllowance}
+                mileage={mileage}
+                nightDutyAllowance={nightDutyAllowance}
+                leaveMileageAllowance={leaveMileageAllowance}
+                dearnessAllowance={dearnessAllowance}
+                progressiveDutyHours={totalDutyHours}
+                rraOsda={osdaAllowance}
+                overtimeResult={overtimeResult}
+                grandTotalAllowance={totalAllowance}
+                fortnights={fortnights}
+              />
+            )}
+            {Platform.OS !== "web" && (
+              <PdfGeneratorMobile
+                duties={duties}
+                designation={designation}
+                payBand={payBand}
+                level={level}
+                rateOfPay={rateOfPay}
+                selectedMonth={selectedMonth}
+                mileage={mileage}
+                nightDutyAllowance={nightDutyAllowance}
+                leaveMileageAllowance={leaveMileageAllowance}
+                dearnessAllowance={dearnessAllowance}
+                progressiveDutyHours={totalDutyHours}
+                overtimeResult={overtimeResult}
+              />
+            )}
+          </View>
+        </View>
+        <FortnightBlock
+          selectedMonth={selectedMonth}
+          duties={duties}
+          rateOfPay={Number(rateOfPay)}
+          dearnessAllowance={dearnessAllowance}
+          transportationAllowance={transportationAllowance}
+          totalOvertimeAllowance={overtimeResult}
+          onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
+          onFortnightsChange={this.handleFortnightsChange}
+        />
+        {duties.length > 0 && (
+          <ScrollView>
+            <SummaryBlock
+              totalAllowance={totalDutyAllowance}
+              totalKilometers={totalKilometers}
+              mileage={mileage}
+              nightDutyAllowance={nightDutyAllowance}
+              nationalHolidayAllowance={nationalHolidayAllowance}
+              leaveMileageAllowance={leaveMileageAllowance}
+              overTimeAllowance={overTimeAllowance}
+              dearnessAllowance={dearnessAllowance}
+              transportationAllowance={transportationAllowance}
+              startDate={startDate}
+              endDate={""}
+              rraOsda={osdaAllowance}
+              daysInMonth={daysInMonth}
+              grandTotalAllowance={totalAllowance}
+              overtimeResult={overtimeResult}
+            />
+          </ScrollView>
+        )}
+        <Modal
+          isOpen={showModal}
+          onClose={() => this.setState({ showModal: false })}
+        >
+          {selectedDuty && (
+            <EndDutyModal
+              duty={selectedDuty}
+              updateDutyDetails={this.updateDutyDetails}
+              closeModal={() => this.setState({ showModal: false })}
+              selectedMonth={selectedMonth}
+            />
+          )}
+        </Modal>
+      </ScrollView>
+    );
+  }
+}
+
+const colors = {
+  primary: "#007AFF",
+  border: "#CCCCCC",
+  // Add more colors as needed
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  horizontalContent: {
+    flexDirection: "column",
+    flexGrow: 1,
+    padding: 16,
+  },
+  summaryBlockContainer: {
+    height: "15%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
+  },
+  tableContainer: {
+    maxHeight: "70%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 16,
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "50%",
+    // marginBottom: 16,
+  },
+  addDuty: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  summaryBlockContainer: {
+    height: "15%",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 16,
+  },
+});
+
+export default MainTable;
+
+
+
+File: ./components/allowancecalculation/mileageCalculation.tsx
+----------------------------------------
+import { DESIGNATION_MULTIPLIERS } from "../../utils/constants";
+
+const mileageCalculation = (designation: string, totalAllowance: number): number => {
+  const multiplier = DESIGNATION_MULTIPLIERS[designation] || 1;
+  return totalAllowance * multiplier;
+};
+
+export default mileageCalculation;
+
+
+File: ./components/allowancecalculation/calculateAllowanceAndRemarks.tsx
+----------------------------------------
+// Define a TypeScript type for the case parameters
+interface CaseParameter {
+  max?: number;
+  factor: number;
+  remark: string;
+  isTimeBased?: boolean;
+}
+
+// Define a map for the case parameters by typeOfWork
+const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
+  Through: [
+    { max: 120, factor: 1, remark: "considered actual value" },
+    { max: 175, factor: 1.2, remark: "+20%" },
+    { max: 200, factor: 1.3, remark: "+30%" },
+    { max: Infinity, factor: 1.4, remark: "+40%" },
+  ],
+  "Light Engine/Multi": { factor: 1, remark: "cosidered actual value" },
+  "Spare by Goods": { factor: 1, remark: "cosidered actual value" },
+  "Sick leave": { factor: 1, remark: "+ 07:25" },
+  "Casual leave": { factor: 1, remark: "+ 07:25" },
+  "Paid leave": { factor: 1, remark: "+ 07:25" },
+  "Maternal leave": { factor: 1, remark: "+ 07:25" },
+  "Paternal leave": { factor: 1, remark: "+ 07:25" },
+  Spare: { factor: 0.5, remark: "1/2" },
+  Ghat: { factor: 5, remark: "*5" },
+  Shunting: { factor: 0.25, remark: "+1 Hour : 15km", isTimeBased: true },
+  "Light Engine on Mechanical Account": {
+    factor: 0.33,
+    remark: "+1hour : 20km",
+    isTimeBased: true,
+  },
+  "Breakdown Specials": {
+    factor: 0.41,
+    remark: "+1hour : 25km",
+    isTimeBased: true,
+  },
+  "Crane Specials": {
+    factor: 0.33,
+    remark: "+1hour : 20km",
+    isTimeBased: true,
+  },
+  "Material Train": { factor: 1.0, remark: "+1hour : 20km", isTimeBased: true },
+  "Medical Relief Trains": {
+    factor: 0.41,
+    remark: "+1hour : 25km",
+    isTimeBased: true,
+  },
+  default: { factor: 1, remark: "" },
+};
+
+// TypeScript function to calculate allowance and remarks
+function calculateAllowanceAndRemarks(
+  distance: number,
+  typeOfWork: string,
+  timeInMinutes: number
+): { allowance: number; remarks: string } {
+  const params = caseParameters[typeOfWork] || caseParameters["default"];
+
+  if (Array.isArray(params)) {
+    for (const param of params) {
+      if (distance <= param.max!) {
+        return {
+          allowance: parseFloat((distance * param.factor).toFixed(2)),
+          remarks: param.remark,
+        };
+      }
+    }
+  } else {
+    let allowance: number;
+    if (params.isTimeBased) {
+      // Calculate distance based on time for time-based cases
+      const timeBasedConstant = getTimeBasedConstant(typeOfWork, timeInMinutes);
+      const distance = (timeInMinutes / 60) * timeBasedConstant;
+      allowance = parseFloat(distance.toFixed(2));
+    } else {
+      allowance = params.factor
+        ? parseFloat((distance * params.factor).toFixed(2))
+        : 0;
+    }
+
+    return {
+      allowance: parseFloat(allowance.toFixed(2)),
+      remarks: params.remark,
+    };
+  }
+  return { allowance: 0, remarks: "Invalid typeOfWork or distance" }; // Fallback in case no conditions are met
+}
+
+// Helper function to get the time-based constant for the given typeOfWork
+function getTimeBasedConstant(
+  typeOfWork: string,
+  timeInMinutes: number
+): number {
+  const roundedTimeInMinutes = Math.ceil(timeInMinutes / 5) * 5; // Round up to the nearest multiple of 5
+  switch (typeOfWork) {
+    case "Shunting":
+      return 15;
+    case "Light Engine on Mechanical Account":
+      return 20;
+    case "Breakdown Specials":
+      return 25;
+    case "Crane Specials":
+      return 20;
+    case "Material Train":
+      return 20; // Special case for Material Train
+    case "Medical Relief Trains":
+      return 25;
+    default:
+      return roundedTimeInMinutes; // For other cases, return the rounded time in minutes
+  }
+}
+
+export default calculateAllowanceAndRemarks;
+
+
+
+File: ./components/allowancecalculation/leaveMileage.tsx
+----------------------------------------
+import Duty from "../duty/Duty";
+import { leaveTypes } from "../../utils/constants";
+
+interface CalculateLeaveMileageParams {
+  rateOfPay: number;
+  daysInMonth: number;
+  duties: Duty[];
+}
+
+interface CalculateLeaveMileageResult {
+  leaveMileageAllowance: number;
+}
+
+
+
+function calculateLeaveMileage({
+  rateOfPay,
+  daysInMonth,
+  duties,
+}: CalculateLeaveMileageParams): CalculateLeaveMileageResult {
+  // Handle missing parameters
+  if (rateOfPay === undefined || daysInMonth === undefined || duties === undefined) {
+    throw new Error("Missing parameters");
+  }
+
+  // Handle negative values
+  if (rateOfPay < 0 || daysInMonth < 0) {
+    throw new Error("Negative values are not allowed");
+  }
+
+  // Handle edge case when daysInMonth is 0
+  if (daysInMonth === 0) {
+    throw new Error("daysInMonth cannot be zero");
+  }
+
+  // Calculate total leaves
+  const totalLeaves = duties.reduce((count, duty) => {
+    return count + duty.trips.filter(trip => leaveTypes.includes(trip.typeOfWork)).length;
+  }, 0);
+
+
+  const lmc = (0.3 * rateOfPay) / daysInMonth;
+  const leaveMileageAllowance = lmc * totalLeaves;
+
+  return { leaveMileageAllowance };
+}
+
+export default calculateLeaveMileage;
+
+
+File: ./components/allowancecalculation/dearnessAllowance.tsx
+----------------------------------------
+import { DEARNESS_FACTOR } from "../../utils/constants";
+
+const calculateDearnessAllowance = (rateOfPay: number): number => {
+    return (rateOfPay * 1.3) * (DEARNESS_FACTOR / 100);
+  };
+  
+  export default calculateDearnessAllowance;
+
+
+File: ./components/allowancecalculation/nightDutyAllowance.tsx
+----------------------------------------
+function computeNightDutyAllowance(
+  rateOfPay: number | undefined,
+  dearnessAllowanceValue: number | undefined,
+  nightDutyHours: number | undefined
+): number | undefined {
+  // Check for missing values
+  if (
+    rateOfPay === undefined ||
+    dearnessAllowanceValue === undefined ||
+    nightDutyHours === undefined
+  ) {
+    return undefined;
+  }
+
+  // Check for negative values
+  if (rateOfPay < 0 || dearnessAllowanceValue < 0 || nightDutyHours < 0) {
+    return undefined;
+  }
+
+  // Check for zero values
+  if (rateOfPay === 0 && dearnessAllowanceValue === 0 && nightDutyHours === 0) {
+    return 0;
+  }
+
+  // Calculate units
+  const units = nightDutyHours / 6;
+
+  // Calculate total night duty pay
+  const totalNightDutyPay = ((parseFloat(rateOfPay) + dearnessAllowanceValue) / 200) * units;
+
+  return totalNightDutyPay;
+}
+
+export default computeNightDutyAllowance;
+
+
+File: ./components/allowancecalculation/osdaAllowance.tsx
+----------------------------------------
+import {DESIGNATION_MULTIPLIERS} from "../../utils/constants";
+
+interface DesignationMultipliers {
+  [key: string]: number;
+}
+
+const calculateOsdaAllowance = (
+  designation: string,
+  totalOsda: number
+): number => {
+
+  // Handle missing parameters
+  if (designation === undefined || totalOsda === undefined) {
+    throw new Error("Missing parameters");
+  }
+
+  // Handle non-numeric totalOsda values
+  if (typeof totalOsda !== "number") {
+    throw new Error("totalOsda must be a numeric value");
+  }
+
+  // Handle negative totalOsda values
+  if (totalOsda < 0) {
+    throw new Error("Negative totalOsda values are not allowed");
+  }
+
+  const multiplier: number =
+    (DESIGNATION_MULTIPLIERS as DesignationMultipliers)[designation] || 1;
+
+  return totalOsda * 70 * multiplier;
+};
+
+export default calculateOsdaAllowance;
+
+
+File: ./components/allowancecalculation/overtimeAllowance.tsx
+----------------------------------------
+import Duty from '../duty/Duty';
+import Trip from '../trip/Trip';
+
+interface Range {
+  limit: number;
+  multiplier: number;
+  extra: number;
+}
+
+interface FortnightData {
+  startDate: Date;
+  endDate: Date;
+  overtimeHours: number;
+  overtimeMinutes: number;
+  overtimeUnit: number;
+}
+
+interface OverTimeCalculationResult {
+  firstFortnight: FortnightData | null;
+  secondFortnight: FortnightData | null;
+}
+
+const ranges: Range[] = [
+  { limit: 104 * 60, multiplier: 1.5, extra: 0 },
+  { limit: 108 * 60, multiplier: 2, extra: 6 },
+];
+
+const calculateOvertimeUnit = (overtimeTotalTime: number): number => {
+  let overtimeUnit = 0;
+
+  if (overtimeTotalTime <= ranges[0].limit) {
+    overtimeUnit = 0;
+  } else if (overtimeTotalTime > ranges[0].limit && overtimeTotalTime <= ranges[1].limit) {
+    overtimeUnit = (overtimeTotalTime - ranges[0].limit) * ranges[0].multiplier;
+  } else if (overtimeTotalTime > ranges[1].limit) {
+    overtimeUnit = (overtimeTotalTime - ranges[1].limit) * ranges[1].multiplier + ranges[1].extra;
+  }
+
+  return overtimeUnit;
+};
+
+const calculateFortnight = (duties: Duty[], offsetDays: number, startDate: Date | null = null): FortnightData | null => {
+  if (!duties || duties.length === 0) {
+    return null;
+  }
+
+  if (!startDate) {
+    const firstTripDate = duties[0].trips.find(trip => trip.date)?.date;
+    if (!firstTripDate) {
+      console.error('calculateFortnight: Invalid first trip date');
+      return null;
+    }
+    startDate = new Date(firstTripDate);
+  }
+
+  const endDate = new Date(startDate);
+  endDate.setDate(endDate.getDate() + 13 + offsetDays);
+
+  let overtimeTotalTime = 0;
+  duties.forEach(duty => {
+    if (!duty.trips || duty.trips.length === 0) {
+      return;
+    }
+
+    const firstTripDate = new Date(duty.trips[0].date);
+    if (isNaN(firstTripDate.getTime()) || firstTripDate < startDate || firstTripDate >= endDate) {
+      return;
+    }
+
+    const overtimeForDuty = duty.dutyHours * 60 ;
+
+    overtimeTotalTime += overtimeForDuty;
+  });
+
+  const fortnightData: FortnightData = {
+    startDate: startDate,
+    endDate: endDate,
+    overtimeHours: Math.floor(overtimeTotalTime / 60),
+    overtimeMinutes: overtimeTotalTime % 60,
+    overtimeUnit: calculateOvertimeUnit(overtimeTotalTime)
+  };
+
+  return fortnightData;
+};
+
+const firstFortnight = (duties: Duty[], startDate: Date): FortnightData | null => {
+  return calculateFortnight(duties, 0);
+};
+
+const secondFortnight = (duties: Duty[], firstFortnightEndDate: Date | null): FortnightData | null => {
+  if (!firstFortnightEndDate || !(firstFortnightEndDate instanceof Date)) {
+    return null;
+  }
+  const newStartDate = new Date(firstFortnightEndDate);
+  newStartDate.setDate(firstFortnightEndDate.getDate() + 1);
+  return calculateFortnight(duties, 0, newStartDate);
+};
+
+const overtimeCalculation = (duties: Duty[], startDate: Date): OverTimeCalculationResult => {
+  
+    const firstFortnightData = firstFortnight(duties, startDate);
+  
+    const firstFortnightEndDate = firstFortnightData ? new Date(firstFortnightData.endDate) : null;
+  
+    const secondFortnightData = secondFortnight(duties, firstFortnightEndDate);
+  
+    return {
+      firstFortnight: firstFortnightData,
+      secondFortnight: secondFortnightData
+    };
+  };
+
+export { overtimeCalculation, calculateOvertimeUnit, calculateFortnight, firstFortnight, secondFortnight };
+
+
+File: ./components/allowancecalculation/transportationAllowance.tsx
+----------------------------------------
+import { DEARNESS_FACTOR, DESIGNATION_BASIC_TRANPORTATION } from "../../utils/constants";
+
+const calculateTransportationAllowance = (designation: keyof typeof DESIGNATION_BASIC_TRANPORTATION): number => {
+  const basic = DESIGNATION_BASIC_TRANPORTATION[designation];
+  return basic + basic * (DEARNESS_FACTOR / 100);
+};
+
+export default calculateTransportationAllowance;
+
+
+
+File: ./components/time-picker/TimePicker.tsx
+----------------------------------------
+import React from 'react';
+import { View, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
+import { Picker } from "@react-native-picker/picker";
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+interface TimePickerProps {
+  onTimeChange: (hour: string, minute: string) => void;
+  disabled: boolean;
+}
+
+interface TimePickerState {
+  selectedHour: string | null;
+  selectedMinute: string | null;
+  showTimePicker: boolean;
+}
+
+class TimePicker extends React.Component<TimePickerProps, TimePickerState> {
+  constructor(props: TimePickerProps) {
+    super(props);
+    this.state = {
+      selectedHour: null,
+      selectedMinute: null,
+      showTimePicker: false,
+    };
+  }
+
+  handleHourChange = (itemValue: string) => {
+    this.setState({ selectedHour: itemValue }, () => {
+      if (itemValue !== '-') {
+        this.props.onTimeChange(itemValue, this.state.selectedMinute || '');
+      }
+    });
+  };
+
+  handleMinuteChange = (itemValue: string) => {
+    this.setState({ selectedMinute: itemValue }, () => {
+      if (itemValue !== '-') {
+        this.props.onTimeChange(this.state.selectedHour || '', itemValue);
+      }
+    });
+  };
+
+  handleTimeChange = (event: any, selectedTime?: Date) => {
+    if (event.type === 'set') {
+      const hour = String(selectedTime?.getHours()).padStart(2, '0');
+      const minute = String(selectedTime?.getMinutes()).padStart(2, '0');
+      this.setState(
+        {
+          selectedHour: hour,
+          selectedMinute: minute,
+          showTimePicker: false,
+        },
+        () => {
+          this.props.onTimeChange(hour, minute);
+        }
+      );
+    } else {
+      this.setState({ showTimePicker: false });
+    }
+  };
+
+  openTimePicker = () => {
+    this.setState({ showTimePicker: true });
+  };
+
+  render() {
+    const { disabled } = this.props;
+    const { selectedHour, selectedMinute, showTimePicker } = this.state;
+
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.container}>
+          <Picker
+            selectedValue={selectedHour}
+            style={styles.picker}
+            disabled={disabled}
+            onValueChange={this.handleHourChange}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 24 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+          <Picker
+            selectedValue={selectedMinute}
+            style={styles.picker1}
+            onValueChange={this.handleMinuteChange}
+            disabled={disabled}
+          >
+            <Picker.Item label="-" value="-" />
+            {Array.from({ length: 60 }).map((_, index) => (
+              <Picker.Item
+                key={index}
+                label={String(index).padStart(2, '0')}
+                value={String(index).padStart(2, '0')}
+              />
+            ))}
+          </Picker>
+        </View>
+      );
+    }
+
+    return (
+      <View>
+        <View style={styles.container}>
+          <TouchableOpacity onPress={this.openTimePicker} disabled={disabled}>
+            <View style={styles.timeContainer}>
+              <View>
+                <Text>{selectedHour || '--'}</Text>
+              </View>
+              <Text>:</Text>
+              <View>
+                <Text>{selectedMinute || '--'}</Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+        {showTimePicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={this.handleTimeChange}
+          />
+        )}
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  picker: {
+    flex: 1,
+    margin: 1,
+    height: 25,
+  },
+  picker1: {
+    flex: 1,
+    margin: 1,
+    height: 25,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    borderWidth: 1,
+    borderColor: 'gray',
+  },
+});
+
+export default TimePicker;
+
+
+File: ./components/station-picker/stationPicker.tsx
+----------------------------------------
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Platform } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { combinations } from "../../utils/combinations";
+import Duty from "../duty/Duty";
+
+interface PickerComponentStationProps {
+  onStationChange: (
+    dutyId: number,
+    tripId: number,
+    sourceStation: string,
+    destinationStation: string,
+    distance: number
+  ) => void;
+  dutyId: number;
+  tripId: number;
+  disabled: boolean;
+  duty: Duty;
+}
+
+const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
+  onStationChange,
+  dutyId,
+  tripId,
+  disabled,
+  duty,
+}) => {
+  const [fromStation, setFromStation] = useState("");
+  const [toStation, setToStation] = useState("");
+
+  const currentTripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
+  const previousTrip =
+    currentTripIndex > 0 ? duty.trips[currentTripIndex - 1] : null;
+  const previousTripDestinationStation = previousTrip
+    ? previousTrip.destinationStation
+    : "";
+
+  useEffect(() => {
+    setFromStation(previousTripDestinationStation || "");
+  }, [previousTripDestinationStation]);
+
+  const handleFromStationChange = (selectedStation: string) => {
+    setFromStation(selectedStation);
+    updateToStationAndDistance(selectedStation, toStation);
+  };
+
+  const handleToStationChange = (selectedStation: string) => {
+    setToStation(selectedStation);
+    updateToStationAndDistance(fromStation, selectedStation);
+  };
+
+  const updateToStationAndDistance = (from: string, to: string) => {
+    const combo = combinations.find(
+      (c) => c.from_station === from && c.to_station === to
+    );
+    if (combo) {
+      onStationChange(dutyId, tripId, from, to, combo.distance);
+    }
+  };
+
+  const uniqueFromStations = Array.from(
+    new Set(combinations.map((item) => item.from_station))
+  );
+
+  const renderPicker = (isFrom: boolean) => {
+    const label = isFrom ? "From:" : "To:";
+    const value = isFrom ? fromStation : toStation;
+    const onValueChange = isFrom ? handleFromStationChange : handleToStationChange;
+    const items = isFrom
+      ? uniqueFromStations
+      : combinations.filter((item) => item.from_station === fromStation).map((item) => item.to_station);
+
+    return (
+      <View style={styles.pickerContainer}>
+        <Text style={styles.label}>{label}</Text>
+        {Platform.OS === "web" ? (
+          <select
+            value={value}
+            onChange={(e) => onValueChange(e.target.value)}
+            disabled={disabled}
+            style={styles.webSelect}
+          >
+            <option value="">{isFrom ? "From Station" : "To Station"}</option>
+            {items.map((station, index) => (
+              <option key={index} value={station}>
+                {station}
+              </option>
+            ))}
+          </select>
+        ) : (
+          <Picker
+            selectedValue={value}
+            onValueChange={onValueChange}
+            enabled={!disabled}
+            style={styles.picker}
+          >
+            <Picker.Item label={isFrom ? "From Station" : "To Station"} value="" />
+            {items.map((station, index) => (
+              <Picker.Item key={index} label={station} value={station} />
+            ))}
+          </Picker>
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      {renderPicker(true)}
+      {renderPicker(false)}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  pickerContainer: {
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 10,
+    marginBottom: 2,
+  },
+  picker: {
+    height: 30,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+  },
+  webSelect: {
+    width: "100%",
+    height: 30,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 4,
+    fontSize: 12,
+  },
+});
+
+export default PickerComponentStation;
+
+
+File: ./components/DatePicker/DatePickerComponent.tsx
+----------------------------------------
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
+
+interface DatePickerComponentProps {
+  onDateSelected: (date: string) => void;
+  defaultDate: string;
+  minimumDate?: Date; // Add the minimumDate prop
+}
+
+const DatePickerComponent: React.FC<DatePickerComponentProps> = ({
+  onDateSelected,
+  defaultDate,
+  minimumDate, // Add the minimumDate prop
+}) => {
+  const [isDatePickerVisible, setDatePickerVisible] = useState(false);
+  const [selectedDateString, setSelectedDateString] = useState("Select Date");
+
+  const [selectedDate, setSelectedDate] = useState(new Date(defaultDate)); // Set initial date to defaultDate
+
+  const handleConfirm = (date: Date) => {
+    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+    setSelectedDate(date);
+    setSelectedDateString(formattedDate);
+    onDateSelected(formattedDate);
+    setDatePickerVisible(false);
+  };
+
+  const showDatePicker = () => {
+    setDatePickerVisible(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisible(false);
+  };
+
+  return (
+    <View style={{ borderWidth: 1, padding: 4 }}>
+      <TouchableOpacity onPress={showDatePicker}>
+        <Text>{selectedDateString}</Text>
+      </TouchableOpacity>
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+        isDarkModeEnabled={Platform.OS === "ios"} // Example of platform-specific property
+        date={selectedDate} // Set initial date to selectedDate
+        minimumDate={minimumDate} // Set the minimum selectable date
+      />
+    </View>
+  );
+};
+
+export default DatePickerComponent;
+
+
+
+File: ./components/DatePicker/WebDatePicker.tsx
+----------------------------------------
+// WebDatePicker.tsx
+import React, { ChangeEvent } from 'react';
+import { StyleProp, ViewStyle ,StyleSheet} from 'react-native';
+
+interface WebDatePickerProps {
+  style?: StyleProp<ViewStyle>;
+  value: string;
+  onChange: (date: string) => void;
+  min?: string; // Add the min prop
+}
+
+const WebDatePicker: React.FC<WebDatePickerProps> = ({ style, value, onChange, min }) => {
+  const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
+
+  return (
+    <input
+      type="date"
+      value={value}
+      onChange={handleDateChange}
+      style={styles.date}
+      min="2022-01-01" // Set the minimum selectable date
+    />
+  );
+};
+
+const styles = StyleSheet.create({
+    date: {
+      height:30, // Adjust as needed
+    },
+  });
+export default WebDatePicker;
+
+
+File: ./components/summary-block/SummaryBlock.tsx
+----------------------------------------
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
+
+interface OvertimeCalculationResult {
+  firstFortnight?: {
+    startDate: string;
+    endDate: string;
+    overtimeHours: number;
+    overtimeMinutes: number;
+    overtimeUnit: string;
+  };
+  secondFortnight?: {
+    startDate: string;
+    endDate: string;
+    overtimeHours: number;
+    overtimeMinutes: number;
+    overtimeUnit: string;
+  };
+}
+
+interface SummaryBlockProps {
+  totalAllowance: number | undefined;
+  totalKilometers: number | undefined;
+  mileage: number | undefined;
+  nightDutyAllowance: number | undefined;
+  nationalHolidayAllowance: number | undefined;
+  leaveMileageAllowance: number | undefined;
+  rraOsda: number | undefined;
+  overTimeAllowance: number | undefined;
+  startDate: string;
+  endDate: string;
+  dearnessAllowance: number;
+  transportationAllowance: number;
+  grandTotalAllowance: number | undefined;
+  overtimeResult: OvertimeCalculationResult | null;
+}
+
+const SummaryBlock: React.FC<SummaryBlockProps> = ({
+  totalAllowance,
+  totalKilometers,
+  mileage,
+  nightDutyAllowance,
+  nationalHolidayAllowance,
+  leaveMileageAllowance,
+  rraOsda,
+  overTimeAllowance,
+  startDate,
+  endDate,
+  dearnessAllowance,
+  transportationAllowance,
+  grandTotalAllowance,
+  overtimeResult,
+}) => {
+  const formatNumber = (value: number | undefined) => {
+    return value !== undefined ? value.toFixed(2) : "-";
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
+
+  // Helper function to convert decimal hours to HH:MM format
+  const formatHoursToHHMM = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const decimalHours = hours - wholeHours;
+    const minutes = Math.round(decimalHours * 60);
+    return `${wholeHours.toString().padStart(2, "0")}:${minutes
+      .toString()
+      .padStart(2, "0")}`;
+  };
+  const formatOvertimeDuration = (hours: number, minutes: number) => {
+    const totalMinutes = hours * 60 + minutes;
+    const formattedHours = Math.floor(totalMinutes / 60)
+      .toString()
+      .padStart(2, "0");
+    const remainingMinutes = totalMinutes % 60;
+    const formattedMinutes = remainingMinutes
+      .toFixed(2)
+      .padStart(4, "0")
+      .slice(0, 2);
+    return `${formattedHours}:${formattedMinutes}`;
+  };
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.heading}>Summary:</Text>
+      </View>
+      <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
+        <View style={styles.infoContainerWrapper}>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Dearness Allowance:</Text>
+            <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Transportation Allowance:</Text>
+            <Text style={styles.value}>₹{formatNumber(transportationAllowance)}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Kilometers Earned:</Text>
+            <Text style={styles.value}>{formatNumber(totalAllowance)}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Mileage:</Text>
+            <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
+            <Text style={styles.label}>multiplier*km </Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Night Duty:</Text>
+            <Text style={styles.value}>
+              ₹{formatNumber(nightDutyAllowance)}
+            </Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Leave Mileage:</Text>
+            <Text style={styles.value}>
+              ₹{formatNumber(leaveMileageAllowance)}
+            </Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>RRA / OSDA:</Text>
+            <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
+          </View>
+          <View style={styles.infoContainer}>
+            <Text style={styles.label}>Total Allowance:</Text>
+            <Text style={styles.value}>
+              ₹{formatNumber(grandTotalAllowance)}
+            </Text>
+          </View>
+          {/* <View style={styles.infoContainer}>
+            <Text style={styles.label}>Over Time:</Text>
+            <Text style={styles.value}>₹{formatNumber(overTimeAllowance)}</Text>
+          </View> */}
+        </View>
+        {overtimeResult && (
+          <View style={{ flexDirection: "row" }}>
+            {overtimeResult.firstFortnight && (
+              <View style={styles.overtimeRow}>
+                <View style={styles.overtimeInfo}>
+                  <Text style={styles.label}>First Fortnight</Text>
+                  <Text style={styles.value}>
+                    {formatOvertimeDuration(
+                      overtimeResult.firstFortnight.overtimeHours,
+                      overtimeResult.firstFortnight.overtimeMinutes
+                    )}
+                  </Text>
+                  <Text style={styles.overtimeUnit}>
+                    ({overtimeResult.firstFortnight.overtimeUnit})
+                  </Text>
+                </View>
+                <View style={styles.overtimeDates}>
+                  <Text style={styles.label}>Start Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.firstFortnight.startDate)}
+                  </Text>
+                  <Text style={styles.label}>End Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.firstFortnight.endDate)}
+                  </Text>
+                </View>
+              </View>
+            )}
+            {overtimeResult.secondFortnight && (
+              <View style={styles.overtimeRow}>
+                <View style={styles.overtimeInfo}>
+                  <Text style={styles.label}>Second Fortnight</Text>
+                  <Text style={styles.value}>
+                    {formatOvertimeDuration(
+                      overtimeResult.secondFortnight.overtimeHours,
+                      overtimeResult.secondFortnight.overtimeMinutes
+                    )}
+                  </Text>
+                  <Text style={styles.overtimeUnit}>
+                    ({overtimeResult.secondFortnight.overtimeUnit})
+                  </Text>
+                </View>
+                <View style={styles.overtimeDates}>
+                  <Text style={styles.label}>Start Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.secondFortnight.startDate)}
+                  </Text>
+                  <Text style={styles.label}>End Date:</Text>
+                  <Text style={styles.value}>
+                    {formatDate(overtimeResult.secondFortnight.endDate)}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    marginVertical: 1,
+    // maxHeight: Dimensions.get("window").height * 0.3, // Increased maxHeight
+  },
+  headerContainer: {
+    flexDirection: "row",
+    // justifyContent: "space-between",
+    // alignItems: "center",
+    // paddingHorizontal: 2,
+    marginLeft: 2,
+    paddingTop: 8,
+  },
+  heading: {
+    fontSize: 14,
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
+  dates: {
+    fontSize: 12,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+  },
+  infoContainerWrapper: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  infoContainer: {
+    marginRight: 24,
+    alignItems: "flex-start",
+  },
+  overtimeContainer: {
+    maxHeight: "30%", // Added maxHeight
+    flexDirection: "row",
+  },
+  overtimeRow: {
+    flexDirection: "row",
+    // justifyContent: "space-between",
+    paddingHorizontal: 16,
+    // paddingVertical: 1,
+  },
+  overtimeInfo: {
+    alignItems: "flex-start",
+  },
+  overtimeDates: {
+    alignItems: "flex-end",
+  },
+  overtimeUnit: {
+    fontSize: 12,
+  },
+  label: {
+    fontSize: 12,
+    marginBottom: 4,
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+});
+
+export default SummaryBlock;
+
+
+
+File: ./components/InterdependentPicker.tsx
+----------------------------------------
+// InterdependentPicker.tsx
+import React from "react";
+import { View, Platform } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import { levelOptions,payBandOptions,rateOfPayOptions } from "../utils/constants";
+
+interface InterdependentPickersProps {
+  payBand: string;
+  setPayBand: React.Dispatch<React.SetStateAction<string>>;
+  level: string;
+  setLevel: React.Dispatch<React.SetStateAction<string>>;
+  rateOfPay: string;
+  setRateOfPay: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const InterdependentPickers: React.FC<InterdependentPickersProps> = ({
+  payBand,
+  setPayBand,
+  level,
+  setLevel,
+  rateOfPay,
+  setRateOfPay,
+}) => {
+ 
+  return (
+    <View style={{ display: "flex", justifyContent: "center" }}>
+      <View
+        style={{
+          display: "flex",
+          ...(Platform.OS === "ios" && {
+            overflow: "hidden",
+            justifyContent: "center",
+          }),
+          width: 350,
+          height: 60,
+        }}
+      >
+        <Picker
+          style={{
+            height: 40,
+            ...(Platform.OS === "ios" && { marginBottom: 180 }),
+          }}
+          selectedValue={payBand}
+          onValueChange={(value) => {
+            setPayBand(value);
+            setLevel("");
+            setRateOfPay("");
+          }}
+        >
+          <Picker.Item label="Select Pay Band" value="" />
+          {payBandOptions.map((option) => (
+            <Picker.Item key={option} label={option} value={option} />
+          ))}
+        </Picker>
+      </View>
+      <View
+        style={{
+          ...(Platform.OS === "ios" && {
+            overflow: "hidden",
+            justifyContent: "center",
+          }),
+          display: "flex",
+          width: 350,
+          marginTop: 20,
+          height: 60,
+        }}
+      >
+        <Picker
+          style={{
+            height: 40,
+            ...(Platform.OS === "ios" && { marginBottom: 180 }),
+          }}
+          selectedValue={level}
+          onValueChange={(value) => {
+            setLevel(value);
+            setRateOfPay("");
+          }}
+        >
+          <Picker.Item label="Select Level of Pay" value="" />
+          {(levelOptions[payBand] || []).map((option) => (
+            <Picker.Item key={option} label={option} value={option} />
+          ))}
+        </Picker>
+      </View>
+      <View
+        style={{
+          display: "flex",
+          ...(Platform.OS === "ios" && {
+            overflow: "hidden",
+            justifyContent: "center",
+          }),
+          width: 350,
+          marginTop: 20,
+          height: 60,
+        }}
+      >
+        <Picker
+          style={{
+            height: 40,
+            ...(Platform.OS === "ios" && { marginBottom: 180 }),
+          }}
+          selectedValue={rateOfPay}
+          onValueChange={setRateOfPay}
+        >
+          <Picker.Item label="Select Rate of Pay" value="" />
+          {(rateOfPayOptions[level] || []).map((option, index) => (
+            <Picker.Item
+              key={index}
+              label={option.toString()}
+              value={option.toString()}
+            />
+          ))}
+        </Picker>
+      </View>
+    </View>
+  );
+};
+
+export default InterdependentPickers;
+
+
+
+File: ./components/fortnight-block/Fortnight.tsx
+----------------------------------------
+// Fortnight.ts
+export default class Fortnight {
+  startDate: Date;
+  endDate: Date;
+  totalForthnightDuration: number;
+  overtimeAllowance: number;
+  totalOvertimeHours: number;
+
+  constructor(
+    startDate: Date,
+    endDate: Date,
+    totalForthnightDuration: number,
+    overtimeAllowance: number,
+    totalOvertimeHours: number
+  ) {
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.totalForthnightDuration = totalForthnightDuration;
+    this.overtimeAllowance = overtimeAllowance;
+    this.totalOvertimeHours = totalOvertimeHours;
+  }
+}
+
+
+File: ./components/fortnight-block/FortnightBlock.tsx
+----------------------------------------
+// FortnightBlock.tsx
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  Button,
+  ScrollView,
+} from "react-native";
+import { format } from "date-fns";
+import Duty from "../duty/Duty";
+import Fortnight from "./Fortnight";
+
+interface FortnightBlockProps {
+  selectedMonth: string;
+  duties: Duty[];
+  rateOfPay: number;
+  dearnessAllowance: number;
+  transportationAllowance: number;
+  totalOvertimeAllowance: number;
+  onOvertimeAllowanceChange: (newAllowance: number) => void;
+  onFortnightsChange: (fortnights: Fortnight[]) => void;
+}
+
+const FORTNIGHT_DATES = [
+  new Date("2024-01-01"),
+  new Date("2024-01-15"),
+  new Date("2024-01-29"),
+  new Date("2024-02-12"),
+  new Date("2024-02-26"),
+  new Date("2024-03-11"),
+  new Date("2024-03-25"),
+  new Date("2024-04-08"),
+  new Date("2024-04-22"),
+  new Date("2024-05-06"),
+  new Date("2024-05-19"),
+  new Date("2024-06-02"),
+  new Date("2024-06-16"),
+  new Date("2024-06-30"),
+  new Date("2024-07-14"),
+  new Date("2024-07-28"),
+  new Date("2024-08-11"),
+  new Date("2024-08-25"),
+  new Date("2024-09-08"),
+  new Date("2024-09-22"),
+  new Date("2024-10-06"),
+  new Date("2024-10-20"),
+  new Date("2024-11-03"),
+  new Date("2024-11-17"),
+  new Date("2024-12-01"),
+  new Date("2024-12-15"),
+  new Date("2024-12-29"),
+];
+
+const FortnightBlock: React.FC<FortnightBlockProps> = ({
+  selectedMonth,
+  duties,
+  rateOfPay,
+  dearnessAllowance,
+  transportationAllowance,
+  totalOvertimeAllowance,
+  onOvertimeAllowanceChange,
+  onFortnightsChange,
+}) => {
+  const [fortnights, setFortnights] = useState<Fortnight[]>([]);
+  const [pastFortnightHours, setPastFortnightHours] = useState(0);
+  const [pastFortnightMinutes, setPastFortnightMinutes] = useState(0);
+
+  useEffect(() => {
+    const pastFortnight = pastFortnightHours + pastFortnightMinutes / 60;
+    recalculateFortnights(pastFortnight);
+    onFortnightsChange(fortnights);
+  }, [selectedMonth, duties, pastFortnightHours, pastFortnightMinutes]);
+
+  const recalculateFortnights = (pastFortnight: number) => {
+    const monthIndex = new Date(
+      Date.parse(`${selectedMonth} 1, 2024`)
+    ).getMonth();
+    const startDate = new Date(2024, monthIndex, 1);
+    const endDate = new Date(2024, monthIndex + 1, 0);
+
+      // Sort duties by start date in ascending order
+  const sortedDuties = [...duties].sort((a, b) => {
+    const aStartDate = a.signIn ? new Date(a.signIn) : new Date(a.trips[0].date);
+    const bStartDate = b.signIn ? new Date(b.signIn) : new Date(b.trips[0].date);
+    return aStartDate.getTime() - bStartDate.getTime();
+  });
+
+    const intersectingFortnights: Fortnight[] = FORTNIGHT_DATES.filter(
+      (date) => {
+        const fortnightEnd = new Date(date);
+        fortnightEnd.setDate(fortnightEnd.getDate() + 13);
+        return date <= endDate && fortnightEnd >= startDate;
+      }
+    ).map((startDate, index) => {
+      const endDate = new Date(startDate.getTime() + 13 * 24 * 60 * 60 * 1000);
+
+      let totalForthnightDuration = index === 0 ? pastFortnight : 0;
+
+      sortedDuties.forEach((duty) => {
+        let dutyStart;
+        if (duty.isLeave && duty.trips.length > 0) {
+          dutyStart = new Date(duty.trips[0].date);
+        } else {
+          dutyStart = new Date(duty.signIn);
+        }
+        if (dutyStart >= startDate && dutyStart <= endDate) {
+          const dutyHours =
+            duty.dutyHours && !isNaN(duty.dutyHours)
+              ? parseFloat(duty.dutyHours)
+              : 0;
+          totalForthnightDuration += dutyHours;
+          // if (!duty.isLeave) {
+          duty.progressiveDutyHours = totalForthnightDuration;
+        }
+      });
+
+      const basicPlusDAPlusTA =
+        rateOfPay +
+        dearnessAllowance +
+        transportationAllowance +
+        rateOfPay * 0.3;
+      const lowerRate = (basicPlusDAPlusTA * 1.5) / 223;
+      const higherRate = (basicPlusDAPlusTA * 2) / 223;
+
+      let overtimeAllowance = 0;
+      let totalOvertimeHours = 0;
+  
+      if (totalForthnightDuration > 104) {
+        const overtimeHours = totalForthnightDuration - 104;
+  
+        if (overtimeHours <= 4) {
+          overtimeAllowance = overtimeHours * lowerRate;
+        } else {
+          overtimeAllowance = 4 * lowerRate + (overtimeHours - 4) * higherRate;
+        }
+  
+        totalOvertimeHours = overtimeHours;
+      }
+
+      return new Fortnight(
+        startDate,
+        endDate,
+        totalForthnightDuration,
+        overtimeAllowance,
+        totalOvertimeHours
+      );
+    });
+
+    const totalOvertimeAllowance = intersectingFortnights.reduce(
+      (total, fortnight) => total + fortnight.overtimeAllowance,
+      0
+    );
+
+    setFortnights(intersectingFortnights);
+    onOvertimeAllowanceChange(totalOvertimeAllowance);
+  };
+
+  // const handleApply = () => {
+  //   const hours = Number(inputHours);
+  //   setInputHours(hours);
+  // };
+
+  const handlePastFortnightHoursChange = (text: string) => {
+    const hours = parseInt(text, 10);
+    if (!isNaN(hours) && hours >= 0 && hours <= 200) {
+      setPastFortnightHours(hours);
+    } else {
+      setPastFortnightHours(0);
+    }
+  };
+
+  const handlePastFortnightMinutesChange = (text: string) => {
+    const minutes = parseInt(text, 10);
+    if (!isNaN(minutes) && minutes >= 0 && minutes <= 59) {
+      setPastFortnightMinutes(minutes);
+    } else {
+      setPastFortnightMinutes(0);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Fortnights in {selectedMonth}</Text>
+      <View style={styles.inputContainer}>
+        <Text style={styles.inputLabel}>Past Fortnight Duration</Text>
+        <View style={styles.durationInputContainer}>
+          <TextInput
+            style={styles.durationInput}
+            value={pastFortnightHours.toString()}
+            keyboardType="numeric"
+            onChangeText={handlePastFortnightHoursChange}
+            maxLength={3}
+          />
+          <Text style={styles.durationSeparator}>:</Text>
+          <TextInput
+            style={styles.durationInput}
+            value={pastFortnightMinutes.toString()}
+            keyboardType="numeric"
+            onChangeText={handlePastFortnightMinutesChange}
+            maxLength={2}
+          />
+        </View>
+      </View>
+      <ScrollView horizontal contentContainerStyle={styles.fortnightsContainer}>
+        {fortnights.map((fortnight, index) => (
+          <View key={index} style={styles.fortnight}>
+            <Text style={styles.fortnightText}>
+              {format(fortnight.startDate, "dd MMM")} -{" "}
+              {format(fortnight.endDate, "dd MMM")}
+            </Text>
+            <Text style={styles.fortnightText}>
+              Total Hours:{" "}
+              {fortnight.totalForthnightDuration
+                ? fortnight.totalForthnightDuration.toFixed(2)
+                : "0.00"}
+            </Text>
+            <Text style={styles.fortnightText}>
+              Overtime Hours: {fortnight.totalOvertimeHours.toFixed(2)}
+            </Text>
+            <Text style={styles.fortnightText}>
+              Overtime Allowance:{" "}
+              {fortnight.overtimeAllowance
+                ? fortnight.overtimeAllowance.toFixed(2)
+                : "0.00"}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+      <Text style={styles.totalText}>
+        Total Overtime Allowance:{" "}
+        {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : "0.00"}
+      </Text>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: "#f9f9f9",
+    borderRadius: 8,
+    marginVertical: 16,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
+  fortnightText: {
+    fontSize: 14,
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    marginRight: 8,
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    marginRight: 8,
+  },
+  totalText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginTop: 16,
+  },
+  fortnightsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 8,
+    marginBottom: 16,
+  },
+  fortnight: {
+    minWidth: 120,
+    padding: 8,
+    backgroundColor: "#ffffff",
+    borderRadius: 4,
+    marginRight: 8,
+  },
+  durationInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  durationInput: {
+    width: 40,
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 8,
+    marginRight: 4,
+    textAlign: "center",
+  },
+  durationSeparator: {
+    fontSize: 18,
+    marginHorizontal: 4,
+  },
+});
+
+export default FortnightBlock;
+
+
+
+File: ./components/type-of-work/typeofwork.tsx
+----------------------------------------
+import React, { SetStateAction, useState } from "react";
+import { View, Platform, StyleSheet } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from "react-native-picker-select";
+import { pickerItems } from "../../utils/constants";
+
+interface TypeofWorkPickerComponentProps {
+  TypeofWork: (newValue: string) => void;
+}
+
+const TypeofWorkPickerComponent: React.FC<TypeofWorkPickerComponentProps> = ({
+  TypeofWork,
+}) => {
+  const [ChoosenItem, setChoosenItem] = useState("");
+
+  const commonPickerStyle = {
+    height: 40,
+    width: "100%",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+  };
+
+  // iOS-specific picker using RNPickerSelect
+  const iosPicker = (
+    <RNPickerSelect
+      value={ChoosenItem}
+      onValueChange={(newValue: SetStateAction<string>) => {
+        setChoosenItem(newValue);
+        TypeofWork(newValue);
+      }}
+      items={pickerItems.map((item) => ({
+        label: item.label,
+        value: item.value,
+      }))}
+      placeholder={{
+        label: "Select Duty Type",
+        value: "Select Duty Type",
+        color: "#9EA0A4",
+      }}
+      style={{
+        inputIOS: {
+          ...commonPickerStyle,
+          paddingHorizontal: 10,
+        },
+      }}
+    />
+  );
+
+  // Android and potentially web picker using the default Picker
+  const defaultPicker = (
+    <Picker
+      selectedValue={ChoosenItem}
+      onValueChange={(newValue) => {
+        setChoosenItem(newValue);
+        TypeofWork(newValue);
+      }}
+      style={commonPickerStyle}
+    >
+      <Picker.Item label="Duty type" value="Select Duty Type" />
+      {pickerItems.map((item, index) => (
+        <Picker.Item key={index} label={item.label} value={item.value} />
+      ))}
+    </Picker>
+  );
+
+  return (
+    <View style={styles.container}>
+      {Platform.OS === "ios" ? iosPicker : defaultPicker}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+});
+
+export default TypeofWorkPickerComponent;
+
+
+
+File: ./components/pdfGeneration/PdfGenerator.mobile.tsx
+----------------------------------------
+import React from 'react';
+import { Button, StyleSheet, View } from 'react-native';
+import * as Print from 'expo-print';
+import * as Sharing from 'expo-sharing';
+import Duty from '../duty/Duty';
+import Trip from '../trip/Trip';
+import { OverTimeCalculationResult } from '../allowancecalculation/overtimeAllowance';
+
+interface PdfGeneratorMobileProps {
+  duties: Duty[];
+  designation: string;
+  payBand: string;
+  level: string;
+  rateOfPay: number;
+  selectedMonth: string;
+  totalKilometers: number;
+  mileage: number;
+  nightDutyAllowance: number;
+  leaveMileageAllowance: number;
+  dearnessAllowance: number;
+  progressiveDutyHours: number;
+  overtimeResult: OverTimeCalculationResult | null;
+}
+
+const PdfGeneratorMobile: React.FC<PdfGeneratorMobileProps> = ({
+  duties,
+  designation,
+  payBand,
+  level,
+  rateOfPay,
+  selectedMonth,
+  totalKilometers,
+  mileage,
+  nightDutyAllowance,
+  leaveMileageAllowance,
+  dearnessAllowance,
+  progressiveDutyHours,
+  overtimeResult,
+}) => {
+  const generatePDF = async () => {
+    const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Duty Report</title>
+        <style>
+        
+          body {
+            font-family: Arial, sans-serif;
+          }
+          h1 {
+            text-align: center;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #f2f2f2;
+          }
+          
+        </style>
+      </head>
+      <body>
+        <h1>Duty Report</h1>
+        <table>
+          <thead>
+            <tr>
+              <th>Designation</th>
+              <th>Pay Band</th>
+              <th>Level</th>
+              <th>Rate of Pay</th>
+              <th>Selected Month</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${designation}</td>
+              <td>${payBand}</td>
+              <td>${level}</td>
+              <td>${rateOfPay}</td>
+              <td>${selectedMonth}</td>
+            </tr>
+          </tbody>
+        </table>
+        <br />
+        ${duties.map((duty, dutyIndex) => `
+        <h2>Duty ${dutyIndex + 1}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Type of Work</th>
+              <th>Train No.</th>
+              <th>Dep. Time</th>
+              <th>Arr. Time</th>
+              <th>Source</th>
+              <th>Dest.</th>
+              <th>Distance</th>
+              <th>Duty Hours</th>
+              <th>Allowance</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${duty.trips.map((trip) => `
+              <tr>
+                <td>${trip.date}</td>
+                <td>${trip.typeOfWork}</td>
+                <td>${trip.trainNumber}</td>
+                <td>${trip.departureTime}</td>
+                <td>${trip.arrivalTime}</td>
+                <td>${trip.sourceStation}</td>
+                <td>${trip.destinationStation}</td>
+                <td>${trip.distance}</td>
+                <td>${trip.dutyHours}</td>
+                <td>${trip.allowance}</td>
+                <td>${trip.remarks}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <table>
+          <thead>
+            <tr>
+              <th colspan="2">Duty Info</th>
+            </tr>
+            <tr>
+              <th>Sign In</th>
+              <th>Sign Off</th>
+              <th>Total Allowance</th>
+              <th>Total Distance</th>
+              <th>Duty Hours</th>
+              <th>Night Duty Hours</th>
+              <th>Progressive Duty Hours</th>
+              <th>OSDA</th>
+              <th>RRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${duty.signIn ? duty.signIn.toLocaleString() : '-'}</td>
+              <td>${duty.signOff ? duty.signOff.toLocaleString() : '-'}</td>
+              <td>₹${duty.calculateTotalAllowance().toFixed(2)}</td>
+              <td>${duty.calculateTotalDistance().toFixed(2)} km</td>
+              <td>${duty.dutyHours.toFixed(2)} H</td>
+              <td>${duty.nightDutyHours.toFixed(2)} H</td>
+              <td>${duty.progressiveDutyHours.toFixed(2)} H</td>
+              <td>${duty.isOSDA ? 'Yes' : 'No'}</td>
+              <td>${duty.isRRA ? 'Yes' : 'No'}</td>
+            </tr>
+          </tbody>
+        </table>
+      `).join('')}
+
+      <h2>Summary Block</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Total Kilometers</th>
+            <th>Mileage</th>
+            <th>Night Duty Allowance</th>
+            <th>Leave Mileage Allowance</th>
+            <th>Dearness Allowance</th>
+            <th>Progressive Duty Hours</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>${totalKilometers.toFixed(2)}</td>
+            <td>₹${mileage.toFixed(2)}</td>
+            <td>₹${nightDutyAllowance.toFixed(2)}</td>
+            <td>₹${leaveMileageAllowance.toFixed(2)}</td>
+            <td>₹${dearnessAllowance.toFixed(2)}</td>
+            <td>${progressiveDutyHours.toFixed(2)} H</td>
+          </tr>
+        </tbody>
+      </table>
+
+        ${overtimeResult ? `
+          <h2>Overtime Calculation Result</h2>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">First Fortnight</th>
+              </tr>
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Overtime Hours</th>
+                <th>Overtime Minutes</th>
+                <th>Overtime Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.startDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.endDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeHours : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeMinutes : '-'}</td>
+                <td>${overtimeResult.firstFortnight ? overtimeResult.firstFortnight.overtimeUnit : '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+          <table>
+            <thead>
+              <tr>
+                <th colspan="2">Second Fortnight</th>
+              </tr>
+              <tr>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Overtime Hours</th>
+                <th>Overtime Minutes</th>
+                <th>Overtime Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.startDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.endDate.toDateString() : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeHours : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeMinutes : '-'}</td>
+                <td>${overtimeResult.secondFortnight ? overtimeResult.secondFortnight.overtimeUnit : '-'}</td>
+              </tr>
+            </tbody>
+          </table>
+        ` : ''}
+      </body>
+    </html>
+  `;
+    const { uri } = await Print.printToFileAsync({
+      html,
+      orientation: 'landscape'
+
+    });
+    // Share the PDF file with the user
+    await Sharing.shareAsync(uri, {
+      mimeType: 'application/pdf',
+      dialogTitle: 'Share PDF',
+      UTI: 'com.adobe.pdf',
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button title="Generate PDF" onPress={generatePDF} />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',}});
+
+    export default PdfGeneratorMobile;
+
+
+File: ./components/pdfGeneration/PDFGenerator.tsx
+----------------------------------------
+// PDFGenerator.tsx
+import React from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import Duty from "../duty/Duty";
+import Trip from "../trip/Trip";
+import DutyInfo from "../duty/DutyInfo";
+import { Button, View } from "react-native";
+import Fortnight from "../fortnight-block/Fortnight";
+
+// Helper function to convert hours to HH:MM format
+const formatHours = (hours) => {
+  const totalMinutes = Math.round(hours * 60);
+  const formattedHours = Math.floor(totalMinutes / 60)
+    .toString()
+    .padStart(2, "0");
+  const formattedMinutes = (totalMinutes % 60).toString().padStart(2, "0");
+  return `${formattedHours}:${formattedMinutes}`;
+};
+
+const formatDutyHours = (dutyHours) => {
+  const [hours, minutes] = dutyHours.split("h ");
+  const formattedHours = hours.trim().padStart(2, "0");
+  const formattedMinutes = minutes
+    ? minutes.trim().replace("m", "").padStart(2, "0")
+    : "00";
+  return `${formattedHours}:${formattedMinutes}`;
+};
+
+interface PDFGeneratorProps {
+  duties: Duty[];
+  designation: string;
+  payBand: string;
+  level: string;
+  rateOfPay: number;
+  selectedMonth: string;
+  mileage: number;
+  nightDutyAllowance: number;
+  nationalHolidayAllowance: number;
+  leaveMileageAllowance: number;
+  overTimeAllowance: number;
+  dearnessAllowance: number;
+  progressiveDutyHours: number;
+  grandTotalAllowance: number;
+  rraOsda: number;
+  fortnights: Fortnight[];
+}
+
+const PDFGenerator: React.FC<PDFGeneratorProps> = ({
+  duties,
+  designation,
+  payBand,
+  level,
+  rateOfPay,
+  selectedMonth,
+  mileage,
+  nightDutyAllowance,
+  nationalHolidayAllowance,
+  leaveMileageAllowance,
+  overTimeAllowance,
+  grandTotalAllowance,
+  dearnessAllowance,
+  progressiveDutyHours,
+  rraOsda,
+  fortnights,
+}) => {
+  const generatePDF = () => {
+    const doc = new jsPDF(); // Set portrait orientation (default)
+    const footerText =
+      "This is generated by Allowance Calculator an Platform by Feyntech Optimization Solutions Pvt. Ltd.";
+
+    // Add header row
+    const headerData = [
+      {
+        content: "Designation",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: designation,
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: " | ",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: "Pay Band",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: payBand,
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: " | ",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: "Level",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: level,
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: " | ",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",

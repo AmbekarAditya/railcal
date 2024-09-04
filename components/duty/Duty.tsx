@@ -121,8 +121,8 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     "Stationary Duty(Out of HQ)"
   ];
 
-  console.log("Current typeOfWork:", typeOfWork); // Debugging
-  console.log("Is in endedTypes:", endedTypes.includes(typeOfWork)); // Debugging
+  console.log("Current typeOfWork:", typeOfWork);
+  console.log("Is in endedTypes:", endedTypes.includes(typeOfWork));
 
   if (leaveTypes.includes(typeOfWork)) {
     this.dutyHours = 7.41667; // 7 hours and 25 minutes
@@ -131,11 +131,12 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     this.isLeave = true;
     this.hasEnded = true;
   } else if (endedTypes.includes(typeOfWork)) {
-    console.log("Entered endedTypes condition"); // Debugging
+    console.log("Entered endedTypes condition");
     this.dutyHours = 0;
     this.dutyAllowance = typeOfWork === "Stationary Duty(HQ)" ? 120 : 160;
     this.dutyDistance = 0;
     this.hasEnded = true;
+    this.isLeave = false;
   } else {
     this.isLeave = false;
     this.hasEnded = false;
@@ -143,6 +144,14 @@ updateDutyHoursForLeaveTypes(typeOfWork: string) {
     this.dutyAllowance = this.calculateTotalAllowance();
     this.dutyDistance = this.calculateTotalDistance();
   }
+
+  console.log("Updated duty properties:", {
+    dutyHours: this.dutyHours,
+    dutyAllowance: this.dutyAllowance,
+    dutyDistance: this.dutyDistance,
+    hasEnded: this.hasEnded,
+    isLeave: this.isLeave
+  });
 }
 
 updateTrip(tripId: number, updatedTrip: Trip | Partial<Trip>) {

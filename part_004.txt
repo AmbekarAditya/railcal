@@ -1,0 +1,2754 @@
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: "Rate of Pay",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: rateOfPay,
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: " | ",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: "Selected Month",
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+      {
+        content: selectedMonth,
+        colSpan: 1,
+        styles: {
+          fontStyle: "bold",
+          fillColor: [200, 230, 245],
+          textColor: [0, 0, 0],
+        },
+      },
+    ];
+
+    doc.setFontSize(8);
+    doc.text(
+      footerText,
+      doc.internal.pageSize.getWidth() -
+        doc.getStringUnitWidth(footerText) -
+        10,
+      doc.internal.pageSize.getHeight() - 10,
+      { align: "right" }
+    );
+
+    // Render header row
+    doc.autoTable({
+      head: [headerData],
+      theme: "grid",
+      styles: { fontSize: 8, halign: "left" },
+      margin: { top: 10, bottom: 10 },
+    });
+
+    let currentYPosition = doc.lastAutoTable.finalY + 10; // Track the current y position
+
+    // Sort duties based on the date of the first trip in each duty
+    const sortedDuties = [...duties].sort((a, b) => {
+      const aFirstTripDate = a.trips.length > 0 ? new Date(a.trips[0].date).getTime() : 0;
+      const bFirstTripDate = b.trips.length > 0 ? new Date(b.trips[0].date).getTime() : 0;
+      return aFirstTripDate - bFirstTripDate;
+    });
+
+    sortedDuties.forEach((duty, dutyIndex) => {
+      doc.setFontSize(9);
+      doc.text(`Duty ${dutyIndex + 1}`, 14, currentYPosition);
+      currentYPosition += 5; // Add some space between the duty header and table
+
+      // Trip header and data
+      const tripTable = [
+        [
+          "Date",
+          "Type of Work",
+          "Train No.",
+          "Source",
+          "Dest.",
+          "Dep. Time",
+          "Arr. Time",
+          "Distance",
+          "Duration",
+          "km earned",
+          "Remarks",
+        ],
+        ...duty.trips.map((trip) => [
+          new Date(trip.date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          }),
+          trip.typeOfWork,
+          trip.trainNumber,
+          trip.sourceStation,
+          trip.destinationStation,
+          trip.arrivalTime,
+          trip.departureTime,
+          trip.distance.toFixed(2).toString(),
+          formatDutyHours(trip.dutyHours),
+          trip.allowance.toString(),
+          trip.remarks,
+        ]),
+      ];
+
+      doc.autoTable({
+        head: [tripTable[0]], // Use the first row as the header
+        body: tripTable.slice(1), // Use the remaining rows as the body
+        theme: "grid",
+        styles: { fontSize: 8 },
+        startY: currentYPosition, // Start the table at the current y position
+      });
+
+      currentYPosition = doc.lastAutoTable.finalY + 2; // Update the current y position
+
+      // DutyInfo
+      const dutyInfoData = [
+        [
+          {
+            content: "Sign On",
+            colSpan: 1,
+          },
+          {
+            content: duty.signIn
+              ? new Date(duty.signIn).toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-",
+            colSpan: 1,
+          },
+          {
+            content: "Sign Off",
+            colSpan: 1,
+          },
+          {
+            content: duty.signOff
+              ? new Date(duty.signOff).toLocaleString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : "-",
+            colSpan: 1,
+          },
+          {
+            content: "KM earned:",
+            colSpan: 1,
+          },
+          {
+            content: `${duty.calculateTotalAllowance().toFixed(2)}`,
+            colSpan: 1,
+          },
+          {
+            content: "Total Distance:",
+            colSpan: 1,
+          },
+          {
+            content: `${duty.calculateTotalDistance().toFixed(2)} km`,
+            colSpan: 1,
+          },
+          {
+            content: "Duty Hours",
+            colSpan: 1,
+          },
+          {
+            content: formatHours(duty.dutyHours.toFixed(2)),
+            colSpan: 1,
+          },
+          {
+            content: "Night Duty Hours :",
+            colSpan: 1,
+          },
+          {
+            content: formatHours(duty.nightDutyHours.toFixed(2)),
+            colSpan: 1,
+          },
+        ],
+        [
+          {
+            content: "Progressive Duty Hours",
+            colSpan: 2,
+          },
+          {
+            content: formatHours(duty.progressiveDutyHours.toFixed(2)),
+            colSpan: 2,
+          },
+          {
+            content: "OSDA",
+            colSpan: 2,
+          },
+          {
+            content: duty.isOSDA ? "Yes" : "No",
+            colSpan: 2,
+          },
+          {
+            content: "RRA",
+            colSpan: 2,
+          },
+          {
+            content: duty.isRRA ? "Yes" : "No",
+            colSpan: 2,
+          },
+        ],
+      ];
+
+      doc.autoTable({
+        head: [],
+        body: dutyInfoData,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        startY: currentYPosition, // Start the table at the current y position
+      });
+
+      currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+    });
+
+    // Add summary block data and overtime result
+
+    currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+
+    const overtimeResult = null;
+
+    if (overtimeResult) {
+      const overtimeResultData = [
+        [
+          { content: "Fortnight", colSpan: 1, styles: { fontStyle: "bold" } },
+          { content: "Start Date", colSpan: 1, styles: { fontStyle: "bold" } },
+          { content: "End Date", colSpan: 1, styles: { fontStyle: "bold" } },
+          {
+            content: "Overtime Hours",
+            colSpan: 1,
+            styles: { fontStyle: "bold" },
+          },
+          {
+            content: "Overtime Minutes",
+            colSpan: 1,
+            styles: { fontStyle: "bold" },
+          },
+          {
+            content: "Overtime Unit",
+            colSpan: 1,
+            styles: { fontStyle: "bold" },
+          },
+        ],
+        [
+          { content: "First Fortnight", colSpan: 1 },
+          {
+            content:
+              overtimeResult.firstFortnight?.startDate.toDateString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.firstFortnight?.endDate.toDateString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.firstFortnight?.overtimeHours.toString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.firstFortnight?.overtimeMinutes.toString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.firstFortnight?.overtimeUnit.toString() || "-",
+            colSpan: 1,
+          },
+        ],
+        [
+          { content: "Second Fortnight", colSpan: 1 },
+          {
+            content:
+              overtimeResult.secondFortnight?.startDate.toDateString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.secondFortnight?.endDate.toDateString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.secondFortnight?.overtimeHours.toString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.secondFortnight?.overtimeMinutes.toString() || "-",
+            colSpan: 1,
+          },
+          {
+            content:
+              overtimeResult.secondFortnight?.overtimeUnit.toString() || "-",
+            colSpan: 1,
+          },
+        ],
+      ];
+
+      doc.autoTable({
+        head: [
+          [
+            {
+              content: "Overtime Calculation Result",
+              colSpan: 6,
+              styles: {
+                fontStyle: "bold",
+                fillColor: [200, 230, 245],
+                textColor: [0, 0, 0],
+              },
+            },
+          ],
+        ],
+        body: overtimeResultData,
+        theme: "grid",
+        styles: { fontSize: 8 },
+        startY: currentYPosition, // Start the table at the current y position
+      });
+
+      currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+    }
+
+    // Generate the fortnights table
+    const fortnightsData = [
+      [
+        { content: "Fortnight", colSpan: 1, styles: { fontStyle: "bold" } },
+        { content: "Start Date", colSpan: 1, styles: { fontStyle: "bold" } },
+        { content: "End Date", colSpan: 1, styles: { fontStyle: "bold" } },
+        {
+          content: "Total Fortnight Duration",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: "Total Overtime Hours",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: "Overtime Allowance",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+      ],
+      ...fortnights.map((fortnight, index) => [
+        { content: `Fortnight ${index + 1}`, colSpan: 1 },
+        {
+          content:
+            fortnight.startDate instanceof Date
+              ? fortnight.startDate.toDateString()
+              : fortnight.startDate,
+          colSpan: 1,
+        },
+        {
+          content:
+            fortnight.endDate instanceof Date
+              ? fortnight.endDate.toDateString()
+              : fortnight.endDate,
+          colSpan: 1,
+        },
+        { content: fortnight.totalForthnightDuration.toFixed(2), colSpan: 1 },
+        { content: fortnight.totalOvertimeHours.toFixed(2), colSpan: 1 },
+        {
+          content: `Rs. ${fortnight.overtimeAllowance.toFixed(2)}`,
+          colSpan: 1,
+        },
+      ]),
+    ];
+
+    doc.autoTable({
+      head: [
+        [
+          {
+            content: "Overtime Table",
+            colSpan: 6,
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 230, 245],
+              textColor: [0, 0, 0],
+            },
+          },
+        ],
+      ],
+      body: fortnightsData,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      startY: currentYPosition,
+    });
+
+    currentYPosition = doc.lastAutoTable.finalY + 10; // Update the current y position
+
+    const summaryBlockData = [
+      [
+        { content: "Mileage:", colSpan: 1, styles: { fontStyle: "bold" } },
+        { content: mileage ? `Rs. ${mileage.toFixed(2)}` : "-", colSpan: 1 },
+      ],
+      [
+        {
+          content: "Night Duty Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: nightDutyAllowance
+            ? `Rs. ${nightDutyAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+
+      [
+        {
+          content: "Leave Mileage Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: leaveMileageAllowance
+            ? `Rs. ${leaveMileageAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "Dearness Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: dearnessAllowance
+            ? `Rs. ${dearnessAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "RRA / OSDA:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: rraOsda ? `Rs. ${rraOsda.toFixed(2)}` : "-",
+          colSpan: 1,
+        },
+      ],
+      [
+        {
+          content: "Grand Total Allowance:",
+          colSpan: 1,
+          styles: { fontStyle: "bold" },
+        },
+        {
+          content: grandTotalAllowance
+            ? `Rs. ${grandTotalAllowance.toFixed(2)}`
+            : "-",
+          colSpan: 1,
+        },
+      ],
+    ];
+
+    doc.autoTable({
+      head: [
+        [
+          {
+            content: "Summary Block",
+            colSpan: 2,
+            styles: {
+              fontStyle: "bold",
+              fillColor: [200, 230, 245],
+              textColor: [0, 0, 0],
+            },
+          },
+        ],
+      ],
+      body: summaryBlockData,
+      theme: "grid",
+      styles: { fontSize: 8 },
+      startY: currentYPosition, // Start the table at the current y position
+    });
+
+    doc.save("duty-report.pdf");
+  };
+  return (
+    <View>
+      <Button title="Generate PDF" onPress={generatePDF} />
+    </View>
+  );
+};
+export default PDFGenerator;
+
+
+
+File: ./components/trip/Trip.tsx
+----------------------------------------
+class Trip {
+  id: number;
+  date: string;
+  typeOfWork: string;
+  trainNumber:string;
+  departureTime: string;
+  arrivalTime: string;
+  timeDifference: number;
+  sourceStation: string;
+  destinationStation: string;
+  distance: number;
+  dutyHours:string;
+  allowance: number;
+  remarks: string;
+
+  constructor(id: number) {
+    this.id = id;
+    this.date = "";
+    this.typeOfWork = "";
+    this.departureTime = "";
+    this.arrivalTime = "";
+    this.timeDifference = 0;
+    this.sourceStation = "";
+    this.destinationStation = "";
+    this.distance = 0;
+    this.allowance = 0;
+    this.trainNumber="";
+    this.remarks = "";
+    this.dutyHours="";
+  }
+}
+
+export default Trip;
+export {};
+
+
+
+File: ./components/trainNumber.tsx
+----------------------------------------
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet } from 'react-native';
+
+interface TrainNumberInputProps {
+  onChange: (trainNumber: string) => void;
+  disabled: boolean;
+}
+
+const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange,disabled }) => {
+  const [trainNumber, setTrainNumber] = useState('');
+
+  const handleInputChange = (text: string) => {
+    setTrainNumber(text);
+    onChange(text); // Propagate the change to the parent component
+  };
+
+  return (
+    <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        onChangeText={handleInputChange}
+        value={trainNumber}
+        placeholder="Enter train number"
+        keyboardType="default" 
+        disabled={disabled}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    // Container styles
+  },
+  input: {
+    borderWidth:1,
+    padding:5,
+    height: 35,
+    width: 150,
+  }
+});
+
+export default TrainNumberInput;
+
+
+
+File: ./components/end-duty-modal/useDutyEndModal.tsx
+----------------------------------------
+import { useState } from 'react';
+import Duty from '../duty/Duty';
+
+const useDutyEndModal = (duty: Duty, updateDutyDetails: (updatedDuty: Duty) => void) => {
+  const [dutyStartDate, setDutyStartDate] = useState<Date>(new Date());
+  const [dutyStartTime, setDutyStartTime] = useState<Date>(new Date());
+  const [dutyEndDate, setDutyEndDate] = useState<Date>(new Date());
+  const [dutyEndTime, setDutyEndTime] = useState<Date>(new Date());
+  const [isOSDAApplicable, setIsOSDAApplicable] = useState<boolean>(false);
+  const [isRRAApplicable, setIsRRAApplicable] = useState<boolean>(false);
+  const [isStartDatePickerVisible, setIsStartDatePickerVisible] = useState<boolean>(false);
+  const [isStartTimePickerVisible, setIsStartTimePickerVisible] = useState<boolean>(false);
+  const [isEndDatePickerVisible, setIsEndDatePickerVisible] = useState<boolean>(false);
+  const [isEndTimePickerVisible, setIsEndTimePickerVisible] = useState<boolean>(false);
+
+  const handleEndDuty = () => {
+    const signInDateTime = new Date(dutyStartDate.getFullYear(), dutyStartDate.getMonth(), dutyStartDate.getDate(), dutyStartTime.getHours(), dutyStartTime.getMinutes());
+    const signOffDateTime = new Date(dutyEndDate.getFullYear(), dutyEndDate.getMonth(), dutyEndDate.getDate(), dutyEndTime.getHours(), dutyEndTime.getMinutes());
+
+    const updatedDuty = new Duty(duty.id, duty.trips);
+    updatedDuty.setSignInAndSignOff(signInDateTime, signOffDateTime);
+    updatedDuty.isOSDA = isOSDAApplicable;
+    updatedDuty.isRRA = isRRAApplicable;
+
+    updateDutyDetails(updatedDuty);
+  };
+
+  const toggleOSDAApplicable = () => setIsOSDAApplicable(!isOSDAApplicable);
+  const toggleRRAApplicable = () => setIsRRAApplicable(!isRRAApplicable);
+
+  const showStartDatePicker = () => setIsStartDatePickerVisible(true);
+  const hideStartDatePicker = () => setIsStartDatePickerVisible(false);
+  const handleStartDateConfirm = (date: Date) => {
+    setDutyStartDate(date);
+    setIsStartDatePickerVisible(false);
+  };
+
+  const showStartTimePicker = () => setIsStartTimePickerVisible(true);
+  const hideStartTimePicker = () => setIsStartTimePickerVisible(false);
+  const handleStartTimeConfirm = (time: Date) => {
+    setDutyStartTime(time);
+    setIsStartTimePickerVisible(false);
+  };
+
+  const showEndDatePicker = () => setIsEndDatePickerVisible(true);
+  const hideEndDatePicker = () => setIsEndDatePickerVisible(false);
+  const handleEndDateConfirm = (date: Date) => {
+    setDutyEndDate(date);
+    setIsEndDatePickerVisible(false);
+  };
+
+  const showEndTimePicker = () => setIsEndTimePickerVisible(true);
+  const hideEndTimePicker = () => setIsEndTimePickerVisible(false);
+  const handleEndTimeConfirm = (time: Date) => {
+    setDutyEndTime(time);
+    setIsEndTimePickerVisible(false);
+  };
+
+  const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(event.target.value);
+    if (!isNaN(date.getTime())) {
+      setDutyStartDate(date);
+    }
+  };
+
+  const handleStartTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = event.target.value.split(':');
+    const date = new Date(dutyStartDate);
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    setDutyStartTime(date);
+  };
+
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(event.target.value);
+    setDutyEndDate(date);
+  };
+
+  const handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = event.target.value.split(':');
+    const date = new Date(dutyEndDate);
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    setDutyEndTime(date);
+  };
+
+  return {
+    dutyStartDate,
+    dutyStartTime,
+    dutyEndDate,
+    dutyEndTime,
+    isOSDAApplicable,
+    isRRAApplicable,
+    isStartDatePickerVisible,
+    isStartTimePickerVisible,
+    isEndDatePickerVisible,
+    isEndTimePickerVisible,
+    handleEndDuty,
+    toggleOSDAApplicable,
+    toggleRRAApplicable,
+    showStartDatePicker,
+    hideStartDatePicker,
+    handleStartDateConfirm,
+    showStartTimePicker,
+    hideStartTimePicker,
+    handleStartTimeConfirm,
+    showEndDatePicker,
+    hideEndDatePicker,
+    handleEndDateConfirm,
+    showEndTimePicker,
+    hideEndTimePicker,
+    handleEndTimeConfirm,
+    handleStartDateChange,
+    handleStartTimeChange,
+    handleEndDateChange,
+    handleEndTimeChange,
+  };
+};
+
+export default useDutyEndModal;
+
+
+File: ./components/end-duty-modal/EndDutyModal.tsx
+----------------------------------------
+import React from 'react';
+import { Platform, Text, View, Button, ScrollView, StyleSheet,TextInput, TouchableOpacity,Dimensions } from 'react-native';
+import Duty from '../duty/Duty';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { monthNames } from '../../utils/constants';
+
+// Use Dimensions to get window size for responsive design
+const { width } = Dimensions.get('window');
+
+interface EndDutyModalProps {
+  duty: Duty;
+  updateDutyDetails: (updatedDuty: Duty) => void;
+  closeModal: () => void;
+  selectedMonth: keyof typeof monthNames;
+}
+
+interface EndDutyModalState {
+  dutyStartDate: Date;
+  dutyStartTime: Date;
+  dutyEndDate: Date;
+  dutyEndTime: Date;
+  isOSDAApplicable: boolean;
+  isRRAApplicable: boolean;
+  isStartDatePickerVisible: boolean;
+  isStartTimePickerVisible: boolean;
+  isEndDatePickerVisible: boolean;
+  isEndTimePickerVisible: boolean;
+}
+
+class EndDutyModal extends React.Component<EndDutyModalProps, EndDutyModalState> {
+  constructor(props: EndDutyModalProps) {
+    super(props);
+    const { selectedMonth, duty } = props;
+    const currentYear = new Date().getFullYear();
+    const monthNumber = monthNames[selectedMonth];
+    const firstTripDate = duty.trips.length > 0 ? duty.trips[0].date : '';
+    const defaultStartDate = firstTripDate ? new Date(firstTripDate) : new Date(currentYear, monthNumber - 1, 1);
+
+    let defaultEndDate = new Date(defaultStartDate);
+    let defaultEndTime = new Date(defaultStartDate);
+  
+    if (duty.trips.length > 0) {
+      const lastTrip = duty.trips[duty.trips.length - 1];
+      const lastTripDepartureTime = lastTrip.departureTime;
+      const lastTripDate = lastTrip.date;
+  
+      if (lastTripDate) {
+        defaultEndDate = new Date(lastTripDate);
+      }
+  
+      if (lastTripDepartureTime) {
+        const [hours, minutes] = lastTripDepartureTime.split(':');
+        defaultEndTime.setHours(parseInt(hours, 10));
+        defaultEndTime.setMinutes(parseInt(minutes, 10) + 30);
+  
+        // Adjust the defaultEndDate if the defaultEndTime crosses midnight
+        if (defaultEndTime < defaultStartDate) {
+          defaultEndDate.setDate(defaultEndDate.getDate() + 1);
+        }
+      }
+    }  
+
+    this.state = {
+      dutyStartDate: defaultStartDate,
+      dutyStartTime: defaultStartDate,
+      dutyEndDate: defaultEndDate,
+      dutyEndTime: defaultEndTime, 
+      isOSDAApplicable: false,
+      isRRAApplicable: false,
+      isStartDatePickerVisible: false,
+      isStartTimePickerVisible: false,
+      isEndDatePickerVisible: false,
+      isEndTimePickerVisible: false,
+    };
+  }
+  handleEndDuty = () => {
+    const { duty, updateDutyDetails } = this.props;
+    const { dutyStartDate, dutyStartTime, dutyEndDate, dutyEndTime, isOSDAApplicable, isRRAApplicable } = this.state;
+  
+    const signInDateTime = new Date(dutyStartDate.getFullYear(), dutyStartDate.getMonth(), dutyStartDate.getDate(), dutyStartTime.getHours(), dutyStartTime.getMinutes());
+    const signOffDateTime = new Date(dutyEndDate.getFullYear(), dutyEndDate.getMonth(), dutyEndDate.getDate(), dutyEndTime.getHours(), dutyEndTime.getMinutes());
+  
+    const timeDiffInMinutes = Math.round((signOffDateTime.getTime() - signInDateTime.getTime()) / 60000);
+    const dutyHours = timeDiffInMinutes / 60; // Convert minutes to hours
+  
+    const updatedDuty = new Duty(duty.id, duty.trips);
+    updatedDuty.setSignInAndSignOff(signInDateTime, signOffDateTime);
+    updatedDuty.isOSDA = isOSDAApplicable;
+    updatedDuty.isRRA = isRRAApplicable;
+    updatedDuty.dutyHours = dutyHours;
+    updatedDuty.hasEnded = true; // Set hasEnded to true
+  
+    updateDutyDetails(updatedDuty);
+  };
+  handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(event.target.value);
+    if (!isNaN(date.getTime())) { // Check if the date is valid
+      this.setState({ dutyStartDate: date });
+    }
+  };
+  
+  handleStartTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = event.target.value.split(':');
+    const date = new Date(this.state.dutyStartDate);
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    this.setState({ dutyStartTime: date });
+  };
+  
+  handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const date = new Date(event.target.value);
+    this.setState({ dutyEndDate: date });
+  };
+  
+  handleEndTimeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const [hours, minutes] = event.target.value.split(':');
+    const date = new Date(this.state.dutyEndDate);
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    this.setState({ dutyEndTime: date });
+  };
+  
+
+
+
+  showStartDatePicker = () => {
+    this.setState({ isStartDatePickerVisible: true });
+  };
+
+  hideStartDatePicker = () => {
+    this.setState({ isStartDatePickerVisible: false });
+  };
+
+  handleStartDateConfirm = (date: Date) => {
+    this.setState({ dutyStartDate: date, isStartDatePickerVisible: false });
+  };
+
+  showStartTimePicker = () => {
+    this.setState({ isStartTimePickerVisible: true });
+  };
+
+  hideStartTimePicker = () => {
+    this.setState({ isStartTimePickerVisible: false });
+  };
+
+  handleStartTimeConfirm = (time: Date) => {
+    this.setState({ dutyStartTime: time, isStartTimePickerVisible: false });
+  };
+
+  showEndDatePicker = () => {
+    this.setState({ isEndDatePickerVisible: true });
+  };
+
+  hideEndDatePicker = () => {
+    this.setState({ isEndDatePickerVisible: false });
+  };
+
+  handleEndDateConfirm = (date: Date) => {
+    this.setState({ dutyEndDate: date, isEndDatePickerVisible: false });
+  };
+
+  showEndTimePicker = () => {
+    this.setState({ isEndTimePickerVisible: true });
+  };
+
+  hideEndTimePicker = () => {
+    this.setState({ isEndTimePickerVisible: false });
+  };
+
+  handleEndTimeConfirm = (time: Date) => {
+    this.setState({ dutyEndTime: time, isEndTimePickerVisible: false });
+  };
+
+  render() {
+    const { closeModal } = this.props;
+    const { dutyStartDate, dutyStartTime, dutyEndDate, dutyEndTime, isOSDAApplicable, isRRAApplicable, isStartDatePickerVisible, isStartTimePickerVisible, isEndDatePickerVisible, isEndTimePickerVisible } = this.state;    
+    
+      return (
+        <View style={styles.container}>
+          <ScrollView contentContainerStyle={styles.scrollViewContent}>
+            <Text style={styles.heading}>End Duty</Text>
+            {Platform.OS === 'web' ? (
+              <>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Duty Start Date:</Text>
+                  <input
+                type="date"
+                value={`${dutyStartDate.getFullYear()}-${String(dutyStartDate.getMonth() + 1).padStart(2, '0')}-${String(dutyStartDate.getDate()).padStart(2, '0')}`}
+                onChange={this.handleStartDateChange}
+              />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Duty Start Time:</Text>
+                  <input
+                type="time"
+                value={`${String(dutyStartTime.getHours()).padStart(2, '0')}:${String(dutyStartTime.getMinutes()).padStart(2, '0')}`}
+                onChange={this.handleStartTimeChange}
+              />
+
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Duty End Date:</Text>
+                  <input
+                type="date"
+                value={`${dutyEndDate.getFullYear()}-${String(dutyEndDate.getMonth() + 1).padStart(2, '0')}-${String(dutyEndDate.getDate()).padStart(2, '0')}`}
+                onChange={this.handleEndDateChange}
+              />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Duty End Time:</Text>
+                  <input
+                type="time"
+                value={`${String(dutyEndTime.getHours()).padStart(2, '0')}:${String(dutyEndTime.getMinutes()).padStart(2, '0')}`}
+                onChange={this.handleEndTimeChange}
+              />
+
+                    </View>
+                    </>
+                    ) : (
+                    <>
+                    <View style={styles.inputContainer}>
+                    <Text style={styles.label}>Duty Start Date:</Text>
+                    <TouchableOpacity style={styles.inputButton} onPress={this.showStartDatePicker}>
+                    <Text style={styles.inputText}>{dutyStartDate.toDateString()}</Text>
+                    </TouchableOpacity>
+                    <DateTimePickerModal
+                                   isVisible={isStartDatePickerVisible}
+                                   mode="date"
+                                   onConfirm={this.handleStartDateConfirm}
+                                   onCancel={this.hideStartDatePicker}
+                                 />
+                    </View>
+                    <View style={styles.inputContainer}>
+            <Text style={styles.label}>Duty Start Time:</Text>
+            <TouchableOpacity style={styles.inputButton} onPress={this.showStartTimePicker}>
+              <Text style={styles.inputText}>{dutyStartTime.toLocaleTimeString()}</Text>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isStartTimePickerVisible}
+              mode="time"
+              onConfirm={this.handleStartTimeConfirm}
+              onCancel={this.hideStartTimePicker}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Duty End Date:</Text>
+            <TouchableOpacity style={styles.inputButton} onPress={this.showEndDatePicker}>
+              <Text style={styles.inputText}>{dutyEndDate.toDateString()}</Text>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isEndDatePickerVisible}
+              mode="date"
+              onConfirm={this.handleEndDateConfirm}
+              onCancel={this.hideEndDatePicker}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Duty End Time:</Text>
+            <TouchableOpacity style={styles.inputButton} onPress={this.showEndTimePicker}>
+              <Text style={styles.inputText}>{dutyEndTime.toLocaleTimeString()}</Text>
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isEndTimePickerVisible}
+              mode="time"
+              onConfirm={this.handleEndTimeConfirm}
+              onCancel={this.hideEndTimePicker}
+            />
+          </View>
+        </>
+      )}
+
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Is OSDA Applicable:</Text>
+        <TouchableOpacity
+          style={[styles.toggleButton, isOSDAApplicable && styles.toggleButtonActive]}
+          onPress={() => this.setState({ isOSDAApplicable: !isOSDAApplicable })}
+        >
+          <Text style={styles.toggleButtonText}>{isOSDAApplicable ? 'Yes' : 'No'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.toggleContainer}>
+        <Text style={styles.label}>Is RRA Applicable:</Text>
+        <TouchableOpacity
+          style={[styles.toggleButton, isRRAApplicable && styles.toggleButtonActive]}
+          onPress={() => this.setState({ isRRAApplicable: !isRRAApplicable })}
+        >
+          <Text style={styles.toggleButtonText}>{isRRAApplicable ? 'Yes' : 'No'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={this.handleEndDuty}>
+          <Text style={styles.buttonText}>End Duty</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={closeModal}>
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
+  </View>
+);}
+}
+const styles = StyleSheet.create({
+container: {
+flex: 1,
+backgroundColor: '#fff',
+paddingHorizontal: 20,
+paddingVertical: 30,
+},
+scrollViewContent: {
+flexGrow: 1,
+},
+heading: {
+fontSize: 24,
+fontWeight: 'bold',
+marginBottom: 20,
+},
+inputContainer: {
+marginBottom: 20,
+},
+label: {
+fontSize: 16,
+fontWeight: 'bold',
+marginBottom: 8,
+},
+input: {
+height: 40,
+borderWidth: 1,
+borderColor: '#ccc',
+borderRadius: 8,
+paddingHorizontal: 12,
+fontSize: 16,
+},
+inputButton: {
+backgroundColor: '#f5f5f5',
+borderRadius: 8,
+paddingHorizontal: 12,
+paddingVertical: 16,
+justifyContent: 'center',
+},
+inputText: {
+fontSize: 16,
+color: '#333',
+},
+toggleContainer: {
+flexDirection: 'row',
+alignItems: 'center',
+marginBottom: 20,
+},
+toggleButton: {
+backgroundColor: '#e6e6e6',
+borderRadius: 20,
+paddingHorizontal: 16,
+paddingVertical: 8,
+marginLeft: 'auto',
+},
+toggleButtonActive: {
+backgroundColor: '#007aff',
+},
+toggleButtonText: {
+fontSize: 16,
+fontWeight: 'bold',
+color: '#fff',
+},
+buttonContainer: {
+flexDirection: 'row',
+justifyContent: 'space-between',
+marginTop: 20,
+
+},
+button: {
+backgroundColor: '#007aff',
+borderRadius: 8,
+paddingHorizontal: 16,
+paddingVertical: 12,
+alignItems: 'center',
+flex: 1,
+},
+cancelButton: {
+backgroundColor: '#ff3b30',
+marginLeft: 16,
+},
+buttonText: {
+fontSize: 16,
+fontWeight: 'bold',
+color: '#fff',
+},
+});
+export default EndDutyModal;
+
+
+File: ./components/end-duty-modal/styles.tsx
+----------------------------------------
+// styles.js
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  checkbox: {
+    marginRight: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
+
+export default styles;
+
+
+File: ./components/arrivalDepartureTImePIcker/ArrivalDepartureTimePicker.tsx
+----------------------------------------
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Platform,
+  TouchableOpacity,
+} from "react-native";
+import TimePicker from "../time-picker/TimePicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+
+interface ArrivalDepartureTimePickerProps {
+  onTimesChange: (
+    arrival: string,
+    departure: string,
+    dutyHours: string
+  ) => void;
+  disabled: boolean;
+}
+
+const ArrivalDepartureTimePicker: React.FC<ArrivalDepartureTimePickerProps> = ({
+  onTimesChange,
+  disabled,
+}) => {
+  const [arrivalTime, setArrivalTime] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
+  const [showArrivalPicker, setShowArrivalPicker] = useState(false);
+  const [showDeparturePicker, setShowDeparturePicker] = useState(false);
+
+  useEffect(() => {
+    if (arrivalTime && departureTime) {
+      const timeDiff = calculateTimeDifference(arrivalTime, departureTime);
+      onTimesChange(arrivalTime, departureTime, timeDiff);
+    }
+  }, [arrivalTime, departureTime]);
+
+  const calculateTimeDifference = (arrival: string, departure: string) => {
+    const arrivalDate = new Date(`2021/01/01 ${arrival}`);
+    const departureDate = new Date(`2021/01/01 ${departure}`);
+
+    // Check if arrival time is less than departure time
+    if (arrivalDate.getTime() > departureDate.getTime()) {
+      // Increment the departure date by one day
+      departureDate.setDate(departureDate.getDate() + 1);
+    }
+
+    const timeDiff = getTimeDifference(arrivalDate, departureDate);
+    const hours = Math.floor(timeDiff / 60);
+    const minutes = timeDiff % 60;
+    return `${hours}h ${minutes}m`;
+  };
+
+  const getTimeDifference = (
+    arrivalTime: Date,
+    departureTime: Date
+  ): number => {
+    if (!arrivalTime || !departureTime) {
+      return 0;
+    }
+
+    // Check if arrival and departure times are equal
+    if (arrivalTime.getTime() === departureTime.getTime()) {
+      // Special case: both times are at midnight
+      if (arrivalTime.getHours() === 0 && arrivalTime.getMinutes() === 0) {
+        return 24 * 60;
+      }
+      return 0;
+    }
+
+    if (
+      arrivalTime.getHours() === 0 &&
+      arrivalTime.getMinutes() === 0 &&
+      departureTime.getHours() === 0 &&
+      departureTime.getMinutes() === 0
+    ) {
+      return 24 * 60;
+    }
+
+    const timeDiff = Math.round(
+      (departureTime.getTime() - arrivalTime.getTime()) / 60000
+    );
+
+    // Return 0 if the time difference is negative
+    return timeDiff >= 0 ? timeDiff : 0;
+  };
+
+  const handleArrivalTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setArrivalTime(event.target.value);
+  };
+
+  const handleDepartureTimeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setDepartureTime(event.target.value);
+  };
+
+  const openArrivalPicker = () => {
+    setShowArrivalPicker(true);
+  };
+
+  const openDeparturePicker = () => {
+    setShowDeparturePicker(true);
+  };
+
+  const handleTimeChange =
+    (isArrival: boolean) => (event: any, selectedTime?: Date) => {
+      if (event.type === "set" && selectedTime) {
+        const hour = String(selectedTime.getHours()).padStart(2, "0");
+        const minute = String(selectedTime.getMinutes()).padStart(2, "0");
+        const timeString = `${hour}:${minute}`;
+
+        if (isArrival) {
+          setArrivalTime(timeString);
+          setShowArrivalPicker(false);
+        } else {
+          setDepartureTime(timeString);
+          setShowDeparturePicker(false);
+        }
+      } else {
+        setShowArrivalPicker(false);
+        setShowDeparturePicker(false);
+      }
+    };
+
+  const renderTimePicker = (isArrival: boolean) => {
+    const time = isArrival ? arrivalTime : departureTime;
+    const setShowPicker = isArrival
+      ? setShowArrivalPicker
+      : setShowDeparturePicker;
+    const showPicker = isArrival ? showArrivalPicker : showDeparturePicker;
+
+    return (
+      <View style={styles.timePickerContainer}>
+        <Text style={styles.label}>{isArrival ? "Dep:" : "Arr:"}</Text>
+        {Platform.OS === "web" ? (
+          <input
+            type="time"
+            value={time}
+            onChange={(e) =>
+              isArrival
+                ? setArrivalTime(e.target.value)
+                : setDepartureTime(e.target.value)
+            }
+            disabled={disabled}
+            style={styles.timeInput}
+          />
+        ) : (
+          <TouchableOpacity
+            onPress={() => setShowPicker(true)}
+            disabled={disabled}
+          >
+            <View style={styles.timeContainer}>
+              <Text style={styles.timeText}>{time || "--:--"}</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+        {Platform.OS !== "web" && showPicker && (
+          <DateTimePicker
+            value={new Date()}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={handleTimeChange(isArrival)}
+          />
+        )}
+      </View>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
+      {renderTimePicker(true)}
+      {renderTimePicker(false)}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+  },
+  timePickerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+  label: {
+    fontSize: 10,
+    marginRight: 4,
+  },
+  timeContainer: {
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    padding: 2,
+  },
+  timeText: {
+    fontSize: 12,
+  },
+  timeInput: {
+    width: "70%",
+    height: 24,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 4,
+    padding: 2,
+    fontSize: 12,
+  },
+});
+
+export default ArrivalDepartureTimePicker;
+
+
+
+File: ./components/calcualtionPage/calculationPageStyles.tsx
+----------------------------------------
+import { StyleSheet } from "react-native";
+
+export const calculationPageStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  background: {
+    backgroundColor: "#b5b5b5",
+    marginLeft: 5,
+  },
+  row: {
+    flexDirection: "row",
+  },
+  text: {
+    marginLeft: 5,
+    margin: 3,
+    fontWeight: "bold",
+  },
+});
+
+
+
+File: ./components/calcualtionPage/CalculationPage.tsx
+----------------------------------------
+// CalculationPage.tsx
+import React from "react";
+import { View, Text, ScrollView } from "react-native";
+import MainTable from "../main-table/MainTable";
+import { calculationPageStyles as styles } from "./calculationPageStyles";
+import { RouteProp } from '@react-navigation/native';
+import { NavigationProp } from '@react-navigation/native';
+
+type RootStackParamList = {
+  CalculationPage: {
+    designation: string;
+    payBand: number;
+    level: number;
+    rateOfPay: number;
+    selectedMonth: string;
+  };
+};
+
+type CalculationPageRouteProp = RouteProp<RootStackParamList, 'CalculationPage'>;
+
+interface CalculationPageProps {
+  route: CalculationPageRouteProp;
+  navigation: NavigationProp<RootStackParamList>;
+}
+
+const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) => {
+  const { designation, payBand, level, rateOfPay, selectedMonth } = route.params;
+
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.container}>
+        <View style={styles.background}>
+          <View style={styles.row}>
+            <Text style={styles.text}>Month: {selectedMonth}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.text}>Designation: {designation}</Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.text}>Level: {level}</Text>
+            <Text style={styles.text}>Pay Band: {payBand}</Text>
+            <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
+          </View>
+        </View>
+        <MainTable
+          navigation={navigation}
+          rateOfPay={rateOfPay}
+          designation={designation}
+          payBand={payBand}
+          level={level}
+          selectedMonth={selectedMonth}
+        />
+      </View>
+    </ScrollView>
+  );
+};
+
+export default CalculationPage;
+
+
+
+File: ./components/HomeScreen.tsx
+----------------------------------------
+import React, { Component } from 'react';
+import { View, ScrollView, Text, StyleSheet, Platform, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+import InterdependentPickers from './InterdependentPicker';
+import { styles } from '../styles_component/styles_homescreen';
+import { designations, months } from '../utils/constants';
+
+interface EmployeeInfoProps {
+  navigation: any; // You can define a more specific type based on your navigation structure
+}
+
+interface EmployeeInfoState {
+  designation: string;
+  payBand: React.SetStateAction<string>;
+  level: React.SetStateAction<string>;
+  rateOfPay: React.SetStateAction<string>;
+  selectedMonth: string;
+  showWarning: boolean;
+}
+
+class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
+  constructor(props: EmployeeInfoProps) {
+    super(props);
+    this.state = {
+      designation: '',
+      payBand: '',
+      level: '',
+      rateOfPay: '',
+      selectedMonth: '',
+      showWarning: false,
+    };
+  }
+
+  onContinuePress = () => {
+    const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
+    if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
+      this.setState({ showWarning: true });
+    } else {
+      const selectedDesignation = designations.find((item) => item.label === designation);
+  const designationValue = selectedDesignation ? selectedDesignation.value : '';
+      this.setState({ showWarning: false });
+      this.props.navigation.navigate('CalculationPage', {
+        designation: designationValue, 
+        payBand: payBand,
+        level: level,
+        rateOfPay: rateOfPay,
+        selectedMonth: selectedMonth,
+      });
+    }
+    
+  };
+
+  render() {
+    const { designation, payBand, level, rateOfPay, selectedMonth, showWarning } = this.state;
+    return (
+      <ScrollView style={{flex: 1}}>
+        <View style={[styles.homepage, styles.homepageFlexBox]}>
+          <View style={[styles.allowanceCalculator, styles.homepageFlexBox]}>
+            <Text style={styles.allowanceCalculator1}>ALLOWANCE</Text>
+            <Text style={styles.allowanceCalculator1}>CALCULATOR</Text>
+          </View>
+          <View style={styles.homepageChild}>
+            <View
+              style={{
+                flex: 1,
+                ...(Platform.OS === 'ios' && { marginBottom: 210 }),
+              }}
+            >
+              <Picker
+                selectedValue={designation}
+                onValueChange={(itemValue) => this.setState({ designation: itemValue })}
+                style={{ height: 40 }}
+              >
+                {designations.map((item, index) => (
+                  <Picker.Item key={index} label={item.label} value={item.value} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+          <View style={[styles.homepageItem, styles.homepageBg]}>
+            <View
+              style={{
+                flex: 1,
+                ...(Platform.OS === 'ios' && { marginBottom: 210 }),
+              }}
+            >
+              <Picker
+                style={{ height: 40 }}
+                selectedValue={selectedMonth}
+                onValueChange={(itemValue) => this.setState({ selectedMonth: itemValue })}
+              >
+                {months.map((item, index) => (
+                  <Picker.Item key={index} label={item.label} value={item.value} />
+                ))}
+              </Picker>
+            </View>
+          </View>
+          <View style={[styles.homepageInner, styles.homepageBg]}>
+            <InterdependentPickers
+              payBand={payBand}
+              setPayBand={(value) => this.setState({ payBand: value })}
+              level={level}
+              setLevel={(value) => this.setState({ level: value })}
+              rateOfPay={rateOfPay}
+              setRateOfPay={(value) => this.setState({ rateOfPay: value })}
+            />
+          </View>
+          {showWarning && (
+            <Text style={{ color: 'red', textAlign: 'center', marginVertical: 10 }}>
+             Enter Employee Information
+            </Text>
+          )}
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[
+              styles.rectanglePressable,
+              styles.homepageBg,
+              (!designation || !payBand || !level || !rateOfPay || !selectedMonth) && { opacity: 0.5 },
+            ]}
+            onPress={this.onContinuePress}
+          >
+            <Text style={styles.proceedText}>Proceed</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    );
+  }
+}
+
+
+export default EmployeeInfo;
+
+
+File: ./components/modal/Modal.tsx
+----------------------------------------
+import React from 'react';
+import { Modal as RNModal, View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <RNModal animationType="fade" transparent={true} visible={isOpen}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+          {children}
+        </View>
+      </View>
+    </RNModal>
+  );
+};
+
+const styles = StyleSheet.create({
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 10,
+  },
+  closeButtonText: {
+    color: '#007bff',
+    fontWeight: 'bold',
+  },
+});
+
+export default Modal;
+
+
+File: ./components/duty/DutyRow.tsx
+----------------------------------------
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  Platform,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import Duty from "./Duty";
+import Trip from "../trip/Trip";
+import TypeofWorkPickerComponent from "../type-of-work/typeofwork";
+import PickerComponentStation from "../station-picker/stationPicker";
+import TrainNumberInput from "../trainNumber";
+import ArrivalDepartureTimePicker from "../arrivalDepartureTImePIcker/ArrivalDepartureTimePicker";
+import DutyInfo from "./DutyInfo";
+import calculateAllowanceAndRemarks from "../allowancecalculation/calculateAllowanceAndRemarks";
+import DatePickerComponent from "../DatePicker/DatePickerComponent";
+import WebDatePicker from "../DatePicker/WebDatePicker";
+import { monthNames, disabledTypes } from "../../utils/constants";
+import styles from "../../styles_component/styles_dutyRow";
+
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
+
+interface DutyRowProps {
+  duty: Duty;
+  addTrip: (dutyId: number) => void;
+  handleEndDuty: (duty: Duty) => void;
+  updateTripData: (
+    dutyId: number,
+    tripId: number,
+    field: keyof Trip,
+    value: any
+  ) => void;
+  deleteTrip: (dutyId: number, tripId: number) => void;
+  deleteDuty: (dutyId: number) => void;
+  setTotalLeaves: (newTotalLeaves: number) => void;
+  selectedMonth: keyof typeof monthNames; // Update the selectedMonth prop type
+}
+
+const DutyRow: React.FC<DutyRowProps> = ({
+  duty,
+  addTrip,
+  handleEndDuty,
+  updateTripData,
+  deleteTrip,
+  deleteDuty,
+  setTotalLeaves,
+  selectedMonth, // Receive the selectedMonth prop
+}) => {
+  const [hasEnded, setHasEnded] = useState(duty.hasEnded);
+
+  const handleTripDataChange = (
+    tripId: number,
+    field: keyof Trip,
+    value: any
+  ) => {
+    const tripIndex = duty.trips.findIndex((trip) => trip.id === tripId);
+    const trip = duty.trips[tripIndex];
+
+    const shouldDisableInputFields = (typeOfWork: string) => {
+      return disabledTypes.includes(typeOfWork);
+    };
+
+    // Update the dutyHours for leave types before updating the trip data
+    if (field === "typeOfWork") {
+      duty.updateDutyHoursForLeaveTypes(value);
+
+      // Check if the new type is a leave type and the previous type was not
+      if (
+        shouldDisableInputFields(value) &&
+        !shouldDisableInputFields(trip.typeOfWork)
+      ) {
+        // Reset all values except date
+        const updatedTrip = {
+          ...trip,
+          [field]: value,
+          sourceStation: "",
+          destinationStation: "",
+          distance: 0,
+          trainNumber: "",
+          arrivalTime: "",
+          departureTime: "",
+          dutyHours: "",
+          allowance: 0,
+          remarks: "",
+        };
+        updateTripData(duty.id, tripId, field, value);
+        updateTripData(duty.id, tripId, "sourceStation", "");
+        updateTripData(duty.id, tripId, "destinationStation", "");
+        updateTripData(duty.id, tripId, "distance", 0);
+        updateTripData(duty.id, tripId, "trainNumber", "");
+        updateTripData(duty.id, tripId, "arrivalTime", "");
+        updateTripData(duty.id, tripId, "departureTime", "");
+        updateTripData(duty.id, tripId, "dutyHours", "");
+        updateTripData(duty.id, tripId, "allowance", 0);
+        updateTripData(duty.id, tripId, "remarks", "");
+
+        // Set duty.hasEnded to true if the new type is a leave type
+        duty.hasEnded = true;
+
+        return;
+      } else if (shouldDisableInputFields(value)) {
+        // Set duty.hasEnded to true if the new type is a leave type
+        duty.hasEnded = true;
+      } else {
+        // Reset duty.hasEnded to false if the new type is not a leave type
+        duty.hasEnded = false;
+      }
+    }
+
+    // Update the trip data
+    const updatedTrip = { ...trip, [field]: value };
+    updateTripData(duty.id, tripId, field, value);
+
+    // Recalculate allowance and remarks whenever any field that affects the calculation is changed
+    const dutyHoursInMinutes = calculateDutyHoursFromTimes(
+      updatedTrip.arrivalTime,
+      updatedTrip.departureTime
+    );
+
+    const { allowance, remarks } = calculateAllowanceAndRemarks(
+      updatedTrip.distance,
+      updatedTrip.typeOfWork,
+      dutyHoursInMinutes
+    );
+
+    updateTripData(duty.id, tripId, "allowance", allowance);
+    updateTripData(duty.id, tripId, "remarks", remarks);
+  };
+
+  const handleTimesChange = useCallback(
+    debounce((tripId, arrivalTime, departureTime, dutyHours) => {
+      handleTripDataChange(tripId, "arrivalTime", arrivalTime);
+      handleTripDataChange(tripId, "departureTime", departureTime);
+      handleTripDataChange(tripId, "dutyHours", dutyHours);
+    }, 300),
+    [handleTripDataChange]
+  );
+
+  const calculateDutyHoursFromTimes = (
+    arrivalTime: string,
+    departureTime: string
+  ): number => {
+    if (!arrivalTime || !departureTime) {
+      return 0;
+    }
+
+    const arrival = new Date(`1970-01-01T${arrivalTime}`);
+    const departure = new Date(`1970-01-01T${departureTime}`);
+
+    // Check if arrival time is less than departure time
+    if (arrival.getTime() > departure.getTime()) {
+      // Increment the arrival date by one day
+      departure.setDate(departure.getDate() + 1);
+    }
+
+    const dutyHoursInMinutes =
+      (departure.getTime() - arrival.getTime()) / (1000 * 60);
+
+    return dutyHoursInMinutes;
+  };
+
+  const handleStationChange = (
+    dutyId: number,
+    tripId: number,
+    sourceStation: string,
+    destinationStation: string,
+    distance: number
+  ) => {
+    updateTripData(dutyId, tripId, "sourceStation", sourceStation);
+    updateTripData(dutyId, tripId, "destinationStation", destinationStation);
+    updateTripData(dutyId, tripId, "distance", distance);
+
+    // Recalculate the allowance based on the new distance
+    duty.trips.forEach((trip) => {
+      if (trip.id === tripId) {
+        const dutyHoursAsNumber = parseFloat(trip.dutyHours) || 0;
+
+        const { allowance, remarks } = calculateAllowanceAndRemarks(
+          distance,
+          trip.typeOfWork,
+          dutyHoursAsNumber * 60
+        );
+
+        updateTripData(dutyId, tripId, "allowance", allowance);
+        updateTripData(dutyId, tripId, "remarks", remarks);
+      }
+    });
+  };
+
+  const handleTrainNumberChange = (
+    trainNumber: string,
+    dutyId: number,
+    tripId: number
+  ) => {
+    updateTripData(dutyId, tripId, "trainNumber", trainNumber);
+  };
+
+  const handleEditDuty = () => {
+    setHasEnded(false);
+    duty.hasEnded = false; // Directly modify the duty object
+  };
+
+  useEffect(() => {
+    duty.trips.forEach((trip) => {
+      const dutyHoursInMinutes = calculateDutyHoursFromTimes(
+        trip.arrivalTime,
+        trip.departureTime
+      );
+
+      const { allowance, remarks } = calculateAllowanceAndRemarks(
+        trip.distance,
+        trip.typeOfWork,
+        dutyHoursInMinutes
+      );
+
+      updateTripData(duty.id, trip.id, "allowance", allowance);
+      updateTripData(duty.id, trip.id, "remarks", remarks);
+    });
+  }, [
+    duty.trips,
+    updateTripData,
+    duty.id,
+    calculateDutyHoursFromTimes,
+    calculateAllowanceAndRemarks,
+  ]);
+
+  const shouldDisableInputFields = (typeOfWork: string) => {
+    return disabledTypes.includes(typeOfWork);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Text style={styles.serialNumber}>{duty.id}</Text>
+      </View>
+      <ScrollView horizontal={false} style={styles.tripsContainer}>
+        {duty.trips.map((trip, index) => (
+          <View key={trip.id} style={styles.tripContainer}>
+            <View style={styles.dateContainer}>
+              {Platform.OS === "web" ? (
+                <WebDatePicker
+                  value={
+                    trip.date ||
+                    `${new Date().getFullYear()}-${String(
+                      monthNames[selectedMonth]
+                    ).padStart(2, "0")}-01`
+                  }
+                  onChange={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
+                  min={`2023-${String(monthNames[selectedMonth]).padStart(
+                    2,
+                    "0"
+                  )}-01`}
+                />
+              ) : (
+                <DatePickerComponent
+                  onDateSelected={(date) =>
+                    handleTripDataChange(trip.id, "date", date)
+                  }
+                  defaultDate={`${new Date().getFullYear()}-${
+                    monthNames[selectedMonth]
+                  }-01`}
+                  minimumDate={
+                    new Date(
+                      `2023-${String(monthNames[selectedMonth]).padStart(
+                        2,
+                        "0"
+                      )}-01`
+                    )
+                  }
+                />
+              )}
+            </View>
+            <View style={styles.dutyTypeContainer}>
+              <TypeofWorkPickerComponent
+                TypeofWork={(newValue) =>
+                  handleTripDataChange(trip.id, "typeOfWork", newValue)
+                }
+              />
+            </View>
+            <View style={styles.trainNoContainer}>
+              <TrainNumberInput
+                onChange={(trainNumber) =>
+                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
+                }
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+                maxLength={7}
+              />
+            </View>
+            <View style={styles.stationsContainer}>
+              <PickerComponentStation
+                onStationChange={handleStationChange}
+                dutyId={duty.id}
+                tripId={trip.id}
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+                maxLength={5}
+                duty={duty}
+              />
+            </View>
+            <View style={styles.timePickerContainer}>
+              <ArrivalDepartureTimePicker
+                onTimesChange={(arrivalTime, departureTime, dutyHours) =>
+                  handleTimesChange(
+                    trip.id,
+                    arrivalTime,
+                    departureTime,
+                    dutyHours
+                  )
+                }
+                disabled={shouldDisableInputFields(trip.typeOfWork)}
+              />
+            </View>
+            <View style={styles.durationContainer}>
+              <Text style={styles.durationText}>{trip.dutyHours}</Text>
+              <Text style={styles.durationLabel}>duration</Text>
+            </View>
+            <View style={styles.allowanceContainer}>
+              <Text style={styles.allowanceText}>
+                {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
+              </Text>
+              <Text style={styles.allowanceLabel}>km earned</Text>
+            </View>
+            <View style={styles.remarksContainer}>
+              <Text style={styles.remarksText}>{trip.remarks}</Text>
+              <Text style={styles.remarksLabel}>remarks</Text>
+            </View>
+            <View style={styles.actionsContainer}>
+              <TouchableOpacity
+                onPress={() => deleteTrip(duty.id, trip.id)}
+                disabled={duty.trips.length === 1}
+                style={styles.deleteButton}
+              >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+      <View style={styles.buttonsContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.addTripButton]}
+          onPress={() => addTrip(duty.id)}
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          }
+        >
+          <Text style={styles.buttonText}>Add Trip</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.endDutyButton]}
+          onPress={() => handleEndDuty(duty)}
+          disabled={
+            duty.hasEnded || shouldDisableInputFields(duty.trips[0].typeOfWork)
+          }
+        >
+          <Text style={styles.buttonText}>End Duty</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.deleteDutyButton]}
+          onPress={() => deleteDuty(duty.id)}
+        >
+          <Text style={styles.buttonText}>Delete Duty</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, styles.editDutyButton]}
+          onPress={handleEditDuty}
+        >
+          <Text style={styles.buttonText}>Edit Duty</Text>
+        </TouchableOpacity>
+      </View>
+      {duty.hasEnded && <DutyInfo duty={duty} />}
+    </View>
+  );
+};
+
+export default DutyRow;
+
+
+
+File: ./components/duty/DutyInfo.tsx
+----------------------------------------
+import React from "react";
+import Duty from "./Duty";
+import { View, Text, StyleSheet } from "react-native";
+
+interface DutyInfoProps {
+  duty: Duty;
+}
+
+const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
+  const totalDistance = 0 || duty.calculateTotalDistance();
+ 
+  const formatHoursToHHMM = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const decimalHours = hours - wholeHours;
+    const minutes = Math.round(decimalHours * 60);
+    return `${wholeHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <View style={styles.main}>
+      <View style={styles.dutyInfoContainer}>
+        <View style={styles.dutyContent}>
+          <View style={styles.infoRow}>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Sign In</Text>
+              <Text style={styles.value}>
+              {duty.signIn
+                  ? duty.signIn.toLocaleString('en-NZ', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })
+                  : '-'}
+              </Text>
+            </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Sign Off</Text>
+
+              <Text style={styles.value}>
+              {duty.signOff
+                  ? duty.signOff.toLocaleString('en-NZ', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false,
+                    })
+                  : '-'}
+              </Text>
+            </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Total Km Earned:</Text>
+              <Text style={styles.value}>
+                {duty.calculateTotalAllowance().toFixed(2)}km
+              </Text>
+            </View>
+
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Total Distance:</Text>
+              <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
+            </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Duty Hours</Text>
+              <Text style={styles.value}>
+                {formatHoursToHHMM(duty.dutyHours)}
+              </Text>
+            </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Night Duty Hours :</Text>
+              <Text style={styles.value}>
+                {formatHoursToHHMM(duty.nightDutyHours)}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.infoRow}>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>Progressive Duty Hours</Text>
+              <Text style={styles.value}>
+                {formatHoursToHHMM(duty.progressiveDutyHours)}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+            <View style={styles.infoBlock}>
+        <Text style={styles.label}>Progressive Night Duty Hours:</Text>
+        <Text style={styles.value}>  {formatHoursToHHMM(duty.progressiveNightDutyHours)}</Text>
+      </View>
+      </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>OSDA</Text>
+              <Text style={styles.value}>{duty.isOSDA ? "Yes" : "No"}</Text>
+            </View>
+            <View style={styles.infoBlock}>
+              <Text style={styles.label}>RRA</Text>
+              <Text style={styles.value}>{duty.isRRA ? "Yes" : "No"}</Text>
+            </View>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  main: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    width: "100%",
+  },
+  dutyInfoContainer: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    margin: 10,
+    padding: 8,
+    width: "100%",
+    maxWidth: "none",
+  },
+  dutyContent: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+  },
+  infoRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "flex-start",
+  },
+  infoBlock: {
+    flexShrink: 0,
+    marginRight: 24,
+    minWidth: 160,
+  },
+  label: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+  },
+  value: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#333",
+  },
+});
+
+export default DutyInfo;
+
+
+
+File: ./components/duty/Duty.tsx
+----------------------------------------
+import Trip from "../trip/Trip";
+import { leaveTypes } from "../../utils/constants";
+
+class Duty {
+  id: number;
+  trips: Trip[];
+  signIn: Date | null;
+  signOff: Date | null;
+  dutyHours: number;
+  nightDutyHours: number;
+  isOSDA: boolean;
+  isRRA: boolean;
+  dutyAllowance: number;
+  dutyDistance: number;
+  progressiveDutyHours:number;
+  progressiveNightDutyHours: number;
+  hasEnded: boolean; // Add this line
+  isLeave: boolean;
+
+  constructor(id: number, trips: Trip[] = []) {
+    this.id = id;
+    this.trips = trips;
+    this.signIn = null;
+    this.signOff = null;
+    this.dutyHours = 0;
+    this.nightDutyHours = 0;
+    this.isOSDA = false;
+    this.isRRA = false;
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
+    this.progressiveDutyHours=0;
+    this.progressiveNightDutyHours=0;
+    this.hasEnded = false; // Initialize hasEnded
+    this.isLeave = false;
+  }
+
+  setSignInAndSignOff(signIn: Date, signOff: Date) {
+    this.signIn = signIn;
+    this.signOff = signOff;
+    this.calculateDutyHoursAndNightDutyHours();
+  }
+
+  private calculateDutyHoursAndNightDutyHours() {
+    if (this.signIn && this.signOff) {
+      this.dutyHours = this.calculateDutyHours();
+      this.nightDutyHours = this.calculateNightDutyHours();
+    // this.progressiveNightDutyHours += this.nightDutyHours;
+    }
+  }
+
+  calculateTotalAllowance() {
+    let totalAllowanceforDuty = 0;
+  
+    // Calculate the total allowance for non-leave trips
+    const nonLeaveTripAllowances = this.trips
+      .filter(trip => !["Paid leave", "Sick leave", "Casual leave"].includes(trip.typeOfWork))
+      .map(trip => trip.allowance);
+  
+    totalAllowanceforDuty = nonLeaveTripAllowances.reduce((total, allowance) => total + allowance, 0);
+  
+    // Apply the minimum allowance of 120 only for non-leave trips
+    if (totalAllowanceforDuty > 0 && totalAllowanceforDuty <= 120) {
+      totalAllowanceforDuty = 120;
+    }
+  
+    this.dutyAllowance = totalAllowanceforDuty;
+    return totalAllowanceforDuty;
+  }
+  calculateTotalDistance() {
+    const totalDistance = this.trips.reduce((acc, trip) => acc + (trip.distance || 0), 0);
+    return totalDistance;
+  }
+
+  // calculateprogressiveDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
+  //   if (dutyIndex === 0) {
+  //     // For the first duty, the progressiveDutyHours is the same as dutyHours
+  //     this.progressiveDutyHours = this.dutyHours;
+  //   } else {
+  //     // Calculate the progressive duty hours based on the previous duty's progressiveDutyHours
+  //     const previousDuty = totalDuties[dutyIndex - 1];
+  //     this.progressiveDutyHours = previousDuty.progressiveDutyHours + this.dutyHours;
+  //   }
+  
+  //   return this.progressiveDutyHours;
+  // }
+
+  calculateProgressiveNightDutyHours(dutyIndex: number, totalDuties: Duty[]): number {
+    if (dutyIndex === 0) {
+      // For the first duty, the progressiveNightDutyHours is the same as nightDutyHours
+      this.progressiveNightDutyHours = this.nightDutyHours;
+    } else {
+      // Calculate the progressive night duty hours based on the previous duty's progressiveNightDutyHours
+      const previousDuty = totalDuties[dutyIndex - 1];
+      this.progressiveNightDutyHours = previousDuty.progressiveNightDutyHours + this.nightDutyHours;
+    }
+
+    return this.progressiveNightDutyHours;
+}
+
+updateDutyHoursForLeaveTypes(typeOfWork: string) {
+  const endedTypes = ["Periodic rest", "Waiting for duty"];
+
+  if (leaveTypes.includes(typeOfWork)) {
+    this.dutyHours = 7.41667; // 7 hours and 25 minutes
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
+    this.isLeave = true;
+  } else if (endedTypes.includes(typeOfWork)) {
+    this.dutyHours = 0; // Set dutyHours to 0 for "Periodic Rest" and "Waiting for duty"
+    this.dutyAllowance = 0;
+    this.dutyDistance = 0;
+  } else {
+    this.dutyHours = this.calculateDutyHours();
+    this.dutyAllowance = this.calculateTotalAllowance();
+    this.dutyDistance = this.calculateTotalDistance();
+  }
+}
+  updateTrip(tripId: number, updatedTrip: Trip) {
+    const tripIndex = this.trips.findIndex((trip) => trip.id === tripId);
+    if (tripIndex !== -1) {
+      this.trips[tripIndex] = updatedTrip;
+    }
+  }
+
+  private calculateDutyHours(): number {
+    if (this.signIn && this.signOff) {
+      const timeDiff = Math.abs(this.signOff.getTime() - this.signIn.getTime());
+      const totalMinutes = Math.floor(timeDiff / (1000 * 60));
+  
+      if (totalMinutes < 60) {
+        return totalMinutes / 60;
+      } else {
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        const fractionalHours = minutes / 60;
+        return hours + fractionalHours;
+      }
+    }
+    return 0;
+  }
+  
+  private calculateNightDutyHours(): number {
+    if (this.signIn && this.signOff) {
+      const NIGHT_START_HOUR = 22; // 10 PM
+      const NIGHT_END_HOUR = 6; // 6 AM
+      let nightDutyMinutes = 0;
+
+      // Start counting from signIn and stop at signOff
+      let current = new Date(this.signIn);
+
+      while (current < this.signOff) {
+        let hour = current.getHours();
+        if (hour >= NIGHT_START_HOUR || hour < NIGHT_END_HOUR) {
+          nightDutyMinutes++; // Count each minute during the night hours
+        }
+        current.setMinutes(current.getMinutes() + 1); // Move to next minute
+      }
+
+      // Convert total minutes to hours in decimal
+      let nightDutyHours = nightDutyMinutes / 60;
+
+      return nightDutyHours;
+    }
+
+    return 0;
+  }
+}
+
+export default Duty;
+
+
+
+File: ./signIN/signInScreen.tsx
+----------------------------------------
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions, Image, Platform, ActivityIndicator } from 'react-native';
+import backgroundImage from '../assets/bgimage6.png';
+import googleIcon from '../assets/googleIcon.png';
+import { useNavigation } from '@react-navigation/native';
+import { auth } from '../firebase/firebaseConfig';
+import { handleGoogleSignIn } from './handleGoogleSignIn';
+
+const { width } = Dimensions.get('window');
+
+const SignInScreen = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigation = useNavigation();
+
+  const handleSignIn = async () => {
+    if (!email || !password) {
+      setError('Please enter email and password');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      navigation.navigate('Home');
+    } catch (err) {
+      setError(err.message);
+    }
+    setLoading(false);
+  };
+
+  const handleForgotPassword = () => {
+    // Handle forgot password logic
+  };
+
+  function signInWithGoogle() {
+    if (Platform.OS === 'web') {
+      const { signInWithGoogleWeb } = require('./webGoogleSignIn');
+      signInWithGoogleWeb(auth, navigation);
+    } else {
+      const { handleGoogleSignIn } = require('./handleGoogleSignIn');
+      handleGoogleSignIn(auth, navigation);
+    }
+  }
+
+  return (
+    <View style={styles.container}>
+      <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
+        <View style={styles.imageOverlay}>
+          <View style={styles.titleContainer}>
+            <View style={styles.titleBackground}>
+              <Text style={styles.title}>Railway Allowance Calculator</Text>
+            </View>
+          </View>
+          <View style={styles.contentContainer}>
+            <View style={styles.formContainer}>
+              <Text style={styles.description}>
+                The Railway Allowance Calculator is designed for Indian Railways Employees, specifically operational employees, to calculate their allowance. The application can calculate the allowance for a month for multiple employee types, grades, and pay bands. It also generates a PDF report for easy record-keeping. The application is available on Android and iOS platforms.
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+              <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
+                <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.signInButton} onPress={handleSignIn} disabled={loading}>
+                {loading ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.signInButtonText}>Sign In</Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.signInButtonWithIcon} onPress={signInWithGoogle}>
+                <Image source={googleIcon} style={styles.icon} />
+                <Text style={styles.signInButtonText}>Continue With Google</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ImageBackground>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  titleContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 80,
+    height: 60,
+  },
+  titleBackground: {
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#000000',
+    fontFamily: 'sans-serif',
+  },
+  backgroundImage: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  imageOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  contentContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+  },
+  formContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    padding: 25,
+    borderRadius: 15,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  description: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#333',
+  },
+  input: {
+    height: 40,
+    borderWidth: 0.3,
+    width: 280,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+    fontSize: 14,
+  },
+  signInButton: {
+    backgroundColor: '#000000',
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginVertical: 5,
+    height: 40,
+    width: 280,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signInButtonWithIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#000000',
+    paddingVertical: 12,
+    borderRadius: 10,
+    marginVertical: 5,
+    height: 40,
+    width: 280,
+    justifyContent: 'center',
+  },
+  signInButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  icon: {
+    width: 15,
+    height: 15,
+    marginRight: 10,
+  },
+  forgotPasswordButton: {
+    marginBottom: 15,
+  },
+  forgotPasswordButtonText: {
+    color: '#999',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+  errorContainer: {
+    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    fontSize: 14,
+  },
+});
+
+export default SignInScreen;
+
+
+File: ./hosting/src/App.tsx
+----------------------------------------
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+      <div>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
+}
+
+export default App
+
+
+
+File: ./hosting/src/main.tsx
+----------------------------------------
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.tsx'
+import './index.css'
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
+
+
+File: ./src/components/ReportDocument.tsx
+----------------------------------------
+import React from 'react';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import Duty from './Duty';
+
+const styles = StyleSheet.create({
+    page: {
+      flexDirection: 'column',
+      backgroundColor: '#E4E4E4',
+      padding: 10
+    },
+    tableRow: {
+      flexDirection: "row",
+      borderBottomWidth: 1,
+      borderBottomColor: '#bfbfbf',
+      borderStyle: "solid",
+      alignItems: 'center',
+      height: 24
+    },
+    tableColHeader: {
+      width: "25%",
+      borderRightWidth: 1,
+      borderRightColor: '#bfbfbf',
+      borderStyle: "solid",
+      padding: 5,
+      fontWeight: 'bold'
+    },
+    tableCol: {
+      width: "25%",
+      borderRightWidth: 1,
+      borderRightColor: '#bfbfbf',
+      borderStyle: "solid",
+      padding: 5
+    },
+    tableCell: {
+      fontSize: 10
+    }
+  });
+  
+
+interface ReportDocumentProps {
+    duties: Duty[];
+  }
+
+  const ReportDocument: React.FC<ReportDocumentProps> = ({ duties }) => {
+    return (
+      <Document>
+        <Page size="A4" style={styles.page}>
+          <View style={{ flexDirection: 'column', marginBottom: 20 }}>
+            <View style={styles.tableRow}>
+              <Text style={styles.tableColHeader}>Duty ID</Text>
+              <Text style={styles.tableColHeader}>Start</Text>
+              <Text style={styles.tableColHeader}>End</Text>
+              <Text style={styles.tableColHeader}>Trips</Text>
+            </View>
+            {duties.map((duty, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableCol}>{duty.id}</Text>
+                <Text style={styles.tableCol}>{duty.startTime}</Text>
+                <Text style={styles.tableCol}>{duty.endTime}</Text>
+                <Text style={styles.tableCol}>
+                  {duty.trips.map((trip, index) => `Trip ID: ${trip.id}`).join(", ")}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Text style={{ marginTop: 10 }}>Summary: Total Duties - {duties.length}</Text>
+        </Page>
+      </Document>
+    );
+  }
+  
+  export default ReportDocument;
+
+

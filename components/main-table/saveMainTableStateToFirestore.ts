@@ -1,5 +1,5 @@
 import { db, auth } from "../../firebase/firebaseConfig";
-import firebase from 'firebase/compat/app';
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { MainTableState } from "./types";
 import Duty from "../duty/Duty";
 import Fortnight from "../fortnight-block/Fortnight";
@@ -7,19 +7,19 @@ import Trip from '../trip/Trip';
 
 export const saveMainTableStateToFirestore = async (state: MainTableState, selectedMonth: string) => {
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error("User is not authenticated");
+    const userUid = auth.currentUser?.uid;
+    if (!userUid) {
+      console.log("User is not authenticated");
+      return;
     }
+    const docRef = doc(db, "mainTableStates", `${userUid}_${selectedMonth}`);
 
+    // Create a new object with the state properties we want to save
     const stateToSave = {
       duties: state.duties.map(duty => ({
-        ...duty.toJSON(),
-        signIn: duty.signIn ? firebase.firestore.Timestamp.fromDate(duty.signIn) : null,
-        signOff: duty.signOff ? firebase.firestore.Timestamp.fromDate(duty.signOff) : null,
+        ...duty,
+        trips: duty.trips.map(trip => ({ ...trip }))
       })),
-      showModal: state.showModal,
-      selectedDuty: state.selectedDuty ? state.selectedDuty.toJSON() : null,
       totalLeaves: state.totalLeaves,
       overtimeResult: state.overtimeResult,
       progressiveDutyHours: state.progressiveDutyHours,
@@ -28,12 +28,13 @@ export const saveMainTableStateToFirestore = async (state: MainTableState, selec
         endDate: fortnight.endDate.toISOString(),
         totalForthnightDuration: fortnight.totalForthnightDuration,
         overtimeAllowance: fortnight.overtimeAllowance,
-        totalOvertimeHours: fortnight.totalOvertimeHours,
+        totalOvertimeHours: fortnight.totalOvertimeHours
       })),
+      // Omit selectedDuty as it's causing issues
     };
 
-    await db.collection("users").doc(user.uid).collection("mainTableStates").doc(selectedMonth).set(stateToSave);
-    console.log("MainTable state successfully saved to Firestore!");
+    await setDoc(docRef, stateToSave);
+    console.log("MainTable state saved successfully");
   } catch (error) {
     console.error("Error saving MainTable state to Firestore: ", error);
     throw error;
@@ -48,17 +49,17 @@ export const loadMainTableStateFromFirestore = async (selectedMonth: string): Pr
       return null;
     }
 
-    const docRef = db.collection("users").doc(user.uid).collection("mainTableStates").doc(selectedMonth);
-    const doc = await docRef.get();
+    const docRef = doc(db, "mainTableStates", `${user.uid}_${selectedMonth}`);
+    const docSnap = await getDoc(docRef);
 
-    if (doc.exists) {
-      const data = doc.data() as any;
+    if (docSnap.exists()) {
+      const data = docSnap.data() as any;
       const convertedState: MainTableState = {
         duties: data.duties.map((dutyData: any) => {
           const duty = new Duty(dutyData.id, dutyData.trips.map((tripData: any) => new Trip(tripData.id, tripData)));
           Object.assign(duty, dutyData);
-          duty.signIn = dutyData.signIn ? new Date(dutyData.signIn.seconds * 1000) : null;
-          duty.signOff = dutyData.signOff ? new Date(dutyData.signOff.seconds * 1000) : null;
+          duty.signIn = dutyData.signIn ? new Date(dutyData.signIn) : null;
+          duty.signOff = dutyData.signOff ? new Date(dutyData.signOff) : null;
           duty.hasEnded = dutyData.hasEnded || false;
           return duty;
         }),
