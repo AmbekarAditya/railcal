@@ -4,16 +4,17 @@ import { Picker } from '@react-native-picker/picker';
 import InterdependentPickers from './InterdependentPicker';
 import { styles } from '../styles_component/styles_homescreen';
 import { designations, months } from '../utils/constants';
+import { saveEmployeeInfoStateToFirestore, loadEmployeeInfoStateFromFirestore } from './employeeInfo/saveEmployeeInfoStateToFirestore';
 
 interface EmployeeInfoProps {
-  navigation: any; // You can define a more specific type based on your navigation structure
+  navigation: any;
 }
 
 interface EmployeeInfoState {
   designation: string;
-  payBand: React.SetStateAction<string>;
-  level: React.SetStateAction<string>;
-  rateOfPay: React.SetStateAction<string>;
+  payBand: string;
+  level: string;
+  rateOfPay: string;
   selectedMonth: string;
   showWarning: boolean;
 }
@@ -31,14 +32,25 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
     };
   }
 
-  onContinuePress = () => {
+  async componentDidMount() {
+    const loadedState = await loadEmployeeInfoStateFromFirestore();
+    if (loadedState) {
+      this.setState(loadedState);
+    }
+  }
+
+  onContinuePress = async () => {
     const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
     if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
       this.setState({ showWarning: true });
     } else {
       const selectedDesignation = designations.find((item) => item.label === designation);
-  const designationValue = selectedDesignation ? selectedDesignation.value : '';
+      const designationValue = selectedDesignation ? selectedDesignation.value : '';
       this.setState({ showWarning: false });
+
+      // Save the state before navigating
+      await saveEmployeeInfoStateToFirestore(this.state);
+
       this.props.navigation.navigate('CalculationPage', {
         designation: designationValue, 
         payBand: payBand,
@@ -47,7 +59,6 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
         selectedMonth: selectedMonth,
       });
     }
-    
   };
 
   render() {
@@ -98,11 +109,11 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
           <View style={[styles.homepageInner, styles.homepageBg]}>
             <InterdependentPickers
               payBand={payBand}
-              setPayBand={(value) => this.setState({ payBand: value })}
+              setPayBand={(value) => this.setState({ payBand: typeof value === 'function' ? value(payBand) : value })}
               level={level}
-              setLevel={(value) => this.setState({ level: value })}
+              setLevel={(value) => this.setState({ level: typeof value === 'function' ? value(level) : value })}
               rateOfPay={rateOfPay}
-              setRateOfPay={(value) => this.setState({ rateOfPay: value })}
+              setRateOfPay={(value) => this.setState({ rateOfPay: typeof value === 'function' ? value(rateOfPay) : value })}
             />
           </View>
           {showWarning && (
@@ -126,6 +137,5 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
     );
   }
 }
-
 
 export default EmployeeInfo;
