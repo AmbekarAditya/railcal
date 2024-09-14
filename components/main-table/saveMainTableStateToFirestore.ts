@@ -1,5 +1,5 @@
 import { db, auth } from "../../firebase/firebaseConfig";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, Timestamp } from "firebase/firestore";
 import { MainTableState } from "./types";
 import Duty from "../duty/Duty";
 import Fortnight from "../fortnight-block/Fortnight";
@@ -58,8 +58,8 @@ export const loadMainTableStateFromFirestore = async (selectedMonth: string): Pr
         duties: data.duties.map((dutyData: any) => {
           const duty = new Duty(dutyData.id, dutyData.trips.map((tripData: any) => new Trip(tripData.id, tripData)));
           Object.assign(duty, dutyData);
-          duty.signIn = dutyData.signIn ? new Date(dutyData.signIn) : null;
-          duty.signOff = dutyData.signOff ? new Date(dutyData.signOff) : null;
+          duty.signIn = dutyData.signIn ? (dutyData.signIn as Timestamp).toDate() : null;
+          duty.signOff = dutyData.signOff ? (dutyData.signOff as Timestamp).toDate() : null;
           duty.hasEnded = dutyData.hasEnded || false;
           return duty;
         }),
