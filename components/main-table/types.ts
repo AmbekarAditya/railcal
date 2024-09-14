@@ -20,6 +20,9 @@ export interface MainTableState {
   overtimeResult: number;
   progressiveDutyHours: number;
   fortnights: Fortnight[];
+  // Add these new properties
+  fromStation: string;
+  toStation: string;
   notification: {
     message: string;
     type: 'success' | 'error' | 'info';

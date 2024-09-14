@@ -38,12 +38,18 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     progressiveDutyHours: 0,
     fortnights: [],
     notification: null,  // Add this new state property
+    fromStation: "",
+    toStation: "",
   };
 
   async componentDidMount() {
     const loadedState = await loadMainTableStateFromFirestore(this.props.selectedMonth);
     if (loadedState) {
-      this.setState(loadedState);
+      this.setState({
+        ...loadedState,
+        fromStation: loadedState.fromStation || "",
+        toStation: loadedState.toStation || "",
+      });
     } else {
       this.setState({
         duties: [createDefaultDuty(1, this.props.selectedMonth)],
@@ -471,11 +477,14 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     this.setState({ fortnights });
   };
 
-  render() {
-    const { overtimeResult, fortnights } = this.state;
+  handleStationChange = (from: string, to: string) => {
+    this.setState({ fromStation: from, toStation: to });
+  };
 
-    const { duties, showModal, selectedDuty, totalLeaves } = this.state;
-    const { rateOfPay, selectedMonth, designation, payBand, level } =
+  render() {
+    const { overtimeResult, fortnights, duties, fromStation, toStation } = this.state;
+
+    const { selectedMonth, designation, payBand, level } =
       this.props;
 
     let startDate = ""; // Default to an empty string
@@ -495,7 +504,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     // Calculate leave mileage allowance
     const { leaveMileageAllowance } = calculateLeaveMileage({
-      rateOfPay,
+      rateOfPay: this.props.rateOfPay,
       daysInMonth,
       duties,
     });
@@ -515,12 +524,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
     const nationalHolidayAllowance = 1; // Example fixed national holiday allowance, replace as needed
     const overTimeAllowance = 75; // Example overtitotalAllowanceme allowance, replace as needed
-    const dearnessAllowance = calculateDearnessAllowance(rateOfPay);
+    const dearnessAllowance = calculateDearnessAllowance(this.props.rateOfPay);
     const transportationAllowance =
       calculateTransportationAllowance(designation);
     const totalNightDutyHours = this.calculateTotalNightDutyHours();
     const nightDutyAllowance = computeNightDutyAllowance(
-      rateOfPay,
+      this.props.rateOfPay,
       dearnessAllowance,
       totalNightDutyHours
     );
@@ -585,6 +594,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 deleteTrip={this.deleteTrip}
                 setTotalLeaves={this.setTotalLeaves}
                 deleteDuty={this.deleteDuty}
+                initialFromStation={fromStation}
+                initialToStation={toStation}
+                onStationChange={this.handleStationChange}
               />
             )}
           />
@@ -612,7 +624,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 designation={designation}
                 payBand={payBand}
                 level={level}
-                rateOfPay={rateOfPay}
+                rateOfPay={this.props.rateOfPay}
                 selectedMonth={selectedMonth}
                 totalAllowance={totalDutyAllowance}
                 mileage={mileage}
@@ -632,7 +644,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 designation={designation}
                 payBand={payBand}
                 level={level}
-                rateOfPay={rateOfPay}
+                rateOfPay={this.props.rateOfPay}
                 selectedMonth={selectedMonth}
                 mileage={mileage}
                 nightDutyAllowance={nightDutyAllowance}
@@ -647,7 +659,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         <FortnightBlock
           selectedMonth={selectedMonth}
           duties={duties}
-          rateOfPay={Number(rateOfPay)}
+          rateOfPay={Number(this.props.rateOfPay)}
           dearnessAllowance={dearnessAllowance}
           transportationAllowance={transportationAllowance}
           totalOvertimeAllowance={overtimeResult}
@@ -676,12 +688,12 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           </ScrollView>
         )}
         <Modal
-          isOpen={showModal}
+          isOpen={this.state.showModal}
           onClose={() => this.setState({ showModal: false })}
         >
-          {selectedDuty && (
+          {this.state.selectedDuty && (
             <EndDutyModal
-              duty={selectedDuty}
+              duty={this.state.selectedDuty}
               updateDutyDetails={this.updateDutyDetails}
               closeModal={() => this.setState({ showModal: false })}
               selectedMonth={selectedMonth}

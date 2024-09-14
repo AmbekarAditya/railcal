@@ -41,6 +41,9 @@ interface DutyRowProps {
   deleteDuty: (dutyId: number) => void;
   setTotalLeaves: (newTotalLeaves: number) => void;
   selectedMonth: keyof typeof monthNames; // Update the selectedMonth prop type
+  initialFromStation: string;
+  initialToStation: string;
+  onStationChange: (from: string, to: string) => void;
 }
 
 const DutyRow: React.FC<DutyRowProps> = ({
@@ -52,6 +55,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
   deleteDuty,
   setTotalLeaves,
   selectedMonth, // Receive the selectedMonth prop
+  initialFromStation,
+  initialToStation,
+  onStationChange,
 }) => {
   const [hasEnded, setHasEnded] = useState(duty.hasEnded);
 
@@ -180,6 +186,9 @@ const DutyRow: React.FC<DutyRowProps> = ({
     updateTripData(dutyId, tripId, "sourceStation", sourceStation);
     updateTripData(dutyId, tripId, "destinationStation", destinationStation);
     updateTripData(dutyId, tripId, "distance", distance);
+
+    // Call the onStationChange prop to update the parent state
+    onStationChange(sourceStation, destinationStation);
 
     // Recalculate the allowance based on the new distance
     const updatedTrip = duty.trips.find((t) => t.id === tripId);
@@ -352,8 +361,8 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 onStationChange={handleStationChange}
                 dutyId={duty.id}
                 tripId={trip.id}
-                initialSourceStation={trip.sourceStation}
-                initialDestinationStation={trip.destinationStation}
+                initialSourceStation={initialFromStation || duty.trips[0].sourceStation}
+                initialDestinationStation={initialToStation || duty.trips[0].destinationStation}
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
                 duty={duty}
               />

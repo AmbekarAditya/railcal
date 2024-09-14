@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Platform } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import React, { useState, useEffect, useMemo } from "react";
+import { View, Text, StyleSheet, TextInput, FlatList, TouchableOpacity } from "react-native";
 import { combinations } from "../../utils/combinations";
 import Duty from "../duty/Duty";
 
@@ -31,19 +30,27 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
 }) => {
   const [fromStation, setFromStation] = useState(initialSourceStation || "");
   const [toStation, setToStation] = useState(initialDestinationStation || "");
+  const [fromSearch, setFromSearch] = useState(initialSourceStation || "");
+  const [toSearch, setToSearch] = useState(initialDestinationStation || "");
+  const [showFromSuggestions, setShowFromSuggestions] = useState(false);
+  const [showToSuggestions, setShowToSuggestions] = useState(false);
 
   useEffect(() => {
     setFromStation(initialSourceStation || "");
     setToStation(initialDestinationStation || "");
+    setFromSearch(initialSourceStation || "");
+    setToSearch(initialDestinationStation || "");
   }, [initialSourceStation, initialDestinationStation]);
 
   const handleFromStationChange = (selectedStation: string) => {
     setFromStation(selectedStation);
+    setFromSearch(selectedStation);
     updateStationAndDistance(selectedStation, toStation);
   };
 
   const handleToStationChange = (selectedStation: string) => {
     setToStation(selectedStation);
+    setToSearch(selectedStation);
     updateStationAndDistance(fromStation, selectedStation);
   };
 
@@ -56,47 +63,71 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
     }
   };
 
-  const uniqueFromStations = Array.from(
+  const uniqueFromStations = useMemo(() => Array.from(
     new Set(combinations.map((item) => item.from_station))
+  ), []);
+
+  const filteredFromStations = useMemo(() => 
+    uniqueFromStations.filter(station => 
+      station.toLowerCase().includes(fromSearch.toLowerCase())
+    ),
+    [uniqueFromStations, fromSearch]
   );
 
-  const renderPicker = (isFrom: boolean) => {
+  const filteredToStations = useMemo(() => 
+    combinations
+      .filter(item => item.from_station === fromStation)
+      .map(item => item.to_station)
+      .filter(station => station.toLowerCase().includes(toSearch.toLowerCase())),
+    [fromStation, toSearch]
+  );
+
+  const renderSearchBar = (isFrom: boolean) => {
     const label = isFrom ? "From:" : "To:";
-    const value = isFrom ? fromStation : toStation;
-    const onValueChange = isFrom ? handleFromStationChange : handleToStationChange;
-    const items = isFrom
-      ? uniqueFromStations
-      : combinations.filter((item) => item.from_station === fromStation).map((item) => item.to_station);
+    const value = isFrom ? fromSearch : toSearch;
+    const setValue = isFrom ? setFromSearch : setToSearch;
+    const showSuggestions = isFrom ? showFromSuggestions : showToSuggestions;
+    const setShowSuggestions = isFrom ? setShowFromSuggestions : setShowToSuggestions;
+    const filteredStations = isFrom ? filteredFromStations : filteredToStations;
+
+    const handleSelect = (station: string) => {
+      if (isFrom) {
+        handleFromStationChange(station);
+      } else {
+        handleToStationChange(station);
+      }
+      setShowSuggestions(false);
+    };
 
     return (
-      <View style={styles.pickerContainer}>
+      <View style={styles.searchContainer}>
         <Text style={styles.label}>{label}</Text>
-        {Platform.OS === "web" ? (
-          <select
-            value={value}
-            onChange={(e) => onValueChange(e.target.value)}
-            disabled={disabled}
-            style={styles.webSelect}
-          >
-            <option value="">{isFrom ? "From Station" : "To Station"}</option>
-            {items.map((station, index) => (
-              <option key={index} value={station}>
-                {station}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <Picker
-            selectedValue={value}
-            onValueChange={onValueChange}
-            enabled={!disabled}
-            style={styles.picker}
-          >
-            <Picker.Item label={isFrom ? "From Station" : "To Station"} value="" />
-            {items.map((station, index) => (
-              <Picker.Item key={index} label={station} value={station} />
-            ))}
-          </Picker>
+        <TextInput
+          style={styles.searchInput}
+          value={value}
+          onChangeText={(text) => {
+            setValue(text);
+            setShowSuggestions(true);
+            if (isFrom) {
+              handleFromStationChange(text);
+            } else {
+              handleToStationChange(text);
+            }
+          }}
+          placeholder={isFrom ? "Search From Station" : "Search To Station"}
+          disabled={disabled}
+        />
+        {showSuggestions && (
+          <FlatList
+            data={filteredStations}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => (
+              <TouchableOpacity onPress={() => handleSelect(item)}>
+                <Text style={styles.suggestionItem}>{item}</Text>
+              </TouchableOpacity>
+            )}
+            style={styles.suggestionList}
+          />
         )}
       </View>
     );
@@ -104,8 +135,8 @@ const PickerComponentStation: React.FC<PickerComponentStationProps> = ({
 
   return (
     <View style={styles.container}>
-      {renderPicker(true)}
-      {renderPicker(false)}
+      {renderSearchBar(true)}
+      {renderSearchBar(false)}
     </View>
   );
 };
@@ -136,6 +167,27 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 4,
     fontSize: 12,
+  },
+  searchContainer: {
+    marginBottom: 10,
+  },
+  searchInput: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    paddingHorizontal: 10,
+  },
+  suggestionList: {
+    maxHeight: 150,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+  },
+  suggestionItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
   },
 });
 

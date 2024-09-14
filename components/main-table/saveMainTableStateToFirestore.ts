@@ -18,7 +18,9 @@ export const saveMainTableStateToFirestore = async (state: MainTableState, selec
     const stateToSave = {
       duties: state.duties.map(duty => ({
         ...duty,
-        trips: duty.trips.map(trip => ({ ...trip }))
+        trips: duty.trips.map(trip => ({ ...trip })),
+        signIn: duty.signIn,
+        signOff: duty.signOff,
       })),
       totalLeaves: state.totalLeaves,
       overtimeResult: state.overtimeResult,
@@ -30,7 +32,9 @@ export const saveMainTableStateToFirestore = async (state: MainTableState, selec
         overtimeAllowance: fortnight.overtimeAllowance,
         totalOvertimeHours: fortnight.totalOvertimeHours
       })),
-      // Omit selectedDuty as it's causing issues
+      // Add these new properties
+      fromStation: state.duties[0]?.trips[0]?.sourceStation || "",
+      toStation: state.duties[0]?.trips[0]?.destinationStation || "",
     };
 
     await setDoc(docRef, stateToSave);
@@ -75,6 +79,9 @@ export const loadMainTableStateFromFirestore = async (selectedMonth: string): Pr
           fortnightData.overtimeAllowance,
           fortnightData.totalOvertimeHours
         )),
+        // Add these new properties
+        fromStation: data.fromStation || "",
+        toStation: data.toStation || "",
       };
       console.log("MainTable state loaded successfully");
       return convertedState;
