@@ -51,7 +51,7 @@ const DutyInfo: React.FC<DutyInfoProps> = ({ duty }) => {
           </View>
           <View style={styles.infoBlock}>
             <Text style={styles.label}>Total Distance:</Text>
-            <Text style={styles.value}>{totalDistance} km</Text>
+            <Text style={styles.value}>{totalDistance.toFixed(2)} km</Text>
           </View>
             <View style={styles.infoBlock}>
               <Text style={styles.label}>Duty Hours</Text>
