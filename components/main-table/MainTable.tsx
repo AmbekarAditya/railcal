@@ -390,10 +390,17 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
 
   isPreviousDutyEnded = () => {
     const { duties } = this.state;
+    console.log('Current duties:', duties);
+    
     const lastDuty = duties[duties.length - 1];
+    console.log('Last duty:', lastDuty);
+    
     if (!lastDuty) {
+      console.log('No last duty found, returning false');
       return false;
     }
+    
+    console.log('Last duty hasEnded:', lastDuty.hasEnded);
     return lastDuty.hasEnded;
   };
 
