@@ -62,6 +62,12 @@ const caseParameters: { [key: string]: CaseParameter | CaseParameter[] } = {
   default: { factor: 1, remark: "" },
 };
 
+// Helper function to round based on decimal part
+const roundBasedOnDecimal = (value: number): number => {
+  const decimalPart = value % 1;
+  return decimalPart >= 0.5 ? Math.ceil(value) : Math.floor(value);
+};
+
 // TypeScript function to calculate allowance and remarks
 function calculateAllowanceAndRemarks(
   distance: number,
@@ -73,8 +79,9 @@ function calculateAllowanceAndRemarks(
   if (Array.isArray(params)) {
     for (const param of params) {
       if (distance <= param.max!) {
+        const calculatedAllowance = distance * param.factor;
         return {
-          allowance: parseFloat((distance * param.factor).toFixed(2)),
+          allowance: roundBasedOnDecimal(calculatedAllowance),
           remarks: param.remark,
         };
       }
@@ -84,20 +91,19 @@ function calculateAllowanceAndRemarks(
     if (params.isTimeBased) {
       // Calculate distance based on time for time-based cases
       const timeBasedConstant = getTimeBasedConstant(typeOfWork, timeInMinutes);
-      const distance = (timeInMinutes / 60) * timeBasedConstant;
-      allowance = parseFloat(distance.toFixed(2));
+      const calculatedDistance = (timeInMinutes / 60) * timeBasedConstant;
+      allowance = roundBasedOnDecimal(calculatedDistance);
     } else if (typeOfWork === "Stationary Duty(HQ)") {
       allowance = 120;
     } else if (typeOfWork === "Stationary Duty(Out of HQ)") {
       allowance = 160;
     } else {
-      allowance = params.factor
-        ? parseFloat((distance * params.factor).toFixed(2))
-        : 0;
+      const calculatedAllowance = params.factor ? distance * params.factor : 0;
+      allowance = roundBasedOnDecimal(calculatedAllowance);
     }
 
     return {
-      allowance: parseFloat(allowance.toFixed(2)),
+      allowance,
       remarks: params.remark,
     };
   }
