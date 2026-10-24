@@ -298,74 +298,84 @@ const DutyRow: React.FC<DutyRowProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.serialNumber}>{duty.id}</Text>
+        <View style={styles.serialNumberBadge}>
+          <Text style={styles.serialNumber}>Duty #{duty.id}</Text>
+        </View>
+        <Text style={{ fontSize: 12, color: "#64748B", fontWeight: "700" }}>
+          {duty.trips.length} {duty.trips.length === 1 ? "Trip" : "Trips"}
+        </Text>
       </View>
-      <ScrollView horizontal={false} style={styles.tripsContainer}>
+      <View style={styles.tripsContainer}>
         {duty.trips.map((trip, index) => (
           <View key={trip.id} style={styles.tripContainer}>
-            <View style={styles.dateContainer}>
-              {Platform.OS === "web" ? (
-                <WebDatePicker
-                  value={
-                    trip.date ||
-                    `${new Date().getFullYear()}-${String(
+            <View style={styles.tripHeaderRow}>
+              <Text style={styles.tripBadge}>Trip {index + 1}</Text>
+              <View style={styles.dateContainer}>
+                {Platform.OS === "web" ? (
+                  <WebDatePicker
+                    value={
+                      trip.date ||
+                      `${new Date().getFullYear()}-${String(
+                        monthNames[selectedMonth]
+                      ).padStart(2, "0")}-01`
+                    }
+                    onChange={(date) =>
+                      handleTripDataChange(trip.id, "date", date)
+                    }
+                    min={`2023-${String(monthNames[selectedMonth]).padStart(
+                      2,
+                      "0"
+                    )}-01`}
+                  />
+                ) : (
+                  <DatePickerComponent
+                    onDateSelected={(date) =>
+                      handleTripDataChange(trip.id, "date", date)
+                    }
+                    defaultDate={`${new Date().getFullYear()}-${
                       monthNames[selectedMonth]
-                    ).padStart(2, "0")}-01`
+                    }-01`}
+                    minimumDate={
+                      new Date(
+                        `2023-${String(monthNames[selectedMonth]).padStart(
+                          2,
+                          "0"
+                        )}-01`
+                      )
+                    }
+                  />
+                )}
+              </View>
+              <View style={styles.dutyTypeContainer}>
+                <TypeofWorkPickerComponent
+                  TypeofWork={(newValue) =>
+                    handleTripDataChange(trip.id, "typeOfWork", newValue)
                   }
-                  onChange={(date) =>
-                    handleTripDataChange(trip.id, "date", date)
-                  }
-                  min={`2023-${String(monthNames[selectedMonth]).padStart(
-                    2,
-                    "0"
-                  )}-01`}
+                  initialValue={trip.typeOfWork}
                 />
-              ) : (
-                <DatePickerComponent
-                  onDateSelected={(date) =>
-                    handleTripDataChange(trip.id, "date", date)
+              </View>
+            </View>
+            <View style={styles.journeyRow}>
+              <View style={styles.trainNoContainer}>
+                <TrainNumberInput
+                  onChange={(trainNumber) =>
+                    handleTrainNumberChange(trainNumber, duty.id, trip.id)
                   }
-                  defaultDate={`${new Date().getFullYear()}-${
-                    monthNames[selectedMonth]
-                  }-01`}
-                  minimumDate={
-                    new Date(
-                      `2023-${String(monthNames[selectedMonth]).padStart(
-                        2,
-                        "0"
-                      )}-01`
-                    )
-                  }
+                  initialValue={trip.trainNumber}
+                  disabled={shouldDisableInputFields(trip.typeOfWork)}
                 />
-              )}
-            </View>
-            <View style={styles.dutyTypeContainer}>
-              <TypeofWorkPickerComponent
-                TypeofWork={(newValue) =>
-                  handleTripDataChange(trip.id, "typeOfWork", newValue)
-                }
-                initialValue={trip.typeOfWork}
-              />
-            </View>
-            <View style={styles.trainNoContainer}>
-              <TrainNumberInput
-                onChange={(trainNumber) =>
-                  handleTrainNumberChange(trainNumber, duty.id, trip.id)
-                }
-                initialValue={trip.trainNumber}
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-              />
-            </View>
-            <View style={styles.stationsContainer}>
-              <PickerComponentStation
-                onStationChange={handleStationChange}
-                dutyId={duty.id}
-                tripId={trip.id}
-                initialSourceStation={initialFromStation || duty.trips[0].sourceStation}
-                initialDestinationStation={initialToStation || duty.trips[0].destinationStation}
-                disabled={shouldDisableInputFields(trip.typeOfWork)}
-                duty={duty}
-              />
+              </View>
+              <View style={styles.stationsContainer}>
+                <PickerComponentStation
+                  onStationChange={handleStationChange}
+                  dutyId={duty.id}
+                  tripId={trip.id}
+                  initialSourceStation={initialFromStation || duty.trips[0].sourceStation}
+                  initialDestinationStation={initialToStation || duty.trips[0].destinationStation}
+                  disabled={shouldDisableInputFields(trip.typeOfWork)}
+                  duty={duty}
+                />
+              </View>
             </View>
             <View style={styles.timePickerContainer}>
               <ArrivalDepartureTimePicker
@@ -382,32 +392,35 @@ const DutyRow: React.FC<DutyRowProps> = ({
                 disabled={shouldDisableInputFields(trip.typeOfWork)}
               />
             </View>
-            <View style={styles.durationContainer}>
-              <Text style={styles.durationText}>{trip.dutyHours}</Text>
-              <Text style={styles.durationLabel}>duration</Text>
+            <View style={styles.statsRow}>
+              <View style={styles.durationContainer}>
+                <Text style={styles.durationText}>{trip.dutyHours || "0:00"}</Text>
+                <Text style={styles.durationLabel}>duration</Text>
+              </View>
+              <View style={styles.allowanceContainer}>
+                <Text style={styles.allowanceText}>
+                  {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
+                </Text>
+                <Text style={styles.allowanceLabel}>km earned</Text>
+              </View>
+              <View style={styles.remarksContainer}>
+                <Text style={styles.remarksText} numberOfLines={1}>{trip.remarks || "-"}</Text>
+                <Text style={styles.remarksLabel}>remarks</Text>
+              </View>
             </View>
-            <View style={styles.allowanceContainer}>
-              <Text style={styles.allowanceText}>
-                {trip.allowance === 1 ? 0 : trip.allowance.toFixed(2)}
-              </Text>
-              <Text style={styles.allowanceLabel}>km earned</Text>
-            </View>
-            <View style={styles.remarksContainer}>
-              <Text style={styles.remarksText}>{trip.remarks}</Text>
-              <Text style={styles.remarksLabel}>remarks</Text>
-            </View>
-            <View style={styles.actionsContainer}>
-              <TouchableOpacity
-                onPress={() => deleteTrip(duty.id, trip.id)}
-                disabled={duty.trips.length === 1}
-                style={styles.deleteButton}
-              >
-                <Text style={styles.deleteButtonText}>Delete</Text>
-              </TouchableOpacity>
-            </View>
+            {duty.trips.length > 1 && (
+              <View style={styles.actionsContainer}>
+                <TouchableOpacity
+                  onPress={() => deleteTrip(duty.id, trip.id)}
+                  style={styles.deleteButton}
+                >
+                  <Text style={styles.deleteButtonText}>✕ Delete Trip</Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         ))}
-      </ScrollView>
+      </View>
       <View style={styles.buttonsContainer}>
       {!duty.hasEnded && !duty.isLeave && (
           <TouchableOpacity

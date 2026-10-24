@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View, FlatList, Button, Platform } from "react-native";
+import { ScrollView, View, FlatList, Button, Platform, Text, TouchableOpacity } from "react-native";
 import { MainTableProps, MainTableState } from "./types";
 import { styles, colors } from "./styles";
 import { createDefaultDuty } from "./utils";
@@ -574,11 +574,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
     const totalDutyHours = calculateTotalDutyHours(duties);
 
     return (
-      <ScrollView
-        horizontal
-        style={styles.container}
-        contentContainerStyle={styles.horizontalContent}
-      >
+      <View style={styles.container}>
         {this.state.notification && (
           <PopupNotification
             message={this.state.notification.message}
@@ -587,10 +583,82 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             onClose={this.closeNotification}
           />
         )}
-        <View style={styles.tableContainer}>
-          <FlatList
-            data={duties}
-            renderItem={({ item: duty }) => (
+
+        {/* BLOCK 1: DUTY DETAILS (ADJUSTED TO MOBILE VIEW) */}
+        <View style={styles.blockBox}>
+          <View style={styles.blockHeader}>
+            <View>
+              <Text style={styles.blockTitle}>Duty Details</Text>
+              <Text style={styles.blockSubtitle}>
+                {duties.length} {duties.length === 1 ? "Duty recorded" : "Duties recorded"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Action Buttons: Add Duty, Save, Export PDF */}
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[
+                styles.actionBtn,
+                styles.actionBtnPrimary,
+                !this.isPreviousDutyEnded() && styles.disabledBtn,
+              ]}
+              onPress={this.addDuty}
+              disabled={!this.isPreviousDutyEnded()}
+            >
+              <Text style={styles.actionBtnPrimaryText}>+ Add Duty</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={this.saveDuties}
+            >
+              <Text style={styles.actionBtnText}>💾 Save Duties</Text>
+            </TouchableOpacity>
+
+            <View style={styles.actionBtn}>
+              {Platform.OS === "web" && (
+                <PDFGenerator
+                  duties={duties}
+                  designation={designation}
+                  payBand={payBand}
+                  level={level}
+                  rateOfPay={this.props.rateOfPay}
+                  selectedMonth={selectedMonth}
+                  totalAllowance={totalDutyAllowance}
+                  mileage={mileage}
+                  nightDutyAllowance={nightDutyAllowance}
+                  leaveMileageAllowance={leaveMileageAllowance}
+                  dearnessAllowance={dearnessAllowance}
+                  progressiveDutyHours={totalDutyHours}
+                  rraOsda={osdaAllowance}
+                  overtimeResult={overtimeResult}
+                  grandTotalAllowance={totalAllowance}
+                  fortnights={fortnights}
+                />
+              )}
+              {Platform.OS !== "web" && (
+                <PdfGeneratorMobile
+                  duties={duties}
+                  designation={designation}
+                  payBand={payBand}
+                  level={level}
+                  rateOfPay={this.props.rateOfPay}
+                  selectedMonth={selectedMonth}
+                  mileage={mileage}
+                  nightDutyAllowance={nightDutyAllowance}
+                  leaveMileageAllowance={leaveMileageAllowance}
+                  dearnessAllowance={dearnessAllowance}
+                  progressiveDutyHours={totalDutyHours}
+                  overtimeResult={overtimeResult}
+                />
+              )}
+            </View>
+          </View>
+
+          {/* Duties list */}
+          <View style={styles.dutiesList}>
+            {duties.map((duty) => (
               <DutyRow
                 key={duty.id}
                 duty={duty}
@@ -605,76 +673,35 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
                 initialToStation={toStation}
                 onStationChange={this.handleStationChange}
               />
-            )}
+            ))}
+          </View>
+        </View>
+
+        {/* BLOCK 2: FORTNIGHT IN ONE BOX */}
+        <View style={styles.blockBox}>
+          <View style={styles.blockHeader}>
+            <View>
+              <Text style={styles.blockTitle}>Fortnight Breakdown</Text>
+              <Text style={styles.blockSubtitle}>
+                Overtime calculation for {selectedMonth}
+              </Text>
+            </View>
+          </View>
+          <FortnightBlock
+            selectedMonth={selectedMonth}
+            duties={duties}
+            rateOfPay={Number(this.props.rateOfPay)}
+            dearnessAllowance={dearnessAllowance}
+            transportationAllowance={transportationAllowance}
+            totalOvertimeAllowance={overtimeResult}
+            onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
+            onFortnightsChange={this.handleFortnightsChange}
           />
         </View>
-        <View style={styles.buttonContainer}>
-          <View style={styles.addDuty}>
-            <Button
-              title="Add Duty"
-              onPress={this.addDuty}
-              disabled={!this.isPreviousDutyEnded()}
-              color={colors.primary}
-            />
-          </View>
-          <View style={styles.addDuty}>
-            <Button
-              title="Save"
-              onPress={this.saveDuties}
-              color={colors.primary}
-            />
-          </View>
-          <View style={styles.addDuty}>
-            {Platform.OS === "web" && (
-              <PDFGenerator
-                duties={duties}
-                designation={designation}
-                payBand={payBand}
-                level={level}
-                rateOfPay={this.props.rateOfPay}
-                selectedMonth={selectedMonth}
-                totalAllowance={totalDutyAllowance}
-                mileage={mileage}
-                nightDutyAllowance={nightDutyAllowance}
-                leaveMileageAllowance={leaveMileageAllowance}
-                dearnessAllowance={dearnessAllowance}
-                progressiveDutyHours={totalDutyHours}
-                rraOsda={osdaAllowance}
-                overtimeResult={overtimeResult}
-                grandTotalAllowance={totalAllowance}
-                fortnights={fortnights}
-              />
-            )}
-            {Platform.OS !== "web" && (
-              <PdfGeneratorMobile
-                duties={duties}
-                designation={designation}
-                payBand={payBand}
-                level={level}
-                rateOfPay={this.props.rateOfPay}
-                selectedMonth={selectedMonth}
-                mileage={mileage}
-                nightDutyAllowance={nightDutyAllowance}
-                leaveMileageAllowance={leaveMileageAllowance}
-                dearnessAllowance={dearnessAllowance}
-                progressiveDutyHours={totalDutyHours}
-                overtimeResult={overtimeResult}
-              />
-            )}
-          </View>
-        </View>
-        <FortnightBlock
-          selectedMonth={selectedMonth}
-          duties={duties}
-          rateOfPay={Number(this.props.rateOfPay)}
-          dearnessAllowance={dearnessAllowance}
-          transportationAllowance={transportationAllowance}
-          totalOvertimeAllowance={overtimeResult}
-          onOvertimeAllowanceChange={this.handleOvertimeAllowanceChange}
-          onFortnightsChange={this.handleFortnightsChange}
-        />
+
+        {/* BLOCK 3: SUMMARY IN THE BLOCK AT THE BOTTOM */}
         {duties.length > 0 && (
-          <ScrollView>
+          <View style={styles.blockBox}>
             <SummaryBlock
               totalAllowance={totalDutyAllowance}
               totalKilometers={totalKilometers}
@@ -692,8 +719,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
               grandTotalAllowance={totalAllowance}
               overtimeResult={overtimeResult}
             />
-          </ScrollView>
+          </View>
         )}
+
         <Modal
           isOpen={this.state.showModal}
           onClose={() => this.setState({ showModal: false })}
@@ -707,7 +735,7 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             />
           )}
         </Modal>
-      </ScrollView>
+      </View>
     );
   }
 }

@@ -1,22 +1,23 @@
 // CalculationPage.tsx
 import React from "react";
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, SafeAreaView, StatusBar } from "react-native";
 import MainTable from "../main-table/MainTable";
 import { calculationPageStyles as styles } from "./calculationPageStyles";
-import { RouteProp } from '@react-navigation/native';
-import { NavigationProp } from '@react-navigation/native';
+import { RouteProp } from "@react-navigation/native";
+import { NavigationProp } from "@react-navigation/native";
+import { NeuColors } from "../../src/theme/neomorphicTheme";
 
 type RootStackParamList = {
   CalculationPage: {
     designation: string;
-    payBand: number;
-    level: number;
-    rateOfPay: number;
+    payBand: any;
+    level: any;
+    rateOfPay: any;
     selectedMonth: string;
   };
 };
 
-type CalculationPageRouteProp = RouteProp<RootStackParamList, 'CalculationPage'>;
+type CalculationPageRouteProp = RouteProp<RootStackParamList, "CalculationPage">;
 
 interface CalculationPageProps {
   route: CalculationPageRouteProp;
@@ -27,31 +28,55 @@ const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) 
   const { designation, payBand, level, rateOfPay, selectedMonth } = route.params;
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View style={styles.container}>
-        <View style={styles.background}>
-          <View style={styles.row}>
-            <Text style={styles.text}>Month: {selectedMonth}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={NeuColors.background} />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
+          {/* Employee & Period Overview Card */}
+          <View style={styles.employeeCard}>
+            <View style={styles.cardHeader}>
+              <Text style={styles.headerBadge}>INDIAN RAILWAYS</Text>
+              <View style={styles.monthBadge}>
+                <Text style={styles.monthText}>{selectedMonth || "Month"}</Text>
+              </View>
+            </View>
+
+            <Text style={styles.designationText}>{designation || "Running Staff"}</Text>
+
+            <View style={styles.chipsRow}>
+              <View style={styles.chip}>
+                <Text style={styles.chipText}>
+                  Level: <Text style={styles.chipTextBold}>{level || "-"}</Text>
+                </Text>
+              </View>
+              <View style={styles.chip}>
+                <Text style={styles.chipText}>
+                  Band: <Text style={styles.chipTextBold}>{payBand || "-"}</Text>
+                </Text>
+              </View>
+              <View style={styles.chip}>
+                <Text style={styles.chipText}>
+                  Rate: <Text style={styles.chipTextBold}>₹{rateOfPay || "-"}</Text>
+                </Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.row}>
-            <Text style={styles.text}>Designation: {designation}</Text>
-          </View>
-          <View style={styles.row}>
-            <Text style={styles.text}>Level: {level}</Text>
-            <Text style={styles.text}>Pay Band: {payBand}</Text>
-            <Text style={styles.text}>Rate of Pay: {rateOfPay}</Text>
-          </View>
+
+          {/* 3 Main Vertical Blocks: Duties Block -> Fortnight Block -> Summary Block */}
+          <MainTable
+            navigation={navigation}
+            rateOfPay={rateOfPay}
+            designation={designation}
+            payBand={payBand}
+            level={level}
+            selectedMonth={selectedMonth}
+          />
         </View>
-        <MainTable
-          navigation={navigation}
-          rateOfPay={rateOfPay}
-          designation={designation}
-          payBand={payBand}
-          level={level}
-          selectedMonth={selectedMonth}
-        />
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

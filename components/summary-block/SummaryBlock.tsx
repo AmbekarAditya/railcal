@@ -84,116 +84,115 @@ const SummaryBlock: React.FC<SummaryBlockProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.heading}>Summary:</Text>
+        <Text style={styles.heading}>Monthly Allowance Summary</Text>
       </View>
-      <ScrollView horizontal contentContainerStyle={styles.scrollContent}>
-        <View style={styles.infoContainerWrapper}>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Dearness Allowance:</Text>
-            <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Transportation Allowance:</Text>
-            <Text style={styles.value}>₹{formatNumber(transportationAllowance)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Kilometers Earned:</Text>
-            <Text style={styles.value}>{formatNumber(totalAllowance)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Mileage:</Text>
-            <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
-            <Text style={styles.label}>multiplier*km </Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Night Duty:</Text>
-            <Text style={styles.value}>
-              ₹{formatNumber(nightDutyAllowance)}
-            </Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Leave Mileage:</Text>
-            <Text style={styles.value}>
-              ₹{formatNumber(leaveMileageAllowance)}
-            </Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>RRA / OSDA:</Text>
-            <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
-          </View>
-          <View style={styles.infoContainer}>
-            <Text style={styles.label}>Total Allowance:</Text>
-            <Text style={styles.value}>
-              ₹{formatNumber(grandTotalAllowance)}
-            </Text>
-          </View>
+      <View style={styles.gridContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Dearness Allowance</Text>
+          <Text style={styles.value}>₹{formatNumber(dearnessAllowance)}</Text>
         </View>
-      </ScrollView>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Transport Allowance</Text>
+          <Text style={styles.value}>₹{formatNumber(transportationAllowance)}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Kilometers Earned</Text>
+          <Text style={styles.value}>{formatNumber(totalAllowance)} km</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Mileage Allowance</Text>
+          <Text style={styles.value}>₹{formatNumber(mileage)}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Night Duty (NDA)</Text>
+          <Text style={styles.value}>₹{formatNumber(nightDutyAllowance)}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>Leave Mileage</Text>
+          <Text style={styles.value}>₹{formatNumber(leaveMileageAllowance)}</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.label}>RRA / OSDA</Text>
+          <Text style={styles.value}>₹{formatNumber(rraOsda)}</Text>
+        </View>
+      </View>
+
+      <View style={styles.grandTotalCard}>
+        <Text style={styles.grandTotalLabel}>Grand Total Allowance</Text>
+        <Text style={styles.grandTotalValue}>₹{formatNumber(grandTotalAllowance)}</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    marginVertical: 1,
-    // maxHeight: Dimensions.get("window").height * 0.3, // Increased maxHeight
+    backgroundColor: "#F8FAFC",
+    borderRadius: 16,
+    padding: 16,
+    marginVertical: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   headerContainer: {
-    flexDirection: "row",
-    // justifyContent: "space-between",
-    // alignItems: "center",
-    // paddingHorizontal: 2,
-    marginLeft: 2,
-    paddingTop: 8,
+    marginBottom: 12,
   },
   heading: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "bold",
-    marginLeft: 5,
+    color: "#1E293B",
   },
-  dates: {
-    fontSize: 12,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-  },
-  infoContainerWrapper: {
+  gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 8,
   },
-  infoContainer: {
-    marginRight: 24,
-    alignItems: "flex-start",
-  },
-  overtimeContainer: {
-    maxHeight: "30%", // Added maxHeight
-    flexDirection: "row",
-  },
-  overtimeRow: {
-    flexDirection: "row",
-    // justifyContent: "space-between",
-    paddingHorizontal: 16,
-    // paddingVertical: 1,
-  },
-  overtimeInfo: {
-    alignItems: "flex-start",
-  },
-  overtimeDates: {
-    alignItems: "flex-end",
-  },
-  overtimeUnit: {
-    fontSize: 12,
+  statCard: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    marginBottom: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   label: {
-    fontSize: 12,
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#64748B",
     marginBottom: 4,
+    textTransform: "uppercase",
   },
   value: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#1E293B",
+  },
+  grandTotalCard: {
+    backgroundColor: "#2563EB",
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  grandTotalLabel: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "700",
+    color: "#FFFFFF",
+    textTransform: "uppercase",
+  },
+  grandTotalValue: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#FFFFFF",
   },
 });
 
