@@ -9,7 +9,6 @@ export interface NeuBottomBarProps {
 }
 
 export const NeuBottomBar: React.FC<NeuBottomBarProps> = ({ children, style }) => {
-  // Gracefully handle safe area insets if context is present
   let bottomInset = 0;
   try {
     const insets = useSafeAreaInsets();
@@ -38,6 +37,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: NeuSpacing.md,
     backgroundColor: 'transparent',
     alignItems: 'center',
+    zIndex: 9999,
+    ...(Platform.OS === 'web' && {
+      pointerEvents: 'box-none',
+    }),
   },
   barContainer: {
     width: '100%',
@@ -48,6 +51,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: NeuColors.surface,
+    zIndex: 10000,
+    ...(Platform.OS === 'web' && {
+      pointerEvents: 'auto',
+    }),
   },
 });
 

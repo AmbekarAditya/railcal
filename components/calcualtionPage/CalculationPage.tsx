@@ -25,7 +25,12 @@ interface CalculationPageProps {
 }
 
 const CalculationPage: React.FC<CalculationPageProps> = ({ route, navigation }) => {
-  const { designation, payBand, level, rateOfPay, selectedMonth } = route.params;
+  const params = route?.params || ({} as any);
+  const designation = params.designation || "Locopilot Mail Express";
+  const payBand = params.payBand || "9300-34800";
+  const level = params.level || "6";
+  const rateOfPay = params.rateOfPay || "35400";
+  const selectedMonth = params.selectedMonth || "January";
 
   return (
     <SafeAreaView style={styles.safeArea}>

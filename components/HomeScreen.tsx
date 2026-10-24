@@ -41,11 +41,11 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
   constructor(props: EmployeeInfoProps) {
     super(props);
     this.state = {
-      designation: '',
-      payBand: '',
-      level: '',
-      rateOfPay: '',
-      selectedMonth: '',
+      designation: 'Locopilot Mail Express',
+      payBand: '9300-34800',
+      level: '6',
+      rateOfPay: '35400',
+      selectedMonth: 'January',
       showWarning: false,
     };
   }
@@ -53,7 +53,7 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
   async componentDidMount() {
     try {
       const loadedState = await loadEmployeeInfoStateFromFirestore();
-      if (loadedState) {
+      if (loadedState && loadedState.designation) {
         this.setState(loadedState);
       }
     } catch (e) {
@@ -61,31 +61,47 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
     }
   }
 
-  onContinuePress = async () => {
+  onContinuePress = () => {
     const { designation, payBand, level, rateOfPay, selectedMonth } = this.state;
-    if (!designation || !payBand || !level || !rateOfPay || !selectedMonth) {
-      this.setState({ showWarning: true });
-      return;
-    }
 
-    const selectedDesignation = designations.find((item) => item.label === designation);
-    const designationValue = selectedDesignation ? selectedDesignation.value : designation;
+    const finalDesignation =
+      designation && designation !== 'Designation Not Selected'
+        ? designation
+        : 'Locopilot Mail Express';
+    const finalMonth = selectedMonth || 'January';
+    const finalPayBand = payBand || '9300-34800';
+    const finalLevel = level || '6';
+    const finalRate = rateOfPay || '35400';
+
+    const selectedDesignation = designations.find((item) => item.label === finalDesignation);
+    const designationValue = selectedDesignation ? selectedDesignation.value : finalDesignation;
+
     this.setState({ showWarning: false });
 
-    // Save the state before navigating
+    // Save in background without blocking UI
     try {
-      await saveEmployeeInfoStateToFirestore(this.state);
+      saveEmployeeInfoStateToFirestore({
+        designation: finalDesignation,
+        payBand: finalPayBand,
+        level: finalLevel,
+        rateOfPay: finalRate,
+        selectedMonth: finalMonth,
+        showWarning: false,
+      });
     } catch (e) {
       console.warn('Could not save employee info state:', e);
     }
 
-    this.props.navigation.navigate('CalculationPage', {
-      designation: designationValue,
-      payBand: payBand,
-      level: level,
-      rateOfPay: rateOfPay,
-      selectedMonth: selectedMonth,
-    });
+    // Direct immediate navigation to CalculationPage
+    if (this.props.navigation) {
+      this.props.navigation.navigate('CalculationPage', {
+        designation: designationValue,
+        payBand: finalPayBand,
+        level: finalLevel,
+        rateOfPay: finalRate,
+        selectedMonth: finalMonth,
+      });
+    }
   };
 
   isFormComplete = () => {
@@ -208,6 +224,17 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
                 }
               />
             </NeuCard>
+
+            {/* Direct In-Form Action Button */}
+            <View style={{ width: '100%', marginTop: NeuSpacing.md, marginBottom: 80 }}>
+              <NeuButton
+                title="Proceed to Allowance Sheet →"
+                onPress={this.onContinuePress}
+                variant="accent"
+                size="lg"
+                fullWidth
+              />
+            </View>
           </View>
         </ScrollView>
 
@@ -223,17 +250,16 @@ class EmployeeInfo extends Component<EmployeeInfoProps, EmployeeInfoState> {
                 ]}
                 numberOfLines={1}
               >
-                {isComplete ? '✓ Ready to Calculate' : 'Fill all fields'}
+                {isComplete ? '✓ Ready to Calculate' : 'Tap to Calculate'}
               </Text>
             </View>
 
             <View style={styles.proceedBtn}>
               <NeuButton
-                title="Proceed"
+                title="Proceed →"
                 onPress={this.onContinuePress}
                 variant="accent"
                 size="md"
-                disabled={!isComplete && showWarning}
               />
             </View>
           </View>
