@@ -39,6 +39,55 @@ export const NeuSelect = <T extends string | number>({
 }: NeuSelectProps<T>) => {
   const insetStyle = getNeuShadowStyle('concave', NeuRadii.md);
 
+  if (Platform.OS === 'web') {
+    return (
+      <View style={[styles.wrapper, containerStyle]}>
+        {label && (
+          <View style={styles.labelRow}>
+            {icon && <View style={styles.labelIcon}>{icon}</View>}
+            <Text style={styles.labelText}>{label}</Text>
+          </View>
+        )}
+        <View style={[styles.pickerContainer, insetStyle, disabled && styles.disabled]}>
+          <select
+            value={selectedValue as any}
+            disabled={disabled}
+            onChange={(e) => {
+              const val = e.target.value as unknown as T;
+              onValueChange(val, e.target.selectedIndex);
+            }}
+            style={{
+              width: '100%',
+              height: NeuErgonomics.inputHeight,
+              backgroundColor: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: NeuColors.textPrimary,
+              fontSize: 15,
+              fontWeight: '600',
+              cursor: disabled ? 'not-allowed' : 'pointer',
+              fontFamily: 'inherit',
+              paddingLeft: 12,
+              paddingRight: 12,
+              WebkitAppearance: 'menulist',
+            }}
+          >
+            {placeholder && (
+              <option value="" disabled style={{ color: NeuColors.textMuted }}>
+                {placeholder}
+              </option>
+            )}
+            {items.map((item, index) => (
+              <option key={index} value={item.value as any} style={{ color: NeuColors.textPrimary }}>
+                {item.label}
+              </option>
+            ))}
+          </select>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.wrapper, containerStyle]}>
       {label && (

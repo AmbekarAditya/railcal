@@ -271,8 +271,12 @@ const DutyRow: React.FC<DutyRowProps> = ({
         dutyHoursInMinutes
       );
 
-      updateTripData(duty.id, trip.id, "allowance", allowance);
-      updateTripData(duty.id, trip.id, "remarks", remarks);
+      if (trip.allowance !== allowance) {
+        updateTripData(duty.id, trip.id, "allowance", allowance);
+      }
+      if (trip.remarks !== remarks) {
+        updateTripData(duty.id, trip.id, "remarks", remarks);
+      }
     });
   }, [
     duty.trips,

@@ -20,8 +20,11 @@ export const NeuBottomBar: React.FC<NeuBottomBarProps> = ({ children, style }) =
   const floatingShadow = getNeuShadowStyle('floating', NeuRadii.xl);
 
   return (
-    <View style={[styles.wrapper, { paddingBottom: Math.max(bottomInset, NeuSpacing.md) }]}>
-      <View style={[styles.barContainer, floatingShadow, style]}>
+    <View
+      pointerEvents="box-none"
+      style={[styles.wrapper, { paddingBottom: Math.max(bottomInset, NeuSpacing.md) }]}
+    >
+      <View pointerEvents="auto" style={[styles.barContainer, floatingShadow, style]}>
         {children}
       </View>
     </View>
@@ -38,9 +41,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     alignItems: 'center',
     zIndex: 9999,
-    ...(Platform.OS === 'web' && {
-      pointerEvents: 'box-none',
-    }),
   },
   barContainer: {
     width: '100%',
@@ -52,9 +52,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: NeuColors.surface,
     zIndex: 10000,
-    ...(Platform.OS === 'web' && {
-      pointerEvents: 'auto',
-    }),
   },
 });
 
