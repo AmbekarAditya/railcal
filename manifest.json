@@ -1,0 +1,17 @@
+{
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "lang": "en",
+  "name": "allowance_calc",
+  "short_name": "allowance_calc",
+  "start_url": "/?utm_source=web_app_manifest",
+  "orientation": "portrait",
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "http://play.google.com/store/apps/details?id=com.feyntech.allowancecalculator_v2",
+      "id": "com.feyntech.allowancecalculator_v2"
+    }
+  ],
+  "prefer_related_applications": true
+}
