@@ -1,215 +1,376 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, Dimensions, Image, Platform, ActivityIndicator } from 'react-native';
-import backgroundImage from '../assets/bgimage6.png';
-import googleIcon from '../assets/googleIcon.png';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Image,
+  Platform,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase/firebaseConfig';
-import { handleGoogleSignIn } from './handleGoogleSignIn';
-
-const { width } = Dimensions.get('window');
+import googleIcon from '../assets/googleIcon.png';
+import {
+  NeuColors,
+  NeuRadii,
+  NeuSpacing,
+  NeuErgonomics,
+  NeuCard,
+  NeuButton,
+  NeuContainer,
+  getNeuShadowStyle,
+} from '../src/components/neomorphic';
 
 const SignInScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigation = useNavigation();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const navigation = useNavigation<any>();
 
   const handleSignIn = async () => {
     if (!email || !password) {
-      setError('Please enter email and password');
+      setError('Please enter both email and password.');
       return;
     }
 
     setLoading(true);
+    setError('');
     try {
-      await auth.signInWithEmailAndPassword(email, password);
+      if (typeof auth?.signInWithEmailAndPassword === 'function') {
+        await auth.signInWithEmailAndPassword(email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
       navigation.navigate('Home');
-    } catch (err) {
-      setError(err.message);
+    } catch (err: any) {
+      setError(err?.message || 'Failed to sign in. Please verify your credentials.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const handleForgotPassword = () => {
-    // Handle forgot password logic
-  };
-
-  function signInWithGoogle() {
+  const handleGoogleSignInPress = () => {
+    setError('');
     if (Platform.OS === 'web') {
       const { signInWithGoogleWeb } = require('./webGoogleSignIn');
-      signInWithGoogleWeb(auth, navigation);
+      signInWithGoogleWeb(auth, navigation, setGoogleLoading, setError);
     } else {
       const { handleGoogleSignIn } = require('./handleGoogleSignIn');
-      handleGoogleSignIn(auth, navigation);
+      handleGoogleSignIn(auth, navigation, setGoogleLoading, setError);
     }
-  }
+  };
+
+  const handleGuestEntry = () => {
+    navigation.navigate('Home');
+  };
+
+  const insetStyle = getNeuShadowStyle('concave', NeuRadii.md);
 
   return (
-    <View style={styles.container}>
-      <ImageBackground source={backgroundImage} style={styles.backgroundImage}>
-        <View style={styles.imageOverlay}>
-          <View style={styles.titleContainer}>
-            <View style={styles.titleBackground}>
-              <Text style={styles.title}>Railway Allowance Calculator</Text>
-            </View>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="dark-content" backgroundColor={NeuColors.background} />
+      
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.contentWrapper}>
+          
+          {/* Top Brand Header */}
+          <View style={styles.header}>
+            <NeuContainer variant="convexSmall" style={styles.badge}>
+              <Text style={styles.badgeText}>INDIAN RAILWAYS</Text>
+            </NeuContainer>
+            <Text style={styles.title}>Allowance Calculator</Text>
+            <Text style={styles.subtitle}>
+              Operational Running Staff Allowance & Duty Calculation Portal
+            </Text>
           </View>
-          <View style={styles.contentContainer}>
-            <View style={styles.formContainer}>
-              <Text style={styles.description}>
-                The Railway Allowance Calculator is designed for Indian Railways Employees, specifically operational employees, to calculate their allowance. The application can calculate the allowance for a month for multiple employee types, grades, and pay bands. It also generates a PDF report for easy record-keeping. The application is available on Android and iOS platforms.
-              </Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                autoCapitalize="none"
-                keyboardType="email-address"
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-              {error ? <Text style={styles.errorText}>{error}</Text> : null}
-              <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
-                <Text style={styles.forgotPasswordButtonText}>Forgot Password?</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.signInButton} onPress={handleSignIn} disabled={loading}>
-                {loading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text style={styles.signInButtonText}>Sign In</Text>
+
+          {/* Main Neomorphic Card */}
+          <NeuCard
+            title="Sign In to Continue"
+            subtitle="Sign in with your Google or Employee Account"
+            variant="convex"
+            style={styles.card}
+          >
+            {/* Error / Alert Banner */}
+            {error ? (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorBannerTitle}>Authentication Notice</Text>
+                <Text style={styles.errorBannerText}>{error}</Text>
+                {error.includes('not authorized') && (
+                  <Text style={styles.errorHelperText}>
+                    💡 You can click "Continue as Guest" below to test the calculator immediately without Google Sign-in.
+                  </Text>
                 )}
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.signInButtonWithIcon} onPress={signInWithGoogle}>
-                <Image source={googleIcon} style={styles.icon} />
-                <Text style={styles.signInButtonText}>Continue With Google</Text>
-              </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {/* Google One-Tap Action */}
+            <NeuButton
+              onPress={handleGoogleSignInPress}
+              disabled={googleLoading || loading}
+              variant="convex"
+              fullWidth
+              style={styles.googleBtn}
+            >
+              {googleLoading ? (
+                <View style={styles.loadingRow}>
+                  <ActivityIndicator size="small" color={NeuColors.accent} />
+                  <Text style={styles.googleBtnText}>Connecting to Google...</Text>
+                </View>
+              ) : (
+                <View style={styles.googleBtnContent}>
+                  <Image source={googleIcon} style={styles.googleIcon} resizeMode="contain" />
+                  <Text style={styles.googleBtnText}>Continue with Google</Text>
+                </View>
+              )}
+            </NeuButton>
+
+            {/* Guest Access Button (Zero friction testing) */}
+            <NeuButton
+              title="Continue as Guest (Instant Access) →"
+              onPress={handleGuestEntry}
+              variant="accent"
+              fullWidth
+              style={styles.guestBtn}
+            />
+
+            {/* Divider */}
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or sign in with email</Text>
+              <View style={styles.dividerLine} />
             </View>
-          </View>
+
+            {/* Email Input */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Employee Email</Text>
+              <View style={[styles.inputContainer, insetStyle]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="name@railway.gov.in"
+                  placeholderTextColor={NeuColors.textMuted}
+                  value={email}
+                  onChangeText={(val) => {
+                    setEmail(val);
+                    if (error) setError('');
+                  }}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                />
+              </View>
+            </View>
+
+            {/* Password Input */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Password</Text>
+              <View style={[styles.inputContainer, insetStyle]}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="••••••••"
+                  placeholderTextColor={NeuColors.textMuted}
+                  value={password}
+                  onChangeText={(val) => {
+                    setPassword(val);
+                    if (error) setError('');
+                  }}
+                  secureTextEntry
+                />
+              </View>
+            </View>
+
+            {/* Email Sign In Button */}
+            <NeuButton
+              title={loading ? 'Signing in...' : 'Sign In'}
+              onPress={handleSignIn}
+              disabled={loading || googleLoading}
+              variant="primary"
+              fullWidth
+              style={styles.signInBtn}
+            />
+          </NeuCard>
+
+          {/* Footer note */}
+          <Text style={styles.footerNote}>
+            Secure official allowance portal for Loco Pilots, Train Managers, and Railway Staff.
+          </Text>
         </View>
-      </ImageBackground>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: NeuColors.background,
   },
-  titleContainer: {
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: NeuSpacing.md,
+    paddingVertical: NeuSpacing.lg,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 80,
-    height: 60,
   },
-  titleBackground: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
+  contentWrapper: {
+    width: '100%',
+    maxWidth: 440,
+    alignItems: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: NeuSpacing.lg,
+    marginTop: NeuSpacing.xs,
+  },
+  badge: {
+    paddingHorizontal: NeuSpacing.md,
+    paddingVertical: 5,
+    borderRadius: NeuRadii.full,
+    marginBottom: NeuSpacing.xs + 2,
+    backgroundColor: NeuColors.surface,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: NeuColors.accent,
+    letterSpacing: 1.5,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#000000',
-    fontFamily: 'sans-serif',
-  },
-  backgroundImage: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  imageOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  contentContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-  },
-  formContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    padding: 25,
-    borderRadius: 15,
-    width: '100%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  description: {
-    fontSize: 16,
+    fontSize: 24,
+    fontWeight: '800',
+    color: NeuColors.textPrimary,
     textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
+    letterSpacing: -0.4,
   },
-  input: {
-    height: 40,
-    borderWidth: 0.3,
-    width: 280,
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    fontSize: 14,
+  subtitle: {
+    fontSize: 13,
+    color: NeuColors.textSecondary,
+    textAlign: 'center',
+    marginTop: 4,
+    paddingHorizontal: NeuSpacing.sm,
+    fontWeight: '500',
   },
-  signInButton: {
-    backgroundColor: '#000000',
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginVertical: 5,
-    height: 40,
-    width: 280,
-    alignItems: 'center',
-    justifyContent: 'center',
+  card: {
+    width: '100%',
   },
-  signInButtonWithIcon: {
+  googleBtn: {
+    marginBottom: NeuSpacing.sm + 4,
+  },
+  googleBtnContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#000000',
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginVertical: 5,
-    height: 40,
-    width: 280,
     justifyContent: 'center',
   },
-  signInButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textAlign: 'center',
-    fontSize: 14,
-  },
-  icon: {
-    width: 15,
-    height: 15,
+  googleIcon: {
+    width: 20,
+    height: 20,
     marginRight: 10,
   },
-  forgotPasswordButton: {
-    marginBottom: 15,
+  googleBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: NeuColors.textPrimary,
   },
-  forgotPasswordButtonText: {
-    color: '#999',
+  loadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  guestBtn: {
+    marginBottom: NeuSpacing.md,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: NeuSpacing.md,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: NeuColors.divider,
+  },
+  dividerText: {
+    fontSize: 12,
+    color: NeuColors.textSecondary,
+    paddingHorizontal: NeuSpacing.sm,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  inputWrapper: {
+    marginBottom: NeuSpacing.sm + 4,
+  },
+  inputLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: NeuColors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+    marginBottom: 4,
+    paddingLeft: 4,
+  },
+  inputContainer: {
+    height: NeuErgonomics.inputHeight,
+    paddingHorizontal: NeuSpacing.md,
+    justifyContent: 'center',
+  },
+  input: {
+    height: NeuErgonomics.inputHeight,
+    fontSize: 15,
+    fontWeight: '600',
+    color: NeuColors.textPrimary,
+    width: '100%',
+    ...(Platform.OS === 'web' && {
+      outlineWidth: 0,
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+    }),
+  },
+  signInBtn: {
+    marginTop: NeuSpacing.xs,
+  },
+  errorBanner: {
+    backgroundColor: NeuColors.dangerSubtle,
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: NeuRadii.md,
+    padding: NeuSpacing.sm + 4,
+    marginBottom: NeuSpacing.md,
+  },
+  errorBannerTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: NeuColors.danger,
+    marginBottom: 3,
+  },
+  errorBannerText: {
+    fontSize: 12,
+    color: '#991B1B',
+    lineHeight: 17,
+  },
+  errorHelperText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: NeuColors.textPrimary,
+    marginTop: 6,
+    lineHeight: 16,
+  },
+  footerNote: {
+    fontSize: 11,
+    color: NeuColors.textMuted,
     textAlign: 'center',
-    fontSize: 14,
-  },
-  errorContainer: {
-    backgroundColor: 'rgba(255, 0, 0, 0.1)',
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 15,
-  },
-  errorText: {
-    color: 'red',
-    textAlign: 'center',
-    fontSize: 14,
+    marginTop: NeuSpacing.lg,
+    paddingHorizontal: NeuSpacing.md,
   },
 });
 
