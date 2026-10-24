@@ -21,6 +21,8 @@ import {
   NeuButton,
   NeuBottomBar,
   NeuContainer,
+  NeuSpacing,
+  NeuRadii,
 } from '../src/components/neomorphic';
 
 interface EmployeeInfoProps {
