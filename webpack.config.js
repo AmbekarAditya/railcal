@@ -6,5 +6,8 @@ module.exports = async function (env, argv) {
         ...config.resolve.fallback,
         crypto: require.resolve('expo-crypto'),
     };
+    if (env.mode === 'production') {
+        config.output.publicPath = './';
+    }
     return config;
 };

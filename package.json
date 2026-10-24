@@ -1,6 +1,7 @@
 {
   "name": "allowance_calc",
   "version": "1.0.0",
+  "homepage": "https://ambekaraditya.github.io/railcal",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
