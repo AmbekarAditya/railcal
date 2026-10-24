@@ -31,14 +31,20 @@ const TrainNumberInput: React.FC<TrainNumberInputProps> = ({ onChange, disabled,
 
 const styles = StyleSheet.create({
   container: {
-    // Container styles
+    width: "100%",
   },
   input: {
-    borderWidth:1,
-    padding:5,
-    height: 35,
-    width: 150,
-  }
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    height: 36,
+    width: "100%",
+    fontSize: 13,
+    color: "#1E293B",
+    backgroundColor: "#FFFFFF",
+  },
 });
 
 export default TrainNumberInput;

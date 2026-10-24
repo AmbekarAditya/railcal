@@ -3,7 +3,7 @@ import { enableScreens } from 'react-native-screens';
 enableScreens();
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView as RNSafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, SafeAreaView as RNSafeAreaView } from 'react-native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -11,6 +11,22 @@ import HomeScreen from './components/HomeScreen';
 import CalculationPage from './components/calcualtionPage/CalculationPage';
 import SignInScreen from './signIN/signInScreen';
 import { NeuColors, NeuRadii, NeuSpacing, getNeuShadowStyle } from './src/theme/neomorphicTheme';
+
+if (Platform.OS === 'web' && typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = `
+    html, body, #root {
+      overflow-x: hidden !important;
+      max-width: 100vw !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
 
 interface ErrorBoundaryProps {
   children: ReactNode;

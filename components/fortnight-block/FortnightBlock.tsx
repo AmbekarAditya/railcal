@@ -205,7 +205,7 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
             />
           </View>
         </View>
-        <ScrollView horizontal contentContainerStyle={styles.fortnightsContainer}>
+        <View style={styles.fortnightsContainer}>
           {fortnights.map((fortnight, index) => (
             <View key={index} style={styles.fortnight}>
               <Text style={styles.fortnightDate}>
@@ -222,7 +222,7 @@ const FortnightBlock: React.FC<FortnightBlockProps> = ({
               </Text>
             </View>
           ))}
-        </ScrollView>
+        </View>
       </View>
       <Text style={styles.totalText}>
         Total Overtime Allowance: {totalOvertimeAllowance ? totalOvertimeAllowance.toFixed(2) : "0.00"}
@@ -284,12 +284,15 @@ const styles = StyleSheet.create({
   },
   fortnightsContainer: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
+    width: "100%",
     paddingVertical: 4,
   },
   fortnight: {
-    width: 140,
-    padding: 12,
+    flex: 1,
+    minWidth: "46%",
+    padding: 10,
     backgroundColor: "#FFFFFF",
     borderRadius: 14,
     borderWidth: 1,
@@ -299,6 +302,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 3,
     elevation: 2,
+    marginBottom: 4,
   },
   fortnightDate: {
     fontSize: 12,

@@ -598,13 +598,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
           {/* Action Buttons: Add Duty, Save, Export PDF */}
           <View style={styles.buttonRow}>
             <TouchableOpacity
-              style={[
-                styles.actionBtn,
-                styles.actionBtnPrimary,
-                !this.isPreviousDutyEnded() && styles.disabledBtn,
-              ]}
+              style={[styles.actionBtn, styles.actionBtnPrimary]}
               onPress={this.addDuty}
-              disabled={!this.isPreviousDutyEnded()}
+              activeOpacity={0.8}
             >
               <Text style={styles.actionBtnPrimaryText}>+ Add Duty</Text>
             </TouchableOpacity>
@@ -612,8 +608,9 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
             <TouchableOpacity
               style={styles.actionBtn}
               onPress={this.saveDuties}
+              activeOpacity={0.8}
             >
-              <Text style={styles.actionBtnText}>💾 Save Duties</Text>
+              <Text style={styles.actionBtnText}>💾 Save</Text>
             </TouchableOpacity>
 
             <View style={styles.actionBtn}>
@@ -700,27 +697,25 @@ class MainTable extends React.Component<MainTableProps, MainTableState> {
         </View>
 
         {/* BLOCK 3: SUMMARY IN THE BLOCK AT THE BOTTOM */}
-        {duties.length > 0 && (
-          <View style={styles.blockBox}>
-            <SummaryBlock
-              totalAllowance={totalDutyAllowance}
-              totalKilometers={totalKilometers}
-              mileage={mileage}
-              nightDutyAllowance={nightDutyAllowance}
-              nationalHolidayAllowance={nationalHolidayAllowance}
-              leaveMileageAllowance={leaveMileageAllowance}
-              overTimeAllowance={overTimeAllowance}
-              dearnessAllowance={dearnessAllowance}
-              transportationAllowance={transportationAllowance}
-              startDate={startDate}
-              endDate={""}
-              rraOsda={osdaAllowance}
-              daysInMonth={daysInMonth}
-              grandTotalAllowance={totalAllowance}
-              overtimeResult={overtimeResult}
-            />
-          </View>
-        )}
+        <View style={styles.blockBox}>
+          <SummaryBlock
+            totalAllowance={totalDutyAllowance}
+            totalKilometers={totalKilometers}
+            mileage={mileage}
+            nightDutyAllowance={nightDutyAllowance}
+            nationalHolidayAllowance={nationalHolidayAllowance}
+            leaveMileageAllowance={leaveMileageAllowance}
+            overTimeAllowance={overTimeAllowance}
+            dearnessAllowance={dearnessAllowance}
+            transportationAllowance={transportationAllowance}
+            startDate={startDate}
+            endDate={""}
+            rraOsda={osdaAllowance}
+            daysInMonth={daysInMonth}
+            grandTotalAllowance={totalAllowance}
+            overtimeResult={overtimeResult}
+          />
+        </View>
 
         <Modal
           isOpen={this.state.showModal}

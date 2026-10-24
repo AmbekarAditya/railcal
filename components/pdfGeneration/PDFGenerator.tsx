@@ -5,7 +5,7 @@ import "jspdf-autotable";
 import Duty from "../duty/Duty";
 import Trip from "../trip/Trip";
 import DutyInfo from "../duty/DutyInfo";
-import { Button, View } from "react-native";
+import { Button, View, Text, TouchableOpacity } from "react-native";
 import Fortnight from "../fortnight-block/Fortnight";
 
 // Helper function to convert hours to HH:MM format
@@ -654,9 +654,9 @@ const PDFGenerator: React.FC<PDFGeneratorProps> = ({
     doc.save("duty-report.pdf");
   };
   return (
-    <View>
-      <Button title="PDF" onPress={generatePDF} />
-    </View>
+    <TouchableOpacity onPress={generatePDF} activeOpacity={0.8} style={{ alignItems: "center", justifyContent: "center", width: "100%", height: "100%" }}>
+      <Text style={{ color: "#1E293B", fontWeight: "700", fontSize: 12 }}>📄 PDF</Text>
+    </TouchableOpacity>
   );
 };
 export default PDFGenerator;

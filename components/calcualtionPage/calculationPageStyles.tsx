@@ -5,17 +5,20 @@ export const calculationPageStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: NeuColors.background,
+    width: "100%",
   },
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: NeuSpacing.sm + 2,
+    paddingHorizontal: NeuSpacing.sm,
     paddingTop: NeuSpacing.sm,
     paddingBottom: NeuSpacing.xxl,
     backgroundColor: NeuColors.background,
+    width: "100%",
+    maxWidth: "100%",
   },
   container: {
     width: "100%",
-    maxWidth: 520,
+    maxWidth: 500,
     alignSelf: "center",
   },
   employeeCard: {
